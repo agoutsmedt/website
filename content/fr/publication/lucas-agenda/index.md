@@ -23,7 +23,7 @@ tags:
 - History of Macroeconomics
 - Neoliberalism
 - Rules Policy
-title: "Reacting to the Lucas Critique: The Keynesians' Replies"
+title: "An Agenda without a Plan. Robert E. Lucas's Trajectory through the Public Debate"
 publication: "_[OEconomia - History / Methodology / Philosophy](https://journals.openedition.org/oeconomia/)_"
 publication_types: ["2"]
 #url_code: '#'
