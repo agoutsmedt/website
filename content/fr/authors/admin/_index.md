@@ -1,29 +1,30 @@
 ---
-bio: My research interests include distributed robotics, mobile computing and programmable
-  matter.
+bio: Je travaille sur l'histoire de la macroéconomie et l'expertise économique.
 education:
   courses:
-  - course: PhD in Economics
+  - course: Doctorat en Economie
     institution: Université Paris 1 Panthéon-Sorbonne
     year: 2017
-  - course: Master 2 Economics and Human Science
+  - course: Master 2 Economie et Sciences Humaines
     institution: Université Paris 1 Panthéon-Sorbonne
     year: 2013
 email: "agoutsmedt@hotmail.fr"
 highlight_name: false
 interests:
-- History of Economics
-- Macroeconomics
+- Histoire de la discipline économique
+- Macroéconomie
+- Economie politique
+- Expertise économique
 - R-stats
-- Bibliometrics
+- Bibliométrie
 organizations:
 - name: Université du Québec à Montréal, CIRST
   url: https://www.cirst.uqam.ca/
-role: Post-Doctoral Researcher
+role: Chercheur post-doctoral
 social:
 - icon: envelope
   icon_pack: fas
-  link: /#contact
+  link: mailto:agoutsmedt@hotmail.fr
 - display:
     header: true
   icon: twitter
@@ -36,14 +37,13 @@ social:
 - icon: github
   icon_pack: fab
   link: https://github.com/agoutsmedt
+- icon: cv
+  icon_pack: ai
+  link: /media/CV_fr_Goutsmedt.pdf
 superuser: true
 title: Aurélien Goutsmedt
 ---
 
-I am a historian of economics and I work on the history of macroeconomics and economic expertise since the 1970s. I received my Ph.D. in Paris 1 Panthéon-Sorbonne, and I am currently a post-doctoral fellow at Université du Québec à Montréal, in the Centre Interuniversitaire de Recherche sur la Science et la Technologie ([CIRST](https://www.cirst.uqam.ca/)).
+Je suis un historien de l'économie et je travaille sur l'histoire de la macroéconomie et de l'expertise économique depuis les années 1970. J'utilise à la fois des méthodes quantitatives et qualitatives.
 
-I am currently involved in a collective project funded by Rebuilding Macroeconomics on “[Excavating the Academia/Policy Pipeline: Economic analysis at the Bank of England Pre and Post-Crisis](https://www.rebuildingmacroeconomics.ac.uk/academia-policy-pipeline)”.
-
-I am also working on a quantitative history of macroeconomics (1970-2020) with [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact). This project is funded by the History of Economics Society and aims at developing an interactive platform displaying our results. We are developing [R packages](https://github.com/agoutsmedt/biblionetwork) to apply network analysis to bibliometric data. 
-
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "media/CV_fr_Goutsmedt.pdf" "newtab" >}}resumé{{< /staticref >}}.
+Sur ce site, vous trouverez mes publications, mes cours ainsi que mes projets en cours.

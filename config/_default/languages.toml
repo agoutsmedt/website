@@ -16,18 +16,23 @@
     description = "Site d'Aurélien Goutsmedt, chercheur en économie"
 
 [[fr.menu.main]]
+  name = "A propos"
+  url = "about/"
+  weight = 1
+
+[[fr.menu.main]]
   name = "Blog"
-  url = "#posts"
+  url = "post/"
   weight = 20
 
 [[fr.menu.main]]
   name = "Projets"
-  url = "#projects"
+  url = "project/"
   weight = 30
 
 [[fr.menu.main]]
   name = "Publications"
-  url = "Publications/"
+  url = "publication/"
   weight = 10
 
 [[fr.menu.main]]
