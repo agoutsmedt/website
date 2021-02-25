@@ -3256,10 +3256,10 @@ input.btn-block[type="button"] {
 .navbar-light .navbar-brand {
   color: #fff; }
   .navbar-light .navbar-brand:hover, .navbar-light .navbar-brand:focus {
-    color: #00828B; }
+    color: white; }
 
 .navbar-light .navbar-nav .nav-link {
-  color: #fff; }
+  color: rgba(255, 255, 255, 0.6); }
   .navbar-light .navbar-nav .nav-link:hover, .navbar-light .navbar-nav .nav-link:focus {
     color: rgba(0, 0, 0, 0.7); }
   .navbar-light .navbar-nav .nav-link.disabled {
@@ -3269,21 +3269,21 @@ input.btn-block[type="button"] {
 .navbar-light .navbar-nav .active > .nav-link,
 .navbar-light .navbar-nav .nav-link.show,
 .navbar-light .navbar-nav .nav-link.active {
-  color: #00828B; }
+  color: white; }
 
 .navbar-light .navbar-toggler {
-  color: #fff;
+  color: rgba(255, 255, 255, 0.6);
   border-color: transparent; }
 
 .navbar-light .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='%23fff' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.6%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e"); }
 
 .navbar-light .navbar-text {
-  color: #fff; }
+  color: rgba(255, 255, 255, 0.6); }
   .navbar-light .navbar-text a {
-    color: #00828B; }
+    color: white; }
     .navbar-light .navbar-text a:hover, .navbar-light .navbar-text a:focus {
-      color: #00828B; }
+      color: white; }
 
 .navbar-dark .navbar-brand {
   color: #fff; }
@@ -7212,7 +7212,7 @@ body {
   font-size: 1rem;
   line-height: inherit;
   color: inherit;
-  background-color: #EAE7D6;
+  background-color: white;
   padding-top: 0;
   counter-reset: captions;
   overflow-x: hidden;
@@ -8058,10 +8058,10 @@ a.summary-link {
  *  Modals.
  **************************************************/
 .modal-content {
-  background: #EAE7D6; }
+  background: white; }
 
 .dark .modal-content {
-  background: #23252f; }
+  background: #282a36; }
 
 .modal-title {
   margin: 0;
@@ -8084,13 +8084,13 @@ a.summary-link {
  *  Navigation bar
  **************************************************/
 .dropdown-menu {
-  background-color: #24C2CB !important;
-  color: #fff !important;
+  background-color: #141622 !important;
+  color: rgba(255, 255, 255, 0.6) !important;
   z-index: 1032; }
 
 .navbar {
   height: 70px;
-  background: #24C2CB;
+  background: #141622;
   box-shadow: 0 0.125rem 0.25rem 0 rgba(0, 0, 0, 0.11);
   font-size: 16.17px;
   position: fixed;
@@ -8116,16 +8116,16 @@ a.summary-link {
     .navbar .navbar-nav .nav-link {
       color: rgba(255, 255, 255, 0.85); }
       .navbar .navbar-nav .nav-link.active, .navbar .navbar-nav .nav-link:hover, .navbar .navbar-nav .nav-link:focus {
-        color: #fff; }
+        color: rgba(255, 255, 255, 0.6); }
       .navbar .navbar-nav .nav-link.active {
         font-weight: bold !important;
-        color: #00828B !important; }
+        color: white !important; }
   .navbar .dropdown-menu {
     font-size: 16.17px; }
   .navbar .dropdown-item.active,
   .navbar .dropdown-item-active {
     font-weight: bold;
-    color: #00828B !important; }
+    color: white !important; }
 
 .dark .navbar {
   background: #282a36;
@@ -8192,7 +8192,7 @@ a.summary-link {
   max-width: fit-content; }
 
 #navbar-main .main-menu-item ul li .nav-link {
-  color: #fff; }
+  color: rgba(255, 255, 255, 0.6); }
 
 .dark #navbar-main .main-menu-item ul li .nav-link {
   color: white; }
@@ -8217,7 +8217,7 @@ a.summary-link {
     left: 0;
     top: 50px;
     width: 100%;
-    background-color: #24C2CB;
+    background-color: #141622;
     text-align: center !important; }
   .dark .navbar-collapse {
     background-color: #282a36; }
@@ -8247,8 +8247,8 @@ ul.nav-icons li.nav-item a.nav-link {
   color: white !important; }
 
 .dropdown-item {
-  background-color: #24C2CB !important;
-  color: #fff !important; }
+  background-color: #141622 !important;
+  color: rgba(255, 255, 255, 0.6) !important; }
 
 .dark .dropdown-item {
   background-color: #282a36 !important;
@@ -8682,7 +8682,7 @@ html[dir='rtl'] body {
 .search-modal {
   transform: scale(0);
   -webkit-transform: scale(0);
-  background-color: #EAE7D6;
+  background-color: white;
   bottom: 0;
   left: 0;
   right: 0;
@@ -8693,7 +8693,7 @@ html[dir='rtl'] body {
   z-index: -99; }
 
 .dark .search-modal {
-  background-color: #23252f; }
+  background-color: #282a36; }
 
 .search-modal > .container {
   padding-top: 70px;
@@ -8708,14 +8708,14 @@ html[dir='rtl'] body {
   position: -webkit-sticky;
   position: sticky;
   top: 0;
-  background-color: #EAE7D6;
+  background-color: white;
   padding-top: 2rem;
   padding-bottom: 1rem; }
   @media (max-width: 991.98px) {
     .search-header {
       padding-top: 0; } }
 .dark .search-header {
-  background-color: #23252f; }
+  background-color: #282a36; }
 
 .search-header h1 {
   margin: 0;
@@ -8746,7 +8746,7 @@ html[dir='rtl'] body {
   overflow-x: hidden; }
 
 .dark #search-query {
-  background-color: #23252f; }
+  background-color: #282a36; }
 
 #search-box #search-query {
   border: 1px solid #dedede;
@@ -8827,7 +8827,7 @@ html[dir='rtl'] body {
   color: #f8f8f2; }
 
 .dark .ais-search-box--input {
-  background-color: #23252f; }
+  background-color: #282a36; }
 
 .searching {
   overflow: hidden; }
@@ -8846,7 +8846,7 @@ html[dir='rtl'] body {
  *  Page Builder: sections and widgets
  **************************************************/
 .home-section {
-  background: #EAE7D6;
+  background: white;
   position: relative;
   padding: 110px 0 110px 0;
   z-index: 0; }
@@ -8930,7 +8930,7 @@ html[dir='rtl'] body {
   padding-top: 50px; }
 
 .home-section:nth-of-type(even) {
-  background: #EAE7D6; }
+  background: #f7f7f7; }
 
 .dark .home-section {
   background: #272935; }
@@ -9362,7 +9362,7 @@ body.dark,
 .dark .modal button.close,
 .dark input {
   color: #f8f8f2;
-  background: #23252f; }
+  background: #282a36; }
 
 .dark .form-control {
   color: #f8f8f2;
@@ -9462,7 +9462,7 @@ body.dark,
 
 .dark .docs-sidebar .nav > li:not(.active) > a {
   color: #f8f8f2;
-  background: #23252f; }
+  background: #282a36; }
 
 div.mermaid {
   width: 100%;
