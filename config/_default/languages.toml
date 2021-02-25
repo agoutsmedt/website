@@ -25,10 +25,10 @@
  # url = "post/"
   #weight = 20
 
-#[[fr.menu.main]]
- # name = "Projets"
-  #url = "project/"
-  #weight = 30
+[[fr.menu.main]]
+  name = "Projets"
+  url = "project/"
+  weight = 30
 
 [[fr.menu.main]]
   name = "Publications"

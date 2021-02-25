@@ -34,8 +34,8 @@ projects: []
 ###
 ### Bibliography settings
 ###
-bibliography: assets/bibliography/bibliography.bib
-csl:  assets/bibliography/chicago-author-date.csl
+bibliography: bibliography.bib
+csl:  chicago-author-date.csl
 suppress-bibliography: false
 link-citations: true
 color-links: true # See https://ctan.org/pkg/xcolor for colors
