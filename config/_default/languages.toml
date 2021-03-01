@@ -18,22 +18,22 @@
 [[fr.menu.main]]
   name = "A propos"
   url = "about/"
-  weight = 1
+  weight = 10
 
-#[[fr.menu.main]]
-#  name = "Blog"
- # url = "post/"
-  #weight = 20
+[[fr.menu.main]]
+  name = "Blog"
+  url = "../post/"
+  weight = 20
 
 [[fr.menu.main]]
   name = "Projets"
-  url = "project/"
+  url = "../projects/"
   weight = 30
 
 [[fr.menu.main]]
   name = "Publications"
-  url = "publication/"
-  weight = 10
+  url = "../publication/"
+  weight = 50
 
 [[fr.menu.main]]
   name = "Enseignement"

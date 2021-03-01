@@ -2,9 +2,10 @@
 header:
   caption: ""
   image: ""
-title: Courses
+title: Enseignements
 type: page
 ---
-I have been a teaching assistant at Université Paris I Panthéon-Sorbonne for five years. I have taught: International Macroeconomics, Introduction to Macroeconomics and Microeconomics, Monetary Economics, Introduction to history of economic thought.
 
-I also teach the following courses:
+J'ai enseigné des travaux dirigés pendant cinq années à l'université Paris I Panthéon-Sorbonne. J'ai notamment enseigné des cours en: Relations Monétaires Internationales, Macroéconomie, Microéconomie, Economie Monétaire, Histoire de la Pensée Economique.
+
+J'assure également l'organisation et l'enseignement du cours suivant:

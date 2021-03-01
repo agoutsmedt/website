@@ -12,7 +12,7 @@ tags:
   - Network Analysis
 summary: 'The biblionetwork package provides functions to create fastly bibliometric networks like bibliographic coupling network, co-citation network and co-authorship network.'
 authors: []
-external_link: 'https://github.com/agoutsmedt/biblionetwork'
+external_link: 'https://agoutsmedt.github.io/biblionetwork/'
 image:
   caption: ''
   focal_point: ''

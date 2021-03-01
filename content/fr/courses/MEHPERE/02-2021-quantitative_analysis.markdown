@@ -6,12 +6,13 @@ author: Aurélien Goutsmedt
 date: 08-02-2021
 summary: "Introduction à la diversité des méthodes dites quantitatives, aux débats en histoire de la pensée et épistémologie économique sur l’usage de ces méthodes, ainsi qu’aux récents travaux produits avec ces méthodes."
 type: book
-weight: 30
 tags:
   - Bibliometrics
   - Network Analysis
   - Quantitative Analysis
 thanks:
+categories: [MEHPERE]
+weight: 20
 
 ###
 ### Bibliography settings
