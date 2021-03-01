@@ -102,3 +102,8 @@ ignoreFiles = ["\\.ipynb$", ".ipynb_checkpoints$", "\\.Rmd$", "\\.Rmarkdown$", "
     path = "github.com/wowchemy/wowchemy-hugo-modules/wowchemy-cms"
   [[module.imports]]
     path = "github.com/wowchemy/wowchemy-hugo-modules/wowchemy"
+
+[[headers]]
+  for = "/post/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
