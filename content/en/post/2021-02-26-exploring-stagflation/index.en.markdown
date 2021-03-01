@@ -1,5 +1,4 @@
 ---
-always_allow_html: yes
 title: Exploring Stagflation Explanations with Interactive Networks
 author: Auréien Goutsmedt
 date: '2021-02-26'
@@ -54,6 +53,8 @@ endnote: false
 toc-title: "Table des matières"
 toc: true # Table of contents
 toc_depth: 2
+
+always_allow_html: yes
 ---
 
 <style type="text/css">
@@ -297,7 +298,7 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 ```
 
-<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_1.html" width="100%" height="500px">
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_1.html" width="100%" height="500px" allowfullscreen>
 </iframe>
 
  
