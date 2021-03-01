@@ -56,24 +56,6 @@ toc: true # Table of contents
 toc_depth: 2
 ---
 
-<script src="{{< blogdown/postref >}}index.en_files/htmlwidgets/htmlwidgets.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/pymjs/pym.v1.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/widgetframe-binding/widgetframe.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/htmlwidgets/htmlwidgets.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/pymjs/pym.v1.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/widgetframe-binding/widgetframe.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/htmlwidgets/htmlwidgets.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/pymjs/pym.v1.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/widgetframe-binding/widgetframe.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/htmlwidgets/htmlwidgets.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/pymjs/pym.v1.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/widgetframe-binding/widgetframe.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/htmlwidgets/htmlwidgets.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/pymjs/pym.v1.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/widgetframe-binding/widgetframe.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/htmlwidgets/htmlwidgets.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/pymjs/pym.v1.js"></script>
-<script src="{{< blogdown/postref >}}index.en_files/widgetframe-binding/widgetframe.js"></script>
 <style type="text/css">
 pre {
   max-height: 300px;
@@ -166,8 +148,8 @@ data <- datatable(Nodes_stagflation[order(Type, decreasing = TRUE),c("Author","Y
 frameWidget(data)
 ```
 
-<div id="htmlwidget-1" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
-<script type="application/json" data-for="htmlwidget-1">{"x":{"url":"index.en_files/figure-html//widgets/widget_DT.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_DT.html" width="100%" height="500px">
+</iframe>
 
  
  
@@ -315,8 +297,8 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 ```
 
-<div id="htmlwidget-2" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
-<script type="application/json" data-for="htmlwidget-2">{"x":{"url":"index.en_files/figure-html//widgets/widget_sigma_1.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_1.html" width="100%" height="500px">
+</iframe>
 
  
 
@@ -362,8 +344,8 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 ```
 
-<div id="htmlwidget-3" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
-<script type="application/json" data-for="htmlwidget-3">{"x":{"url":"index.en_files/figure-html//widgets/widget_sigma_2.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_2.html" width="100%" height="500px">
+</iframe>
 
  
  
@@ -411,8 +393,8 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 ```
 
-<div id="htmlwidget-4" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
-<script type="application/json" data-for="htmlwidget-4">{"x":{"url":"index.en_files/figure-html//widgets/widget_sigma_3.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_3.html" width="100%" height="500px">
+</iframe>
 
  
  
@@ -459,8 +441,8 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 ```
 
-<div id="htmlwidget-5" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
-<script type="application/json" data-for="htmlwidget-5">{"x":{"url":"index.en_files/figure-html//widgets/widget_sigma_4.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_4.html" width="100%" height="500px">
+</iframe>
 
  
  
@@ -509,8 +491,8 @@ x <- girafe_options(x = x,
 frameWidget(x)
 ```
 
-<div id="htmlwidget-6" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
-<script type="application/json" data-for="htmlwidget-6">{"x":{"url":"index.en_files/figure-html//widgets/widget_ggiraph.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_ggiraph.html" width="100%" height="500px">
+</iframe>
 
  
 

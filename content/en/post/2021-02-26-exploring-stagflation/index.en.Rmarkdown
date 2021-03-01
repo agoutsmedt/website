@@ -68,7 +68,7 @@ pre[class] {
 ```
 
 ```{r fixing-eval, echo=FALSE}
-eval = TRUE
+eval = FALSE
 ```
 
 {{% toc %}}
@@ -133,7 +133,7 @@ I ended up with 174 documents (articles in academic journals, working papers, bo
 Here is all the stagflation documents and all the references cited at least twice by these documents:^[As it involved a lot of hand cleaning, it is likely that some mistakes remain. It does not impact the analysis, but the metadata are not perfectly clean.] 
 \  
 
-```{r DT,  widgetframe_isolate_widgets = TRUE, eval = eval}
+```{r DT,  widgetframe_isolate_widgets = TRUE, eval = FALSE}
 Nodes_stagflation <- as.data.table(Nodes_stagflation)
 data <- datatable(Nodes_stagflation[order(Type, decreasing = TRUE),c("Author","Year","Title","Journal","Type")], 
                   rownames = FALSE, 
@@ -145,8 +145,12 @@ data <- datatable(Nodes_stagflation[order(Type, decreasing = TRUE),c("Author","Y
 frameWidget(data)
 ```
 
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_DT.html" width="100%" height="500px">
+</iframe>
+
 \  
 \  
+
 
 If we look at the number of documents on stagflation per year, we see that there were two waves of interest for this topic:
 
@@ -295,6 +299,9 @@ frameWidget(x)
 
 ```
 
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_1.html" width="100%" height="500px">
+</iframe>
+
 \    
 
 A more detailed analysis could be find in my [article](/publication/stagflation-great-inflation), but the major results to highlight are:
@@ -339,6 +346,9 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 
 ```
+
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_2.html" width="100%" height="500px">
+</iframe>
 
 \  
 \  
@@ -388,6 +398,9 @@ frameWidget(x)
 
 ```
 
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_3.html" width="100%" height="500px">
+</iframe>
+
 \  
 \  
 
@@ -434,6 +447,9 @@ x <- sigmajs() %>% # initialise
 frameWidget(x)
 
 ```
+
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_sigma_4.html" width="100%" height="500px">
+</iframe>
 
 \  
 \  
@@ -482,6 +498,9 @@ x <- girafe_options(x = x,
 frameWidget(x)
 
 ```
+
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_ggiraph.html" width="100%" height="500px">
+</iframe>
 
 \  
 
