@@ -148,7 +148,7 @@ data <- datatable(Nodes_stagflation[order(Type, decreasing = TRUE),c("Author","Y
 frameWidget(data)
 ```
 
-<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_DT.html$output=embed" width="100%" height="500px">
+<iframe src="/post/exploring-stagflation/index.en_files/figure-html/widgets/widget_DT.html" width="100%" height="500px">
 </iframe>
 
  
