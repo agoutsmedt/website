@@ -11,7 +11,8 @@ tags:
   - Network Analysis
   - Quantitative Analysis
 thanks:
-categories: [MEHPERE]
+categories:
+  - Bibliometrics
 weight: 20
 
 ###

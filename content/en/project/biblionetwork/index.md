@@ -4,7 +4,8 @@ author: Aurélien Goutsmedt
 date: '2021-02-25'
 slug: biblionetwork
 categories:
-  - project
+  - Bibliometrics
+  - R Package
 tags:
   - R
   - R Package

@@ -6,6 +6,7 @@ active: true
 weight: 60
 
 title: "Projects"
+summary: "List of the projects I am working on."
 
 content:
 

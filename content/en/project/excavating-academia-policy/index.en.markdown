@@ -3,7 +3,10 @@ title: 'Excavating the Academia/Policy Pipeline - Economic Analysis at the Bank 
 author: Aurélien Goutsmedt
 date: '2021-02-25'
 slug: excavating-academia-policy
-categories: ["project"]
+categories:
+  - Economic Expertise
+  - History of Macroeconomics
+  - Research Project
 tags:
   - Bank of England
   - Central Banks
