@@ -12,7 +12,7 @@ type: book
 
 ## What is it?
 
-The course has been created in 2018 to involve the memberd of the [REHPERE](https://rehpere.org/membres/) network in the [Master Economics and Human Sciences](https://rehpere.org/master/#presentation) of Paris 1 Panthéon-Sorbonne. The goal is to introduce master students (but also new Ph.D. students) to recent research topics in history and philosophy of economics. The series of seminars in this course aimed at being "practical", in the sense that we aim at pushing students to test tools, to apply the questions and issues raised in the course to their own research, to read and discuss recent research publications. The introductory seminar brings tools and tips for helping student in the writing of their master dissertation. 
+The course has been created in 2018 to involve the members of the [REHPERE](https://rehpere.org/membres/) network in the [Master Economics and Human Sciences](https://rehpere.org/master/#presentation) of Paris 1 Panthéon-Sorbonne. The goal is to introduce master students (but also new Ph.D. students) to recent research topics in history and philosophy of economics. The series of seminars in this course aimed at being "practical", in the sense that we aim at pushing students to test tools, to apply the questions and issues raised in the course to their own research, to read and discuss recent research publications. The introductory seminar brings tools and tips for helping student in the writing of their master dissertation. 
 
 ### Program for 2020-2021
 
