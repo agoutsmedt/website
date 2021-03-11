@@ -25,7 +25,7 @@ image:
   caption: ''
   focal_point: ''
   preview_only: no
-url_code: ''
+url_code: 'https://github.com/Alex7722/macro_AA'
 url_pdf: ''
 url_slides: ''
 url_video: ''
@@ -40,11 +40,17 @@ link-citations: true
 
 ---
 
+
+> This project has received a grant from the _History of Economics Sociey_ [New Initiatives Fund](https://historyofeconomics.org/about-the-society/new-initiatives/). I am collaborating with [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact), who is working with me on the data analysis part, and with [Pedro Garcia Duarte](https://www.insper.edu.br/pesquisa-e-conhecimento/docentes-pesquisadores/pedro-garcia-duarte/) who plays the role of advisor on the interpretations and presentations of our results. 
+>
+> You can see the full project demand: [`r fontawesome::fa(name = "file-pdf", stroke_width = "5px", height = "1.1em")`](./proposal_hes.pdf) 
+>
+> You can find a public repository of the project on github: [`r fontawesome::fa(name = "github", stroke_width = "5px", height = "1.1em")`](https://github.com/Alex7722/macro_AA)
+
+
 {{% toc %}}
 
 ## Objective 
-
-This project has received a grant from the _History of Economics Sociey_ [New Initiatives Fund](https://historyofeconomics.org/about-the-society/new-initiatives/). I am collaborating with [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact), who is working with me on the data analysis part, and with [Pedro Garcia Duarte](https://www.insper.edu.br/pesquisa-e-conhecimento/docentes-pesquisadores/pedro-garcia-duarte/) who plays the role of advisor on the interpretations and presentations of our results. The full project demand can be find [here](./proposal_hes.pdf).
 
 It takes as a point of departure that economics has been characterized since the 1970s by an exponential increase in the number of articles published in academic journals. This phenomenon makes it harder for historians of economics to properly assess the trends in the transformation of economics, the main topics researched, the most influential authors and ideas, _etc_. As a result, historians of this period run the risk of relying, at least as first pass, on a presentist view of the history of ideas: what today’s economists consider as important contributions from the past and the most influential authors. When historians shield themselves from the retrospective views of the practising economists, they have to delve into the literature of the past that has been forgotten for the most part and to scrutinize the network of authors that are little known. This effort allows historians to correct the potted histories of the practising economists and to propose alternative narratives of the evolution of the discipline.^[See for instance Forder's -@forder2014 deconstruction of the Phillips curve “myth”, Düppe and Weintraub's -@duppe2014a analysis of scientific credit about the general equilibrium proof, or @medema2014 on the different meanings of the Coase theorem.] However, the bigger the literature to be studied is, the harder the historians’ capacity to grasp the overall picture of the time.
 
@@ -80,9 +86,13 @@ The online platform we want to create would allow the user to explore our data a
 
 ## Tools
 
+The repository of the project with our R scripts is on github [`r fontawesome::fa("github", stroke_width = "5px", height = "1.5em")`](https://github.com/Alex7722/macro_AA).
+
 The data analysis (extracting the corpus, building networks and analysing them) part is done with R. With Alexandre Truc, we are currently developping two R packages to support this project: [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) and [networkflow](https://github.com/agoutsmedt/networkflow). The second one heavily relies on igraph [@gabor2006], tidygraph [@pedersen2020a] and ggraph [@pedersen2020b] great packages. 
 
 The interactive platform will be built by resorting to the [Sigma javascript library](http://sigmajs.org/), which is also used for the software [GEPHI](https://gephi.org/).
+
+
 
 ## References
 
