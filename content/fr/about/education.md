@@ -11,8 +11,8 @@ headless: true
 # Order that this section appears on the page.
 weight: 40
 
-title: Education
-subtitle:
+title: Formation
+summary: "Formation d'Aurélien Goutsmedt"
 
 # Date format for experience
 #   Refer to https://wowchemy.com/docs/customization/#date-format

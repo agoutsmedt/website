@@ -48,7 +48,7 @@ local_business_type = ""
 org_name = ""
 
 # Description for social sharing and search engines. If undefined, superuser role is used in place.
-description = "Website of Aurélien Goutsmedt, researcher in economics"
+description = "Personal website of Aurélien Goutsmedt, researcher in economics"
 
 ############################
 ## Site Features
@@ -272,7 +272,7 @@ plugins_js  = []
 ############################
 [marketing]
   google_analytics = "G-VPWXBEQ0BB"
-  google_tag_manager = ""
+  google_tag_manager = "GTM-TDPGXGF"
   google_site_verification = "HTdhvsIpuIvFVFvsM_WtHFAJxO7iJZbKx1-6cFPVwA"
 
 ############################

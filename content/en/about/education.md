@@ -12,7 +12,7 @@ headless: true
 weight: 40
 
 title: Education
-subtitle:
+summary: "Education of Aurélien Goutsmedt"
 
 # Date format for experience
 #   Refer to https://wowchemy.com/docs/customization/#date-format

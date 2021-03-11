@@ -1,7 +1,7 @@
 ---
 title: Posts
 cms_exclude: true
-
+summary: "Posts published by Aurélien Goutsmedt"
 # View.
 #   1 = List
 #   2 = Compact

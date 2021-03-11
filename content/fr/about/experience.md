@@ -11,8 +11,8 @@ headless: true
 # Order that this section appears on the page.
 weight: 30
 
-title: Experience
-subtitle:
+title: Expérience
+summary: "Expériences professionnelles d'Aurélien Goutsmedt" 
 
 # Date format for experience
 #   Refer to https://wowchemy.com/docs/customization/#date-format

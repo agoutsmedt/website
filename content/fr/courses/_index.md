@@ -3,6 +3,7 @@ header:
   caption: ""
   image: ""
 title: Enseignements
+summary: "Cours enseignés par Aurélien Goutsmedt"
 type: page
 ---
 

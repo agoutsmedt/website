@@ -1,6 +1,6 @@
 ---
 title: "Biography" 
-summary: "biographical information on Aurélien Goutsmedt"
+summary: "Biographical information about Aurélien Goutsmedt"
 type: blank
 
 # Order that this section appears on the page.

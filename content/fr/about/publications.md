@@ -1,6 +1,6 @@
 ---
 title: "Publications" 
-summary: "CV présentation of Aurélien Goutsmedt's publications"
+summary: "Publications d'Aurélien Goutsmedt - version CV"
 type: blank
 
 # Order that this section appears on the page.
