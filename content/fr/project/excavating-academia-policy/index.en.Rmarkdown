@@ -1,0 +1,129 @@
+---
+title: 'Excavating the Academia/Policy Pipeline - Economic Analysis at the Bank of England Pre and Post-Crisis'
+author: Aurélien Goutsmedt
+date: '2021-02-25'
+slug: excavating-academia-policy
+categories:
+  - Economic Expertise
+  - History of Macroeconomics
+  - Research Project
+tags:
+  - Bank of England
+  - Central Banks
+  - Economic Expertise
+  - History of Macroeconomics
+  - Macroeconometric Models
+  - Topic-Modelling
+  - Bibliometrics
+  - Quantitative Easing
+  - Research Project
+subtitle: A project funded by [Rebuilding Macroeconomics](https://www.rebuildingmacroeconomics.ac.uk)
+summary: 'The objective of the project is to map the different channels through which economics influences the Bank and to understand how economic ideas impact (or do not impact) policy-making'
+authors: []
+lastmod: '2021-02-25T09:38:39+01:00'
+featured: no
+draft: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+
+###
+### Bibliography settings
+###
+bibliography: bibliography.bib
+csl: chicago-author-date.csl
+suppress-bibliography: false
+link-citations: true
+color-links: true # See https://ctan.org/pkg/xcolor for colors
+linkcolor: teal
+urlcolor: blue
+citecolor: red
+endnote: false
+
+###
+### Formatting settings
+###
+toc-title: "Table des matières"
+toc: true # Table of contents
+toc_depth: 2
+---
+{{% toc %}}
+
+{{% callout note %}}
+See our [project page](https://www.rebuildingmacroeconomics.ac.uk/academia-policy-pipeline)  on the Rebuilding Macroeconomics website.
+{{% /callout %}}
+
+## Project Summary
+
+The Bank of England (BoE) holds a peculiar place among central banks in the Western World. At first glance, it seems more entrepreneurial in the type of research papers it publishes, with strong stances taken on financial regulation (in particular on structural reform of banking), distributional effects of quantitative easing, central bank digital currencies or climate change.
+
+
+The BoE also fosters methodological innovation, as exemplified by Andy Haldane’s recent interest in agent-based modelling. Yet, it is not clear to what extent the macroeconomic policies it implements, or the macroeconometric models its economists rely on for forecasting, simulation and policy analysis, substantially differ from those implemented in other central banks or taught in departments of economics.
+
+In this project, we combine quantitative analysis, semi-structured interviews and archival evidence to assess the state of the knowledge produced by BoE economists, their background, networks, influences and impact, and to track the historical roots of their underlying modelling culture back into the 1970s to 2010s.
+
+## The Project Team
+
+The project involves five other scholars in philosophy, history of economics and political sciences: 
+
+- [Béatrice Cherrier](https://beatricecherrier.wordpress.com/about/) (Polytechnique Paris, France), the principal investigator of the project;
+- [Juan Acosta](https://sites.google.com/site/jcaacostamacia/) (Universidad de los Andes, Colombia);
+- [François Claveau](https://www.epistemopratique.org/) (Université de Sherbrooke, Canada);
+- [Clément Fontan](https://uclouvain.be/fr/repertoires/clement.fontan) (Université de Saint-Louis et Université Catholique de Louvain, Belgique);
+- [Francesco Sergi](https://lipha.u-pec.fr/membres/membres-permanents/sergi-francesco) (Université Paris Est Créteil, France).
+
+At different steps of the project, we have received help and technical support from Davide Pulizzotto, Jérémie Dion and Maxime Tremblay. 
+
+## Quantitative Analysis
+
+We have built two databases for this project. 
+
+The first database includes information on the documents published by the Bank of England (BoE) that we have scraped from its website, with typical information such as `date`, `authors`, `title`, but also with the plain text, and, when available, an extraction of the list of references. Among these documents, we have isolated what we consider *research* documents (working papers and some publications in the Bank _Quarterly Bulletin_). 
+
+The second database contains prosopographic information about BoE economists. In other words, it is a collective biography aiming at uncovering shared characteristics across individuals. Data came from a systematic search in published information about the selected individuals. We have included in the database all the individuals who meet at least one of the two following criteria: 
+
+* Having (co-)authored at least 3 Bank of England research documents (academic publications are not counted; see above for the categories of internal research documents);
+* Having published at least 1 "discussion paper" between 1979 and 1992. As the Bank counted fewer publications and economists in the 1980s, this was needed to have a larger sample of 1980s BoE economists.
+
+Using these criteria in early 2020 gave us a selection of 368 individuals. The information collected on them include:
+
+* Academic training: the degrees obtained by the individuals, and the place where these degrees were obtained. 
+* BoE career: the dates of entering and leaving the Bank, the different units (Directorates, Divisions, etc.) the individuals where affiliated to within the BoE, and the period of affiliation to these units.
+
+These databases allow us to run different types of quantitative analysis. For instance, the prosopographic database allows us to study the evolution of economists recruitment within the Bank^[All the following visualisations are extracted from our first working paper [@acosta2021].]:
+
+![BoE PhD](Fig01_PhD_recruitment.jpeg)
+
+Thanks to the plain text of research publications, extracted in the first database, we have conducted a topic-modelling analysis (run by Davide Pulizzotto). Identifying qualitatively the different topics, we have been able to observe the evolution of the types of topics over time, in the Bank's research publication:
+
+![BoE Topics](Fig05_Themes_over_time.jpeg)
+
+We have also resorted to the Web of Science database to analyse the academic publications of Bank affiliated economists. We have compared the most cited references by Bank's economists with the references the most cited by other central banks economists:
+
+![BoE citations](Tab01_Citation_comparison.jpeg)
+
+We have then ran a chi-2 test and looked at the residuals to observe which references were over or under-cited by the Bank's economists:
+
+![BoE chi-2](Tab02_aChi2_comparison.jpeg)
+
+You can find complementary information on our quantitative analyses [here](http://penseecritique.recherche.usherbrooke.ca/extra/BoE_Research1_TechAppendix.html).
+
+## Project Outputs
+
+A first working paper has been released in February 2021 (see [here](/publication/research-boe/)). The paper focuses on the transformation of the content, role, and status of economic research at the Bank of England (BoE) since the 1960s. We show how three factors (policy functions and missions of the Bank, its organisational structure, and the attitude of its executives towards economics) shaped the evolution of in-house BoE economic research during three distinctive periods (1960-1991; 1992-2007; 2007-2020). 
+
+{{% callout note %}}
+See also Béatrice's [blog post](https://www.rebuildingmacroeconomics.ac.uk/post/excavating-the-academia-policy-pipeline-the-history-of-economic-research-at-the-bank-of-england) on this paper on the Rebuilding Macroeconomics website.
+{{% /callout %}}
+
+We are currently writing two other papers:
+
+- the first one will propose a history of macroeconometric modelling at the Bank, since the importation of the London Business School model in 1973. We are investigating which are the main factors explaining the successive changes of model at different periods;
+- the second one will focus on the political dimension of the scientisation process within the Bank of England. 
+
+## References
+
+
+

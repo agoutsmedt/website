@@ -6,17 +6,17 @@ widget: portfolio
 # This file represents a page section.
 headless: true
 
-active: false
+active: true
 
 # Order that this section appears on the page.
-weight: 65
+weight: 60
 
-title: Projets en cours
+title: Projets
 subtitle: ''
 
 content:
   # Page type to display. E.g. project.
-  page_type: ../project
+  page_type: project
 
   # Default filter index (e.g. 0 corresponds to the first `filter_button` instance below).
   filter_default: 0
@@ -28,16 +28,16 @@ content:
   # To remove the toolbar, delete the entire `filter_button` block.
   
   filter_button:
-    - name: All 
+    - name: Tout 
       tag: "*"
-    - name: History of Macroeconomics 
-      tag: History of Macroeconomics
-    - name: Research Project 
-      tag: Research Project
+    - name: Histoire de la macroéconomie 
+      tag: Histoire de la macroéconomie 
+    - name: Projet de recherche 
+      tag: Projet de recherche
     - name: R
       tag: R
-    - name: R Package
-      tag: R Package
+    - name: Paquets R
+      tag: Paquets R
 
 design:
   # Choose how many columns the section has. Valid values: '1' or '2'.

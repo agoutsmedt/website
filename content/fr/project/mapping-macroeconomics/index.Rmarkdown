@@ -1,0 +1,99 @@
+---
+title: Mapping Macroeconomics
+subtitle: "An interactive platform for the exploration of inter-specialties relationships in macroeconomics 1970 - 2020"
+author: 
+- Aurélien Goutsmedt
+- Pedro Garcia Duarte
+- Alexandre Truc
+date: '2021-03-02'
+slug: mapping-macroeconomics
+categories:
+  - Bibliometrics
+  - History of Macroeconomics
+  - Research Project
+tags:
+  - Bibliometrics
+  - History of Macroeconomics
+  - Network Analysis
+  - R
+  - Quantitative Analysis
+  - Research Project
+summary: "Building an online interactive platform displaying bibliometric data on a large set of macroeconomic articles. Our goal is to settle the basis for a broad and long-run project on the history of macroeconomics, as well as to bring to historians tools to run quantitative inquiries to support their own research work."
+authors: []
+external_link: ''
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+url_code: 'https://github.com/Alex7722/macro_AA'
+url_pdf: ''
+url_slides: ''
+url_video: ''
+slides: ''
+
+###
+### Bibliography settings
+###
+bibliography: bibliography.bib
+csl: chicago-author-date.csl
+link-citations: true
+
+---
+
+
+> This project has received a grant from the _History of Economics Sociey_ [New Initiatives Fund](https://historyofeconomics.org/about-the-society/new-initiatives/). I am collaborating with [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact), who is working with me on the data analysis part, and with [Pedro Garcia Duarte](https://www.insper.edu.br/pesquisa-e-conhecimento/docentes-pesquisadores/pedro-garcia-duarte/) who plays the role of advisor on the interpretations and presentations of our results. 
+>
+> You can see the full project demand: [`r fontawesome::fa(name = "file-pdf", stroke_width = "5px", height = "1.1em")`](./proposal_hes.pdf) 
+>
+> You can find a public repository of the project on github: [`r fontawesome::fa(name = "github", stroke_width = "5px", height = "1.1em")`](https://github.com/Alex7722/macro_AA)
+
+
+{{% toc %}}
+
+## Objective 
+
+It takes as a point of departure that economics has been characterized since the 1970s by an exponential increase in the number of articles published in academic journals. This phenomenon makes it harder for historians of economics to properly assess the trends in the transformation of economics, the main topics researched, the most influential authors and ideas, _etc_. As a result, historians of this period run the risk of relying, at least as first pass, on a presentist view of the history of ideas: what today’s economists consider as important contributions from the past and the most influential authors. When historians shield themselves from the retrospective views of the practising economists, they have to delve into the literature of the past that has been forgotten for the most part and to scrutinize the network of authors that are little known. This effort allows historians to correct the potted histories of the practising economists and to propose alternative narratives of the evolution of the discipline.^[See for instance Forder's -@forder2014 deconstruction of the Phillips curve “myth”, Düppe and Weintraub's -@duppe2014a analysis of scientific credit about the general equilibrium proof, or @medema2014 on the different meanings of the Coase theorem.] However, the bigger the literature to be studied is, the harder the historians’ capacity to grasp the overall picture of the time.
+
+We agree with those who consider that developing collective quantitative tools could help historians to confront this challenge. The issues and uses of quantitative tools in history of economics have been the topic of many discussions in our field---see for instance @backhouse1998, @claveau2016 and the _Journal of Economic Methodology_ special issue in 2018, in particular @edwards2018a and @cherrier2018a---, but the technical barrier posed by the methods remains an obstacle for many historians. The challenges and opportunities that a quantitative history brings are particularly useful to the recent history of macroeconomics. Practising macroeconomists are eager to tell narratives of the evolution of their field that serve the purpose of intervening on current debates, by giving credit to particular authors and weight to specific ideas. Historians who go into this area find plenty of accounts by macroeconomists and have to handle the vast increase in the macroeconomic literature since the last quarter of the past century.
+
+Our goal is to build an online interactive platform displaying bibliometric data on a large set of macroeconomic articles. We aim at settling the basis for a broad and long-run project on the history of macroeconomics, as well as to bring to historians tools to run quantitative inquiries to support their own research work.
+
+Our approach is similar to @claveau2016 as we focus on the same bibliometric data and share many common tools.^[See Claveau and Gingras’s platform [here](http://www.digitalhistoryofscience.org/economics/).] It differs from and extends it in several ways as our platform will:
+
+- Focus on a smaller part of economics (i.e. macroeconomics) to keep a better control on the results and their interpretation, using the knowledge we have on the history of macroeconomics. In contrast, @claveau2016 offer a broad history of the many specialties in economics since the late 1950s.
+- Offer interactions between micro- and macro- levels of analysis, by following the positioning (and the evolution over time of this positioning) of some authors, articles or institutions within the general map brought by network analysis. This would be possible by displaying less aggregated visualisations than @claveau2016.
+
+The goal of our platform is to bring forward general visualizations of the structure of macroeconomics between 1970 and 2020 to:
+
+- Introduce bibliometric and network analysis tools, concepts and results to non-specialists in history of economics;
+- Present general results about the structure of macroeconomics:
+  - Importance and centrality of particular actors, articles and books, or institutions;
+  - Evolution of topics, ideas and subspecialties. For instance, it would allow us to explore the supposed opposition between “fresh water” and “salt water” macroeconomists [@gordon1989] or the rise of the “New Neoclassical Synthesis” [@goodfriendking1997].
+- Allow historians (but also macroeconomists) to explore questions of interests for their research:
+  - Identify relevant bibliographical documents and actors for a particular object in a simple and efficient way;
+  - Check simple claims about particular facts in macroeconomics (e.g., most cited papers by macroeconomists in a given time frame, or the role and importance of particular actors and contributions, searchable on the platform);
+  - Find new research directions in relation to under-studied topics or new unexplored patterns found in the data.
+  
+## Metholodogy
+
+The first stage of the project is to find a set of articles that properly identifies macroeconomics. In the initial work already done in this project, we have pondered this challenge and one solution is to identify macroeconomic articles from JEL codes. Our procedure led us to develop two different corpora. The first corpus is simply made of all articles identified as macroeconomics by both the old (1969-1990) and new (1991-present) JEL codes system. This corpus is useful to understand how economists classify their own research into categories.
+
+We have also developed a second corpus, less dependent on the economists' classifications, to identify what composed macroeconomics from a sociological and intellectual perspective. The second corpus uses this first corpus as a point of departure to identify all the articles closely related to macroeconomics with a two steps procedure that we apply to the old and new JEL codes corpus: (1) identify the core of macroeconomics by isolating the most cited references; (2) extending the core by identifying the articles citing several articles of the core or cited by several articles of the core.
+
+Our analysis of this corpus will heavily rely on network analysis, and particularly on bibliographic coupling networks, which links articles depending on the number of references they share in their bibliography. We will then use the Leiden algorithm [@traag2019] to identify communities in this type of networks, for different period. An important step will be to characterize qualitatively this community to understand what they represent. It would also allow us to explore the role of different academic journals and institutions in macroeconomics (which are the main journals over time, how institutions specialised in sub-specialties of macroeconomics and how they structured the field, _etc_.).
+
+The online platform we want to create would allow the user to explore our data and visualizations. First, the user would be able to navigate in our networks, by zooming and clicking on the nodes to identify them, but also to identify in the network the articles, authors or institutions she is interested in thanks to a search engine. Second, the user would be able to select the period she is interested in, and to generate the corresponding networks, but also citation statistics depending on the dates chosen.
+
+## Tools
+
+The repository of the project with our R scripts is on github [`r fontawesome::fa("github", stroke_width = "5px", height = "1.5em")`](https://github.com/Alex7722/macro_AA).
+
+The data analysis (extracting the corpus, building networks and analysing them) part is done with R. With Alexandre Truc, we are currently developping two R packages to support this project: [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) and [networkflow](https://github.com/agoutsmedt/networkflow). The second one heavily relies on igraph [@gabor2006], tidygraph [@pedersen2020a] and ggraph [@pedersen2020b] great packages. 
+
+The interactive platform will be built by resorting to the [Sigma javascript library](http://sigmajs.org/), which is also used for the software [GEPHI](https://gephi.org/).
+
+
+
+## References
+
+
