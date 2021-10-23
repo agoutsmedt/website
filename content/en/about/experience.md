@@ -24,6 +24,13 @@ date_format: Jan 2006
 #   Leave `date_end` empty if it's your current employer.
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 experience:
+  - title: FNRS Post-Doctoral Researcher
+    company: UCLouvain, ISPOLE
+    company_url: 'https://uclouvain.be/fr/instituts-recherche/ispole'
+    location: Louvain-la-Neuve, Belgique
+    date_start: '2021-10-01'
+    date_end: '2024-09-30'
+    
   - title: Post-Doctoral Researcher
     company: Université du Québec à Montréal (UQAM), CIRST
     company_url: 'https://www.cirst.uqam.ca/'

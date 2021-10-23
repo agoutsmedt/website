@@ -24,21 +24,29 @@ date_format: Jan 2006
 #   Leave `date_end` empty if it's your current employer.
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 experience:
-  - title: Post-Doctoral Researcher
+
+  - title: Chargé de Recherche FNRS
+    company: UCLouvain, ISPOLE
+    company_url: 'https://uclouvain.be/fr/instituts-recherche/ispole'
+    location: Louvain-la-Neuve, Belgique
+    date_start: '2021-10-01'
+    date_end: '2024-09-30'
+    
+  - title: Chercheur Post-Doctoral
     company: Université du Québec à Montréal (UQAM), CIRST
     company_url: 'https://www.cirst.uqam.ca/'
     location: Montréal, Canada
     date_start: '2020-01-15'
     date_end: '2021-01-15'
     
-  - title: Post-Doctoral Researcher
+  - title: Chercheur Post-Doctoral
     company: Duke University, Center for the History of Political Economy
     company_url: 'https://hope.econ.duke.edu/'
-    location: Durham, North Carolina, United-States
+    location: Durham, Caroline du Nord, Etats-Unis
     date_start: '2018-09-01'
     date_end: '2019-07-01'
         
-  - title: Ph.D. Student with teaching responsibilities
+  - title: Doctorant Contractuel avec Mission d'Enseignement
     company: Université Paris 1 Panthéon-Sorbonne, CES
     company_url: 'https://centredeconomiesorbonne.cnrs.fr/'
     location: Paris, France

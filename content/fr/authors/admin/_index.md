@@ -8,7 +8,7 @@ education:
   - course: Master 2 Economie et Sciences Humaines
     institution: Université Paris 1 Panthéon-Sorbonne
     year: 2013
-email: "agoutsmedt@hotmail.fr"
+email: "aurelien.goutsmedt@uclouvain.be"
 highlight_name: false
 interests:
 - Histoire de la discipline économique
@@ -18,13 +18,13 @@ interests:
 - R-stats
 - Bibliométrie
 organizations:
-- name: Université du Québec à Montréal, CIRST
-  url: https://www.cirst.uqam.ca/
-role: Chercheur post-doctoral
+- name: UCLouvain, ISPOLE
+  url: https://uclouvain.be/fr/instituts-recherche/ispole
+role: Chargé de Recherche FNRS
 social:
 - icon: envelope
   icon_pack: fas
-  link: mailto:agoutsmedt@hotmail.fr
+  link: mailto:aurelien.goutsmedt@uclouvain.be
 - display:
     header: true
   icon: twitter
@@ -44,6 +44,6 @@ superuser: true
 title: Aurélien Goutsmedt
 ---
 
-Je suis un historien de l'économie et je travaille sur l'histoire de la macroéconomie et de l'expertise économique depuis les années 1970. J'utilise à la fois des méthodes quantitatives et qualitatives.
+Je suis historien de l'économie et je travaille sur l'histoire de la macroéconomie, de l'expertise économique et des politiques économiques depuis les années 1970, notamment dans les banques centrales. Je développe également des outils quantitatifs à l'appui de mes travaux de recherche.
 
 Sur ce site, vous trouverez mes publications, mes cours ainsi que mes projets en cours.

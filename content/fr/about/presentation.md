@@ -13,7 +13,7 @@ active: true
 #headless: true
 ---
 
-Je suis historien de l'économie et je travaille sur l'histoire de la macroéconomie et de l'expertise économique depuis les années 1970, en utilisant des méthodes quantitatives et qualitatives.
+Je suis historien de l'économie et je travaille sur l'histoire de la macroéconomie, de l'expertise économique et des politiques économiques depuis les années 1970, notamment dans les banques centrales. Je développe également des outils quantitatifs à l'appui de mes travaux de recherche.
 
 Je suis actuellement impliqué dans un projet collectif financé par Rebuilding Macroeconomics sur "[Excavating the Academia/Policy Pipeline : Economic analysis at the Bank of England Pre and Post-Crisis](https://www.rebuildingmacroeconomics.ac.uk/academia-policy-pipeline)".
 
