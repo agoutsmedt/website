@@ -39,7 +39,7 @@ social:
   link: https://github.com/agoutsmedt
 - icon: cv
   icon_pack: ai
-  link: /media/CV_fr_Goutsmedt.pdf
+  link: ../media/CV_fr_Goutsmedt.pdf
 superuser: true
 title: Aurélien Goutsmedt
 ---
