@@ -204,6 +204,22 @@ Attention aux questions bateaux :
 Un sujet se construit en permanence. Jusqu’à l’écriture, vous serez en train de le retravailler, de l’affiner. Notamment car vous allez lire plein de choses durant votre travail de recherche. Ce processus est normal.
 {{% /callout %}}
 
+### Aller plus loin sur les types de sujet : quelques références en historiographie
+
+L’histoire de la pensée économique n’a pas été épargnée par les débats
+sur les bonnes d’écrire l’histoire. Ces débats ont le mérite de poser
+sur la table de nombreuses questions historiographiques et d’interroger
+le chercheur (et donc l’étudiant qui doit écrire un mémoire de
+recherche) sur la manière d’interroger sont sujets, sur les méthodes
+mobilisées, ainsi que sur la perspective historiographique adoptée.
+L’étudiant pourra ainsi trouvée quelques réponses, mais surtout voir
+émerger de nouvelles questions, à la lecture, pour l’histoire de l’économie et
+de la pensée économique, de Backhouse ([1992](#ref-backhouse1992a)), Backhouse ([2001](#ref-backhouse2001a)), Emmett ([2014](#ref-emmett2014)),
+Fontaine ([2016](#ref-fontaine2016)), Forget ([2005](#ref-forget2005)), Hands ([1997](#ref-hands1997)), Lapidus ([2019](#ref-lapidus2019)), Weintraub ([1999](#ref-weintraub1999a)), Weintraub ([2005](#ref-weintraub2005)),
+Winch ([2018](#ref-winch2018)), Stapleford ([2017](#ref-stapleford2017a)). Pour d’autres débats en histoire de la philosophie et en
+histoire des sciences, voir: Collini ([1988](#ref-collini1988a)), Passmore ([1965](#ref-passmore1965)), Rorty ([1984](#ref-rorty1984a)), Seidman ([1983](#ref-seidman1983a)),
+Thomas ([2017](#ref-thomas2017)), Wilson ([2017](#ref-wilson2017)).
+
 ## Délimiter et construire un corpus
 
 ### Où chercher ?
@@ -594,6 +610,10 @@ la même chose sur le travail des autres).
 
 ## L’écriture du mémoire
 
+{{% callout note %}}
+Au-delà des conseils ci-dessous, vous trouverez de nombreuses ressources pour la rédaction scientifique sur le site d’[Ecritac, Tactiques pour l’écriture académique](https://ecritac.hypotheses.org/). Ecritac partage notamment en ligne une [bibliographie Zotero](https://www.zotero.org/groups/2529470/ecritac) avec plus de 500 références (livres, articles, podcasts, billets de blog) autour des différentes facettes de la recherche et de l’écriture scientifique.
+{{% /callout %}}
+
 ### L’organisation du travail d’écriture
 
 En ce qui concerne le rythme de l’écriture et l’organisation de cette écriture,
@@ -851,6 +871,18 @@ Bach, Maria. 2020. “Redefining Universal Development from and at the Margins: 
 
 </div>
 
+<div id="ref-backhouse1992a" class="csl-entry">
+
+Backhouse, Roger E. 1992. “How Should We Approach the History of Economic Thought, Fact, Fiction or Moral Tale?” *Journal of the History of Economic Thought* 14 (1): 18–35. <https://doi.org/10.1017/S1053837200004375>.
+
+</div>
+
+<div id="ref-backhouse2001a" class="csl-entry">
+
+———. 2001. “How and Why Should We Write the History of Twentieth-Century Economics?” *Journal of the History of Economic Thought* 23 (2): 243–51.
+
+</div>
+
 <div id="ref-routledg2015" class="csl-entry">
 
 Barnett, Vincent, ed. 2015. *Routledge Handbook of the History of Global Economic Thought*. New York: Routledge, Taylor & Francis Group.
@@ -893,6 +925,12 @@ Cherrier, Beatrice, and Roger Backhouse. 2019. “The Ordinary Business of Macro
 
 </div>
 
+<div id="ref-collini1988a" class="csl-entry">
+
+Collini, Stefan. 1988. “‘Discipline History’ and ‘Intellectual History’ Reflections on the Historiography of the Social Sciences in Britain and France.” *Revue de Synthèse* 109 (3-4): 387–99. <https://doi.org/10.1007/BF03189137>.
+
+</div>
+
 <div id="ref-dechadarevian1997" class="csl-entry">
 
 De Chadarevian, Soraya. 1997. “Using Interviews to Write the History of Science.” In *The Historiography of Contemporary Science and Technology*, 4:51. Amsterdam: Routledge.
@@ -905,6 +943,12 @@ Desmarais-Tremblay, Maxime. 2016. “La Théorisation Des Dépenses Publiques de
 
 </div>
 
+<div id="ref-emmett2014" class="csl-entry">
+
+Emmett, Ross B. 2014. “Defending the History of Economic Thought.” *History of Political Economy* 46 (3): 539–40. <https://doi.org/10.1215/00182702-2796400>.
+
+</div>
+
 <div id="ref-favereau2014" class="csl-entry">
 
 Favereau, Judith. 2014a. “L’approche Expérimentale Du J-Pal En Économie Du Développement: Un Tournant Épistémologique?” PhD thesis, Université Panthéon-Sorbonne-Paris I.
@@ -914,6 +958,18 @@ Favereau, Judith. 2014a. “L’approche Expérimentale Du J-Pal En Économie Du
 <div id="ref-favereau2014b" class="csl-entry">
 
 ———. 2014b. “The J-PAL’s Experimental Approach in Development Economics: An Epistemological Turn?” *Erasmus Journal for Philosophy and Economics* 7 (2): 177–80.
+
+</div>
+
+<div id="ref-fontaine2016" class="csl-entry">
+
+Fontaine, Philippe. 2016. “Other Histories of Recent Economics: A Survey.” *History of Political Economy* 48 (3): 373–421. <https://doi.org/10.1215/00182702-3638607>.
+
+</div>
+
+<div id="ref-forget2005" class="csl-entry">
+
+Forget, Evelyn L. 2005. “Same View, Many Lenses.” *History of Political Economy* 37 (2): 205–10. <https://doi.org/10.1215/00182702-37-2-205>.
 
 </div>
 
@@ -935,6 +991,12 @@ Goutsmedt, Aurélien. 2021. “From the Stagflation to the Great Inflation: Expl
 
 </div>
 
+<div id="ref-hands1997" class="csl-entry">
+
+Hands, D. Wade. 1997. “Conjectures and Reputations: The Sociology of Scientific Knowledge and the History of Economic Thought.” *History of Political Economy* 29 (4): 695–739.
+
+</div>
+
 <div id="ref-hayot2014" class="csl-entry">
 
 Hayot, Eric. 2014. *The Elements of Academic Style: Writing for the Humanities*. New York: Columbia University Press.
@@ -947,9 +1009,69 @@ Jullien, Dorian. 2019. “Interviews and the Historiographical Issues of Oral So
 
 </div>
 
+<div id="ref-lapidus2019" class="csl-entry">
+
+Lapidus, André. 2019. “Bringing Them Alive.” *The European Journal of the History of Economic Thought* 26 (6): 1084–1106. <https://doi.org/10.1080/09672567.2019.1682022>.
+
+</div>
+
+<div id="ref-passmore1965" class="csl-entry">
+
+Passmore, John. 1965. “The Idea of a History of Philosophy.” *History and Theory* 5: 1–32. <https://doi.org/10.2307/2504117>.
+
+</div>
+
+<div id="ref-rorty1984a" class="csl-entry">
+
+Rorty, Richard. 1984. “The Historiography of Philosophy: Four Genres.” In *Philosophy in History: Essays in the Historiography of Philosophy*, 49–75. Cambridge ; New York: Cambridge University Press.
+
+</div>
+
+<div id="ref-seidman1983a" class="csl-entry">
+
+Seidman, Steven. 1983. “Beyond Presentism and Historicism: Understanding the History of Social Science.” *Sociological Inquiry* 53 (1): 79–91. <https://doi.org/10.1111/j.1475-682X.1983.tb01167.x>.
+
+</div>
+
+<div id="ref-stapleford2017a" class="csl-entry">
+
+Stapleford, Thomas A. 2017. “Historical Epistemology and the History of Economics: Views Through the Lens of Practice.” In *Symposium on the Historical Epistemology of Economics*, 35A:113–45. Research in the History of Economic Thought and Methodology. Emerald Publishing Limited. <https://doi.org/10.1108/S0743-41542017000035A007>.
+
+</div>
+
 <div id="ref-sword2012" class="csl-entry">
 
 Sword, Helen. 2012. *Stylish Academic Writing*. Harvard University Press.
+
+</div>
+
+<div id="ref-thomas2017" class="csl-entry">
+
+Thomas, William. 2017. “Scientists’ Imagined Pasts and Historians’ Appreciation of Scientific Thought.” *Isis* 108 (4): 830–35. <https://doi.org/10.1086/695605>.
+
+</div>
+
+<div id="ref-weintraub1999a" class="csl-entry">
+
+Weintraub, E. Roy. 1999. “How Should We Write the History of Twentieth-Century Economics?” *Oxford Review of Economic Policy* 15 (4): 139–52. <https://doi.org/10.1093/oxrep/15.4.139>.
+
+</div>
+
+<div id="ref-weintraub2005" class="csl-entry">
+
+———. 2005. “Misusing History: A Minisymposium.” *History of Political Economy* 37 (2): 177–78.
+
+</div>
+
+<div id="ref-wilson2017" class="csl-entry">
+
+Wilson, Adrian. 2017. “Science’s Imagined Pasts.” *Isis* 108 (4): 814–26. <https://doi.org/10.1086/695603>.
+
+</div>
+
+<div id="ref-winch2018" class="csl-entry">
+
+Winch, Donald. 2018. “Intellectual History and the History of Economic Thought: A Personal Account.” *Journal of Interdisciplinary History of Ideas* 6 (12).
 
 </div>
 
