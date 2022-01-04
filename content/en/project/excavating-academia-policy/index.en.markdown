@@ -118,10 +118,9 @@ A first working paper has been released in February 2021 (see [here](/publicatio
 See also Béatrice’s [blog post](https://www.rebuildingmacroeconomics.ac.uk/post/excavating-the-academia-policy-pipeline-the-history-of-economic-research-at-the-bank-of-england) on this paper on the Rebuilding Macroeconomics website.
 {{% /callout %}}
 
-We are currently writing two other papers:
+A second working paper has been released in October 2021 (see [here](/publication/model-boe/)) and has been presented at the [HISRECO conference](https://hisreco.wordpress.com/). In this paper, we use as a case study the Bank of England and the different macroeconometric models developed within the Bank until the most recent one (COMPASS). This case study helps us to better understand the constraints to which modellers are submitted.
 
--   the first one will propose a history of macroeconometric modelling at the Bank, since the importation of the London Business School model in 1973. We are investigating which are the main factors explaining the successive changes of model at different periods;
--   the second one will focus on the political dimension of the scientisation process within the Bank of England.
+We are currently working on a third paper, which focuses on the concept of scientisation. It should be presented during the European Society for History of Science (ESHS) conference in september 2022, in a [symposium](/project/ESHS2022_symposium/) on “Central Banks Scientisation”.
 
 ## References
 

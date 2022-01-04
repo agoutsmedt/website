@@ -5,8 +5,8 @@ headless: true
 active: true
 weight: 60
 
-title: "Projects"
-summary: "List of the projects I am working on."
+title: "Projets"
+summary: "Liste des projets sur lesquels je travaille."
 
 content:
 
@@ -25,9 +25,9 @@ content:
   filter_button:
     - name: All 
       tag: "*"
-    - name: History of Macroeconomics 
+    - name: Histoire de la macroéconomie 
       tag: History of Macroeconomics
-    - name: Research Project 
+    - name: Projet de recherche 
       tag: Research Project
     - name: R
       tag: R

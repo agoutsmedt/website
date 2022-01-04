@@ -1,0 +1,125 @@
+---
+always_allow_html: yes
+title: Exploring Stagflation Explanations with Interactive Networks
+author: Auréien Goutsmedt
+date: '2021-02-26'
+slug: exploring-stagflation
+categories:
+  - Bibliometrics
+  - History of Macroeconomics
+tags:
+  - Bibliometrics
+  - History of Macroeconomics
+  - Network Analysis
+  - Stagflation
+subtitle: ''
+summary: 'This post comes back to my article "From the Stagflation to the Great Inflation" and proposes to navigate in the stagflation dataset I have built. Here, you can play interactively with the coupling and cocitation networks of my article.'
+authors: []
+lastmod: '2021-02-26T18:02:29+01:00'
+featured: no
+draft: no
+
+
+# Featured image
+# To use, add an image named `featured.jpg/png` to your page's folder.
+# Focal points: Smart, Center, TopLeft, Top, TopRight, Left, Right, BottomLeft, Bottom, BottomRight.
+image:
+  caption: ""
+  focal_point: ""
+  preview_only: false
+
+# Projects (optional).
+#   Associate this post with one or more of your projects.
+#   Simply enter your project's folder or file name without extension.
+#   E.g. `projects = ["internal-project"]` references `content/project/deep-learning/index.md`.
+#   Otherwise, set `projects = []`.
+projects: ["biblionetwork","networkflow"]
+
+###
+### Bibliography settings
+###
+bibliography: bibliography.bib
+#csl:  chicago-author-date.csl
+suppress-bibliography: false
+link-citations: true
+color-links: true # See https://ctan.org/pkg/xcolor for colors
+linkcolor: teal
+urlcolor: blue
+citecolor: red
+endnote: false
+
+###
+### Formatting settings
+###
+toc-title: "Table des matières"
+toc: true # Table of contents
+toc_depth: 2
+---
+
+<style type="text/css">
+pre {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+pre[class] {
+  max-height: 100px;
+}
+</style>
+
+
+
+{{% toc %}}
+
+## Introduction
+
+Bibliometric networks are an interesting tool to study the evolution of a disciplinary field or of a topic. A bibliographic coupling network, by looking at the references shared by a corpus of documents, allows us to understand the intellectual structure of a field at a certain point of time. A bibliographic co-citation network, by looking at the number of times the references cited by a corpus are cited together, reveals the main influences of a field.^[For introduction and application of bibliographic coupling and co-citation methods, see @gingras2016, @claveau2016, and @weingart2015.] 
+
+<div class="figure" style="text-align: center">
+<img src="citationnetworks.png" alt="Bibliographic coupling and co-citation" width="80%" />
+<p class="caption">(\#fig:unnamed-chunk-2)Bibliographic coupling and co-citation</p>
+</div>
+
+
+That is the two main tools I have used in my article "[From the Stagflation to the Great Inflation: explaining the US economy of the 1970s](/publication/stagflation-great-inflation)" [@goutsmedt2021a]. I analysed the way economists explained the US stagflation of the 1970s (a period of high unemployment and inflation) over time. Bibliometric networks completed a qualitative reading of the relevant articles and books and helped me to underline how we went from an explanation focusing on the effects of external shocks (the end of Bretton Woods and commodity-price shocks) on growth and unemployment, in the late 1970s and early 1980s, to an explanation that focused on the Federal Reserve mistakes and the effects of monetary policy on inflation.^[The issue of how we explain the US stagflation regularly reappears. See for instance Paul Krugman's [blog post](https://paulkrugman.substack.com/p/stagflation-revisited).]  
+
+However, publishing academic articles with such tools often comes with some frustration. If bibliometric networks are helpful to prove your point and to display some of your results, they are also (and I am tempted to say "above all") an "exploratory" tool that comes upstream of a project, well before having a clear idea of what you want to demonstrate.^[It should be clear however that bibliometric networks are never a proof in themselves. They are always subject to a lot of interpretations and what we see has always to be taken with great care [for an nice illustration, in French, see @boullier2016].] You can spend some time exploring your network, studying which nodes are in which communities, studying the effects of changing some parameters (in your partitioning algorithm for instance). But at the end of the day, what you will have in your paper is this:
+
+<div class="figure" style="text-align: center">
+<img src="graph_cocit_9713.png" alt="My co-citation network for the 1997-2013 sub-period" width="80%" />
+<p class="caption">(\#fig:unnamed-chunk-3)My co-citation network for the 1997-2013 sub-period</p>
+</div>
+
+
+Even if visually informative, the picture is an attempt of summarising all the information obtained by studying the network. And of course, it heavily relies on the explanations and interpretations given by its author, as it remains very hard for an external observer to understand what it is all about. Moreover, this observer is likely to experience frustration too, as she is unable to explore the network herself and depends on the visual choices made by the author. 
+
+The rationale behind this post is to evacuate a part of this frustration. I wanted to do several things here:
+
+1. unveiling the database used for my article (and hoping that some people would like to use it in turn and complete/improve/expand it);
+1. exposing some useful bits of R code to produce such networks. I am notably using two R packages that I am developing with [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact): [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) and [networkflow](https://github.com/agoutsmedt/networkflow). The second one heavily relies on igraph [@gabor2006], tidygraph [@pedersen2020a] and ggraph [@pedersen2020b] great packages.
+1. displaying _interactive_ coupling and co-citation networks (the very reason for the long monologue above...).^[What follows it not an attempt to reproduce exactly the results of my paper. With developing the [networkflow](https://github.com/agoutsmedt/networkflow) package, part of my script have changed, as well as the algorithm implementation I use for Force Atlas 2 and Leiden. Besides, I could not keep the same seed, and thus the partition and spacialisation results could be slightly different. However, I am confident that it is not going against the interpretation of my results I had in the article.]
+
+Before to go further, let's charge some packages that will be useful for what follows:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

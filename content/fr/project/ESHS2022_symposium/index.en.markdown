@@ -3,8 +3,7 @@ title: 'ESHS Symposium proposal: “The Scientization of Central Banks”'
 author: 
   - Aurélien Goutsmedt
   - "Francesco Sergi (Université Paris-Est Créteil)"
-date: "23/11/2021"
-
+date: "23-11-2021"
 
 slug: eshs2022-symposium
 categories:
@@ -18,7 +17,6 @@ tags:
 subtitle: "10th ESHS Conference - Brussels, 7-10 September 2022"
 authors: []
 lastmod: '2021-11-23T09:38:39+01:00'
-featured: no
 draft: no
 image:
   caption: ''
@@ -57,7 +55,7 @@ Scientization can designate different dynamics:
 3.  the use, in central banks’ analysis, policy, and communication routines, of conceptual devices coming from the economic discipline, like forecasting models (see Backhouse and Cherrier 2019);
 4.  the emphasis on science/economics put by central bankers in their communication about the policies implemented (Mudge and Vauchez 2018).
 
-Scientization could result from the wish to base policy decisions on “science” (mainly, economics); hence it could be understood as the logical consequence of the technical dimension of central banks’ interventions (whether regarding their role in terms of monetary policy, or of micro- and macro-regulation and the supervision of the banking and financial system). Notwithstanding this logic, scientization then comes with the risk of making central banks increasingly “*a*politicized,” “basing their views on (…) the language of science” (Marcussen, 2009, 375-376), out of reach of the citizens’ (and politicians’?) understanding and control. Besides, it is not easy to distinguish the actual reliance of central banks’ decision-making on science from the mere reference made to science for reputational and communicational motivations.
+Scientization could result from the wish to base policy decisions on “science” (mainly, economics); hence it could be understood as the logical consequence of the technical dimension of central banks’ interventions (whether regarding their role in terms of monetary policy, or of micro- and macro-regulation and the supervision of the banking and financial system). Notwithstanding this logic, scientization then comes with the risk of making central banks increasingly “*a*politicized”, “basing their views on (…) the language of science” (Marcussen, 2009, 375-376), out of reach of the citizens’ (and politicians’?) understanding and control. Besides, it is not easy to distinguish the actual reliance of central banks’ decision-making on science from the mere reference made to science for reputational and communicational motivations.
 
 Whatever their motives, central banks have also become a major provider and funder of (economic) research; for instance, most macroeconomists publishing in academic journals are affiliated to central banks (Claveau and Dion 2018). This rising engagement of central banks with the production of economic knowledge raises the question of their influence on the content of such knowledge: how does this affect the paths taken by research, or limit the number of contributions criticizing central banks’ policy?
 
@@ -114,7 +112,7 @@ Marcussen, Martin. 2009. “Scientization of Central Banking: The Politics of a-
 
 <div id="ref-mudge2016a" class="csl-entry">
 
-Mudge, Stephanie L., and Antoine Vauchez. 2016. “Fielding Supranationalism: The European Central Bank as a Field Effect.” *The Sociological Review* 64: 146–69.
+Mudge, Stephanie L., and Antoine Vauchez. 2016. “Fielding Supranationalism: The European Central Bank as a Field Effect.” *The Sociological Review* 64 (2_suppl): 146–69.
 
 </div>
 

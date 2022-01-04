@@ -12,7 +12,7 @@ subtitle: ''
 summary: "Introduction à la recherche en histoire et philosophie de l'économie et à différents outils et pratiques utiles pour l'écriture d'un mémoire de recherche"
 type: book
 authors: []
-lastmod: '2021-03-01T14:38:29+01:00'
+lastmod: '2021-12-15T14:38:29+01:00'
 featured: no
 draft: no
 bibliography: bibliography_intro.bib
