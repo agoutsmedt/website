@@ -581,8 +581,6 @@ By using affiliations we can observe a regional preference pattern: in European 
 To conclude this (long) tutorial, we can build a co-citation network: the references we have matched are the nodes of the network, and they are linked together depending on the number of times they are cited together (or in other words, the number of times they are together in a bibliography). We use the `biblio_cocitation` function of the [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) package. The edge between two nodes is weighted depending of the total number of times each reference has been cited in the whole corpus (see [here](https://agoutsmedt.github.io/biblionetwork/reference/biblio_cocitation.html) for more details).
 
 ```{r creating-edges}
-direct_citation <- direct_citation
-
 citations <- direct_citation %>% 
   add_count(new_id_ref) %>% 
   select(new_id_ref, n) %>% 
