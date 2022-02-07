@@ -3,7 +3,7 @@ lang: fr
 title: "Introduction aux méthodes quantitatives appliquées à l'histoire de la pensée économique et à l'épistémologie économique"
 subtitle: "Séminaire MEHPERE"
 author: Aurélien Goutsmedt
-date: "2022-02-03"
+date: "2022-02-07"
 summary: "Introduction à la diversité des méthodes dites quantitatives, aux débats en histoire de la pensée et épistémologie économique sur l’usage de ces méthodes, ainsi qu’aux récents travaux produits avec ces méthodes."
 type: book
 tags:
@@ -255,7 +255,7 @@ Une fois ces données obtenues, vous pouvez les manipuler et les nettoyer via le
 
 ## 3ème exemple: les statistiques multidimensionnelles appliquées à l’histoire de la pensée économique
 
-Cas pratique animé par Julien Gradoz en 2022.
+Cas pratique animé par Julien Gradoz en 2022 ([slides ici](../slides_JG_2022.pdf)).
 
 ## Quelques ressources utiles
 

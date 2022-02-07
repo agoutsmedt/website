@@ -15,7 +15,7 @@ tags:
 subtitle: 'Exploring Scopus'
 summary: 'In this post, you will learn how to extract data from Scopus website or with Scopus APIs and how to clean the data extracted from Scopus website. These data allow you to build bibliographic networks.'
 authors: []
-lastmod: '2022-01-30T21:31:58+01:00'
+lastmod: '`r Sys.Date()`'
 featured: no
 draft: no
 lang: en

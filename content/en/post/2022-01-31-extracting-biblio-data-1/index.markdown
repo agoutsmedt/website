@@ -15,7 +15,7 @@ tags:
 subtitle: 'Exploring Scopus'
 summary: 'In this post, you will learn how to extract data from Scopus website or with Scopus APIs and how to clean the data extracted from Scopus website. These data allow you to build bibliographic networks.'
 authors: []
-lastmod: '2022-01-30T21:31:58+01:00'
+lastmod: '2022-02-03'
 featured: no
 draft: no
 lang: en
@@ -676,8 +676,6 @@ By using affiliations we can observe a regional preference pattern: in European 
 To conclude this (long) tutorial, we can build a co-citation network: the references we have matched are the nodes of the network, and they are linked together depending on the number of times they are cited together (or in other words, the number of times they are together in a bibliography). We use the `biblio_cocitation` function of the [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) package. The edge between two nodes is weighted depending of the total number of times each reference has been cited in the whole corpus (see [here](https://agoutsmedt.github.io/biblionetwork/reference/biblio_cocitation.html) for more details).
 
 ``` r
-direct_citation <- direct_citation
-
 citations <- direct_citation %>% 
   add_count(new_id_ref) %>% 
   select(new_id_ref, n) %>% 
