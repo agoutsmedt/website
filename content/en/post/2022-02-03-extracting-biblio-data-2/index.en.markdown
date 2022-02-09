@@ -18,7 +18,7 @@ summary: 'In this post, you will learn how to extract data from Dimensions websi
 authors: []
 lastmod: '2022-02-03T22:19:06+01:00'
 featured: no
-draft: yes
+draft: no
 lang: en
 bibliography: bibliography.bib
 #csl:  chicago-author-date.csl
