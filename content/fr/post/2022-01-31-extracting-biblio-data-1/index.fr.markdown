@@ -1,6 +1,6 @@
 ---
-title: "Extracting and Cleaning Bibliometric Data (1)"
-author: Auréien Goutsmedt
+title: "Extracting and Cleaning Bibliometric Data with R (1)"
+author: Aurélien Goutsmedt
 date: '2022-01-31'
 slug: extracting-biblio-data-1
 categories:
@@ -15,7 +15,7 @@ tags:
 subtitle: 'Exploring Scopus'
 summary: 'In this post, you will learn how to extract data from Scopus website or with Scopus APIs and how to clean the data extracted from Scopus website. These data allow you to build bibliographic networks.'
 authors: []
-lastmod: '2022-01-30T21:31:58+01:00'
+lastmod: '2022-02-09'
 featured: no
 draft: no
 lang: en
@@ -40,9 +40,9 @@ projects: []
 
 After the [roadmap](/post/2022-01-03-roadmap-quantitative-hpe/) for learning to programme in R where I listed useful tutorials and packages, I propose here to get to the heart of the matter and to learn how to extract and clean bibliometric data. This tutorial keeps in mind the issues that historians of economics can encounter, but I hope it could be also useful for other social scientists.
 
-It is not easy to navigate between the different existing bibliometric database (Web of Science, Scopus, Dimensions, Jstor, Econlit, RePEc…), and to know which information they gather and how much data we can extract. I will thus bring here a series of tutorials (at least two) on how to find and extract such data (if possible, by doing it via R scripts), but also on how to clean them. Indeed, depending on the database one uses, the data are in different formats, and one often has to do some cleaning (notably for the bibliographic references cited by the corpus one has extracted). In this tutorial, we will focus on [Scopus](https://www.scopus.com/home.uri) data for which you will need an institutional access (in the next tutorial, we will work with [Dimensions](https://app.dimensions.ai/discover/publication) data and the [Constellate application](https://constellate.org/) of JSTOR which are accessible without institutional access). At the end of this tutorial, you will know how to get the data needed for building bibliographic networks and I will give an example of a co-citation network using the [`biblionetwork` package](https://agoutsmedt.github.io/biblionetwork/) ([Goutsmedt, Claveau, and Truc 2021](#ref-R-biblionetwork)).
+It is not easy to navigate between the different existing bibliometric database (Web of Science, Scopus, Dimensions, Jstor, Econlit, RePEc…), and to know which information they gather and how much data we can extract. I will thus bring here a series of tutorials on how to find and extract such data (if possible, by doing it via R scripts), but also on how to clean them. Indeed, depending on the database one uses, the data are in different formats, and one often has to do some cleaning (notably for the bibliographic references cited by the corpus one has extracted). In this tutorial, we will focus on [Scopus](https://www.scopus.com/home.uri) data for which you will need an institutional access. The next [post](/post/extracting-biblio-data-2) focuses on [Dimensions](https://app.dimensions.ai/discover/publication) data and the one after will deal with [Constellate application](https://constellate.org/) of JSTOR. Both Dimensions and Constellate are accessible without institutional access.
 
-What you only need in this tutorial is a basic understanding of some functions of [Tidyverse](https://www.tidyverse.org/) packages ([Wickham 2021](#ref-R-tidyverse); [Wickham et al. 2019](#ref-tidyverse2019))—mainly `dplyr` and `stringr`—as well as a (less) basic understanding of “regex” ([Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)).[^1] At some points I dig into more complicated and tortuous methods when using [Elsevier/Scopus APIs](https://dev.elsevier.com/) with [`rscopus`](https://johnmuschelli.com/rscopus/index.html) or cleaning references with the machine learning software [anystyle](https://anystyle.io) using the command line. This will be explained in separated sections that beginners can skip.
+At the end of this tutorial, you will know how to get the data needed for building bibliographic networks and I will give an example of a co-citation network using the [`biblionetwork` package](https://agoutsmedt.github.io/biblionetwork/) ([Goutsmedt, Claveau, and Truc 2021](#ref-R-biblionetwork)). What you only need in this tutorial is a basic understanding of some functions of [Tidyverse](https://www.tidyverse.org/) packages ([Wickham 2021](#ref-R-tidyverse); [Wickham et al. 2019](#ref-tidyverse2019))—mainly `dplyr` and `stringr`—as well as a (less) basic understanding of “regex” ([Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)).[^1] At some points I dig into more complicated and tortuous methods when using [Elsevier/Scopus APIs](https://dev.elsevier.com/) with [`rscopus`](https://johnmuschelli.com/rscopus/index.html) or cleaning references with the machine learning software [anystyle](https://anystyle.io) using the command line. This will be explained in separated sections that beginners can skip.
 
 Let’s first load all the packages we need and set the path to the directory where I put the data extracted from Scopus:
 
@@ -662,7 +662,7 @@ direct_citation %>%
 
 <div class="figure">
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/top-ref-country-1.png" alt="Most cited references per countries" width="1152" />
+<img src="{{< blogdown/postref >}}index.fr_files/figure-html/top-ref-country-1.png" alt="Most cited references per countries" width="1152" />
 <p class="caption">
 Figure 4: Most cited references per countries
 </p>
@@ -676,8 +676,6 @@ By using affiliations we can observe a regional preference pattern: in European 
 To conclude this (long) tutorial, we can build a co-citation network: the references we have matched are the nodes of the network, and they are linked together depending on the number of times they are cited together (or in other words, the number of times they are together in a bibliography). We use the `biblio_cocitation` function of the [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) package. The edge between two nodes is weighted depending of the total number of times each reference has been cited in the whole corpus (see [here](https://agoutsmedt.github.io/biblionetwork/reference/biblio_cocitation.html) for more details).
 
 ``` r
-direct_citation <- direct_citation
-
 citations <- direct_citation %>% 
   add_count(new_id_ref) %>% 
   select(new_id_ref, n) %>% 
@@ -838,7 +836,7 @@ top_nodes(graph,
 
 <div class="figure">
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/top-ref-community-1.png" alt="Most cited references per communities" width="1152" />
+<img src="{{< blogdown/postref >}}index.fr_files/figure-html/top-ref-community-1.png" alt="Most cited references per communities" width="1152" />
 <p class="caption">
 Figure 6: Most cited references per communities
 </p>

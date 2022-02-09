@@ -1,6 +1,6 @@
 ---
-title: "Extracting and Cleaning Bibliometric Data (1)"
-author: Auréien Goutsmedt
+title: "Extracting and Cleaning Bibliometric Data with R (1)"
+author: Aurélien Goutsmedt
 date: '2022-01-31'
 slug: extracting-biblio-data-1
 categories:
@@ -45,9 +45,9 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 After the [roadmap](/post/2022-01-03-roadmap-quantitative-hpe/) for learning to programme in R where I listed useful tutorials and packages, I propose here to get to the heart of the matter and to learn how to extract and clean bibliometric data. This tutorial keeps in mind the issues that historians of economics can encounter, but I hope it could be also useful for other social scientists. 
 
-It is not easy to navigate between the different existing bibliometric database (Web of Science, Scopus, Dimensions, Jstor, Econlit, RePEc...), and to know which information they gather and how much data we can extract. I will thus bring here a series of tutorials (at least two) on how to find and extract such data (if possible, by doing it via R scripts), but also on how to clean them. Indeed, depending on the database one uses, the data are in different formats, and one often has to do some cleaning (notably for the bibliographic references cited by the corpus one has extracted). In this tutorial, we will focus on [Scopus](https://www.scopus.com/home.uri) data for which you will need an institutional access (in the next tutorial, we will work with [Dimensions](https://app.dimensions.ai/discover/publication) data and the [Constellate application](https://constellate.org/) of JSTOR which are accessible without institutional access). At the end of this tutorial, you will know how to get the data needed for building bibliographic networks and I will give an example of a co-citation network using the [`biblionetwork` package](https://agoutsmedt.github.io/biblionetwork/) [@R-biblionetwork].
+It is not easy to navigate between the different existing bibliometric database (Web of Science, Scopus, Dimensions, Jstor, Econlit, RePEc...), and to know which information they gather and how much data we can extract. I will thus bring here a series of tutorials on how to find and extract such data (if possible, by doing it via R scripts), but also on how to clean them. Indeed, depending on the database one uses, the data are in different formats, and one often has to do some cleaning (notably for the bibliographic references cited by the corpus one has extracted). In this tutorial, we will focus on [Scopus](https://www.scopus.com/home.uri) data for which you will need an institutional access. The next [post](/post/extracting-biblio-data-2) focuses on [Dimensions](https://app.dimensions.ai/discover/publication) data and the one after will deal with [Constellate application](https://constellate.org/) of JSTOR. Both Dimensions and Constellate are accessible without institutional access. 
 
-What you only need in this tutorial is a basic understanding of some functions of [Tidyverse](https://www.tidyverse.org/) packages [@R-tidyverse;@tidyverse2019]---mainly `dplyr` and `stringr`---as well as a (less) basic understanding of "regex" ([Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)).[^1] At some points I dig into more complicated and tortuous methods when using [Elsevier/Scopus APIs](https://dev.elsevier.com/) with [`rscopus`](https://johnmuschelli.com/rscopus/index.html) or cleaning references with the machine learning software [anystyle](https://anystyle.io) using the command line. This will be explained in separated sections that beginners can skip.
+At the end of this tutorial, you will know how to get the data needed for building bibliographic networks and I will give an example of a co-citation network using the [`biblionetwork` package](https://agoutsmedt.github.io/biblionetwork/) [@R-biblionetwork]. What you only need in this tutorial is a basic understanding of some functions of [Tidyverse](https://www.tidyverse.org/) packages [@R-tidyverse;@tidyverse2019]---mainly `dplyr` and `stringr`---as well as a (less) basic understanding of "regex" ([Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)).[^1] At some points I dig into more complicated and tortuous methods when using [Elsevier/Scopus APIs](https://dev.elsevier.com/) with [`rscopus`](https://johnmuschelli.com/rscopus/index.html) or cleaning references with the machine learning software [anystyle](https://anystyle.io) using the command line. This will be explained in separated sections that beginners can skip.
 
 [^1]: Don't worry if you don't understand regex at the beginning, that is a good occasion to learn and to practice. You can find simpler examples [here](https://stringr.tidyverse.org/articles/regular-expressions.html) and learn `stringr` by the same occasion. 
 
@@ -670,7 +670,7 @@ ggraph(graph, "manual", x = x, y = y) +
   theme_void()
 ```
 
-```{r plotting-network, echo = FALSE, eval = FALSE}
+```{r plotting-network, echo = FALSE}
 ragg::agg_png(here("content", "en", "post", "2022-01-31-extracting-biblio-data-1", "featured.png"),
               width = 30, 
               height = 25,
