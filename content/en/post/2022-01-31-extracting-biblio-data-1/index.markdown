@@ -1,5 +1,5 @@
 ---
-title: "Extracting and Cleaning Bibliometric Data (1)"
+title: "Extracting and Cleaning Bibliometric Data with R (1)"
 author: Auréien Goutsmedt
 date: '2022-01-31'
 slug: extracting-biblio-data-1
