@@ -452,11 +452,8 @@ graph <- community_names(graph,
 
 graph <- vite::complete_forceatlas2(graph, 
                                     first.iter = 10000)
-```
 
-    ## Total number of iterations: 10000
 
-``` r
 top_nodes  <- top_nodes(graph, 
                         ordering_column = "size", 
                         top_n = 15, 
@@ -502,29 +499,36 @@ Figure 5: Bibliographic coupling network of articles using DSGE models
 
 </div>
 
-The differences between Scopus and Dimensions co-citation network would deserve a more thorough investigation, which is outside the scope of this tutorial.[^10] So let’s conclude just by observing what are the most cited nodes in each community. Here, we can see more clearly that the community `02` represent to a certain extent the “core” of the literature at the basis of DSGE models.
+The differences between Scopus and Dimensions co-citation network would deserve a more thorough investigation, which is outside the scope of this tutorial.[^10] So let’s conclude just by observing what are the most cited nodes in each community. Here, we can see more clearly that community `02` with represent to a certain extent the “core” of the literature at the basis of DSGE models. Community `04` deals more with econometric problems, while community `05` tackles international issues.
 
 ``` r
+ragg::agg_png(here("content", "en", "post", "2022-02-03-extracting-biblio-data-2", "top_ref.png"),
+              width = 30, 
+              height = 25,
+              units = "cm",
+              res = 200)
 top_nodes(graph,
           ordering_column = "size",
           top_n = 10,
           top_n_per_com = 6,
           biggest_community = TRUE,
           community_threshold = 0.03) %>% 
-  select(Community_name, references, n) %>% 
+  select(Community_name, references, n, color) %>% 
   mutate(label = str_wrap(references, 35),
          label = tidytext::reorder_within(label, n, Community_name)) %>% 
-  ggplot(aes(n, label, fill = Community_name)) +
+  ggplot(aes(n, label, fill = color)) +
   geom_col(show.legend = FALSE) +
+  scale_fill_identity() +
   facet_wrap(~Community_name, ncol = 3, scales = "free") +
   tidytext::scale_y_reordered() +
   labs(x = "Number of citations", y = NULL) +
   theme_classic(base_size = 10)
+invisible(dev.off())
 ```
 
 <div class="figure">
 
-<img src="{{< blogdown/postref >}}index.en_files/figure-html/top-ref-community-1.png" alt="Most cited references per communities" width="1152" />
+<img src="top_ref.png" alt="Most cited references per communities" width="1181" />
 <p class="caption">
 Figure 6: Most cited references per communities
 </p>

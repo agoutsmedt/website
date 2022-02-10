@@ -321,7 +321,7 @@ graph <- tbl_main_component(nodes = references_filtered,
 graph
 ```
 
-```{r manipulating-graph}
+```{r manipulating-graph, eval=FALSE}
 set.seed(1234)
 graph <- leiden_workflow(graph) # identifying clusters of nodes 
 
@@ -387,7 +387,7 @@ ggraph(graph, "manual", x = x, y = y) +
   theme_void()
 ```
 
-```{r plotting-network, echo = FALSE}
+```{r plotting-network, echo = FALSE, eval=FALSE}
 ragg::agg_png(here("content", "en", "post", "2022-02-03-extracting-biblio-data-2", "featured.png"),
               width = 30, 
               height = 25,
@@ -412,24 +412,35 @@ invisible(dev.off())
 knitr::include_graphics("featured.png")
 ```
 
-The differences between Scopus and Dimensions co-citation network would deserve a more thorough investigation, which is outside the scope of this tutorial.^[Part of the differences comes from differences in the initial corpus and thus is linked to the difference in Scopus and Dimensions data (notably the journals that are integrated in the databases). Another part of the differences results from our own treatment of the data: a different cleaning of references, different thresholds used to select the nodes (as we use an absolute threshold, not a relative one), different types of documents (preprints and "hidden" duplicates), etc...] So let's conclude just by observing what are the most cited nodes in each community. Here, we can see more clearly that the community `02` represent to a certain extent the "core" of the literature at the basis of DSGE models.
+The differences between Scopus and Dimensions co-citation network would deserve a more thorough investigation, which is outside the scope of this tutorial.^[Part of the differences comes from differences in the initial corpus and thus is linked to the difference in Scopus and Dimensions data (notably the journals that are integrated in the databases). Another part of the differences results from our own treatment of the data: a different cleaning of references, different thresholds used to select the nodes (as we use an absolute threshold, not a relative one), different types of documents (preprints and "hidden" duplicates), etc...] So let's conclude just by observing what are the most cited nodes in each community. Here, we can see more clearly that community `02` with represent to a certain extent the "core" of the literature at the basis of DSGE models. Community `04` deals more with econometric problems, while community  `05` tackles international issues.
 
-```{r top-ref-community, fig.cap="Most cited references per communities", fig.dim=c(12,10)}
+```{r top-ref-community, eval=FALSE}
+ragg::agg_png(here("content", "en", "post", "2022-02-03-extracting-biblio-data-2", "top_ref.png"),
+              width = 30, 
+              height = 25,
+              units = "cm",
+              res = 200)
 top_nodes(graph,
           ordering_column = "size",
           top_n = 10,
           top_n_per_com = 6,
           biggest_community = TRUE,
           community_threshold = 0.03) %>% 
-  select(Community_name, references, n) %>% 
+  select(Community_name, references, n, color) %>% 
   mutate(label = str_wrap(references, 35),
          label = tidytext::reorder_within(label, n, Community_name)) %>% 
-  ggplot(aes(n, label, fill = Community_name)) +
+  ggplot(aes(n, label, fill = color)) +
   geom_col(show.legend = FALSE) +
+  scale_fill_identity() +
   facet_wrap(~Community_name, ncol = 3, scales = "free") +
   tidytext::scale_y_reordered() +
   labs(x = "Number of citations", y = NULL) +
   theme_classic(base_size = 10)
+invisible(dev.off())
+```
+
+```{r display-top-ref, echo=FALSE, fig.cap="Most cited references per communities", fig.dim=c(12,10)}
+knitr::include_graphics("top_ref.png")
 ```
 
 # References

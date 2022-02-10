@@ -15,7 +15,7 @@ tags:
 subtitle: 'Exploring Scopus'
 summary: 'In this post, you will learn how to extract data from Scopus website or with Scopus APIs and how to clean the data extracted from Scopus website. These data allow you to build bibliographic networks.'
 authors: []
-lastmod: '2022-02-09'
+lastmod: '2022-02-10'
 featured: no
 draft: no
 lang: en
@@ -662,7 +662,7 @@ direct_citation %>%
 
 <div class="figure">
 
-<img src="{{< blogdown/postref >}}index.fr_files/figure-html/top-ref-country-1.png" alt="Most cited references per countries" width="1152" />
+<img src="{{< blogdown/postref >}}index.en_files/figure-html/top-ref-country-1.png" alt="Most cited references per countries" width="1152" />
 <p class="caption">
 Figure 4: Most cited references per countries
 </p>
@@ -766,11 +766,8 @@ graph <- community_names(graph,
 
 graph <- vite::complete_forceatlas2(graph, 
                                     first.iter = 10000)
-```
 
-    ## Total number of iterations: 4725
 
-``` r
 top_nodes  <- top_nodes(graph, 
                         ordering_column = "size", 
                         top_n = 15, 
@@ -814,29 +811,36 @@ Figure 5: Bibliographic coupling network of articles using DSGE models
 
 </div>
 
-Let’s conclude by observing what are the most cited nodes in each community. We see that community `03` deals with econometric issues while the `07` is linked to fiscal policy issues.
+Let’s conclude by observing what are the most cited nodes in each community. We see that community `04` deals with international issues while the `07` is linked to fiscal policy issues.
 
 ``` r
+ragg::agg_png(here("content", "en", "post", "2022-01-31-extracting-biblio-data-1", "top-ref-country-1.png"),
+              width = 35, 
+              height = 30,
+              units = "cm",
+              res = 200)
 top_nodes(graph,
           ordering_column = "size", 
           top_n_per_com = 6,
           biggest_community = TRUE,
-          community_threshold = 0.02) %>% 
-  select(Community_name, Label, title, n) %>% 
+          community_threshold = 0.04) %>% 
+  select(Community_name, Label, title, n, color) %>% 
   mutate(label = paste0(Label, "-", title) %>% 
            str_wrap(34),
          label = tidytext::reorder_within(label, n, Community_name)) %>% 
-  ggplot(aes(n, label, fill = Community_name)) +
+  ggplot(aes(n, label, fill = color)) +
   geom_col(show.legend = FALSE) +
+  scale_fill_identity() +
   facet_wrap(~Community_name, ncol = 3, scales = "free") +
   tidytext::scale_y_reordered() +
   labs(x = "Number of citations", y = NULL) +
-  theme_classic(base_size = 10)
+  theme_classic(base_size = 11)
+invisible(dev.off())
 ```
 
 <div class="figure">
 
-<img src="{{< blogdown/postref >}}index.fr_files/figure-html/top-ref-community-1.png" alt="Most cited references per communities" width="1152" />
+<img src="top-ref-country-1.png" alt="Most cited references per communities" width="1378" />
 <p class="caption">
 Figure 6: Most cited references per communities
 </p>
