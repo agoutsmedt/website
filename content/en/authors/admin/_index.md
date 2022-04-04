@@ -15,6 +15,7 @@ interests:
 - Macroeconomics
 - Political Economy
 - Economic Expertise
+- Stagflation & Oil shocks
 - R-stats
 - Bibliometrics
 organizations:
@@ -44,6 +45,6 @@ superuser: true
 title: Aurélien Goutsmedt
 ---
 
-I am a historian of economics and a political economist. I work on the history of macroeconomics, economic expertise and policies since the 1970s, notably in central banks. I am also developing quantitative tools to support my research.
+I am a historian of economics and a political economist. I work on the history of macroeconomic ideas, economic expertise and policies (notably central banks' policies) since the 1970s and the stagflation. I am also developing quantitative tools to support my research.
 
 On this website, you will find my publications, courses and current projects. 
