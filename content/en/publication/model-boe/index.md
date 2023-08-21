@@ -19,7 +19,7 @@ image:
   focal_point: ""
   preview_only: false
 links:
-- name: Rebuilding Macroeconomics
+- name: Rebuilding Macroeconomics Project
   url: https://www.rebuildingmacroeconomics.ac.uk/academia-policy-pipeline
 projects:
 - "2"

@@ -15,9 +15,11 @@ image:
   focal_point: ""
   preview_only: false
 links:
+- name: Preprint
+  url: media/pdf/research-boe.pdf
 - name: Appendix
   url: http://penseecritique.recherche.usherbrooke.ca/extra/BoE_Research1_TechAppendix.html
-- name: Rebuilding Macroeconomics
+- name: Projet Rebuilding Macroeconomics
   url: https://www.rebuildingmacroeconomics.ac.uk/academia-policy-pipeline
 projects:
 - "2"
@@ -33,10 +35,10 @@ tags:
 - Topic-Modelling
 title: "Six Decades of Economic Research at the Bank of England"
 #publication:
-publication_types: ["3"]
+publication_types: ["2"]
 #url_code: '#'
 #url_dataset: '#'
-url_pdf: media/pdf/research-boe.pdf
+#url_pdf: media/pdf/research-boe.pdf
 #url_poster: '#'
 #url_project: ""
 #url_slides: ""

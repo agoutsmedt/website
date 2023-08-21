@@ -4,13 +4,13 @@ authors:
 - admin
 date: "2020-11-01T00:00:00Z"
 #doi: "10.2139/ssrn.2837766 "
-featured: false
+featured: true
 image:
   caption:
   focal_point: ""
   preview_only: false
 links:
-- name: Appendix
+- name: Appendice
   url: media/pdf/stagflation-great-inflation-appendix.pdf
 #projects:
 #- "2"
