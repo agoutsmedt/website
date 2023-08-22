@@ -18,7 +18,7 @@ links:
 - name: Appendice
   url: media/pdf/EER-appendix.html
 - name: Publication
-  url: media/pdf/EER-topic.html
+  url: https://www.sciencedirect.com/science/article/pii/S0014292123001873?via%3Dihub
 #projects:
 #- "2"
 publishDate: "2022-04-01T00:00:00Z"
