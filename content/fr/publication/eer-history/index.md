@@ -37,7 +37,7 @@ tags:
 - Political Economy
 
 title: "An Independent European Macroeconomics? A History of European Macroeconomics through the Lens of the European Economic Review"
-publication: "Working Paper"
+publication: "[European Economic Review](https://www.sciencedirect.com/journal/european-economic-review)"
 publication_types: ["2"]
 url_code: 'https://github.com/agoutsmedt/EER_history'
 #url_dataset: 'https://github.com/agoutsmedt/biblionetwork#incorporated-data'
