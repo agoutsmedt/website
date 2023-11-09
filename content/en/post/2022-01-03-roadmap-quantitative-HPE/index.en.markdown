@@ -38,7 +38,7 @@ image:
 projects: []
 ---
 
-<script type="text/javascript">
+<script>
  $(document).ready(function() {
     $('body').prepend('<div class=\"zoomDiv\"><img src=\"\" class=\"zoomImg\"></div>');
     // onClick function for all plots (img's)
@@ -65,16 +65,16 @@ It exists many software (some free, others to buy) that would allow you to use b
 
 Obviously, learning R has a higher entry cost than learning GEPHI—2 or 3 hours should be sufficient to learn the basics of the latter. But it offers many advantages and, in the medium- and long-term, large economies of scale:
 
--   It would allow you to manipulate more easily and more quickly your data than by using excel (either programmatically or manually). You will be able to do things you cannot do in excel. And this becomes more and more true the larger your dataset.
+- It would allow you to manipulate more easily and more quickly your data than by using excel (either programmatically or manually). You will be able to do things you cannot do in excel. And this becomes more and more true the larger your dataset.
 
--   You will be able to use different quantitative methods (bibliometrics, network analysis, natural language processing, econometrics, machine learning, *etc.*) and to build visualisations just by learning one unique language (thanks to the many packages implemented in R).
+- You will be able to use different quantitative methods (bibliometrics, network analysis, natural language processing, econometrics, machine learning, *etc.*) and to build visualisations just by learning one unique language (thanks to the many packages implemented in R).
 
--   Writing “scripts” in R allows you to re-run the same tasks without any supplementary effort each time your data are changing or you want to change a parameter of your analysis. Besides, these scripts are a resource that you will be able to re-use in other projects.
+- Writing “scripts” in R allows you to re-run the same tasks without any supplementary effort each time your data are changing or you want to change a parameter of your analysis. Besides, these scripts are a resource that you will be able to re-use in other projects.
 
--   Outside of quantitative methods strictly speaking, learning R will enable you to do several other things:
+- Outside of quantitative methods strictly speaking, learning R will enable you to do several other things:
 
-    -   writing books, articles, reports and slides efficiently thanks to [Rmarkdown](https://rmarkdown.rstudio.com/) ([Allaire et al. 2021](#ref-R-rmarkdown));
-    -   publishing online your analyses and building dashboards and applications.[^3]
+  - writing books, articles, reports and slides efficiently thanks to [Rmarkdown](https://rmarkdown.rstudio.com/) ([Allaire et al. 2021](#ref-R-rmarkdown));
+  - publishing online your analyses and building dashboards and applications.[^3]
 
 If you are convinced that programming in R could be useful for you as a historian of economics, you now need some resources to learn to code. Here is a list of useful packages and tutorials I wish I had when I started learning to program in R and which I have used extensively since then to improve my skills.
 
@@ -103,7 +103,7 @@ A first package, [bibliometrix](https://www.bibliometrix.org/), offers different
 1.  I was working on large sets of data and *bibliometrix* appeared a bit slow for that;
 2.  I found the functions a bit like black boxes, and not really compatible with the *tidyverse* spirit. However, it seems very rich and I am sure it worth exploring.
 
-Once you have your data—which is far from being an easy step[^7]—I have developed, with the help of [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact) and [François Claveau](https://www.epistemopratique.org/en/), a package to make the creation of very large networks of bibliographic data easy and fast: [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) ([Goutsmedt, Claveau, and Truc 2021](#ref-R-biblionetwork)). What you need as an input is a corpus and the references cited by this corpus, and you will be able to create easily a list of links between articles, references, authors, institutions, *etc.*, with different measures of weights for these links.
+Once you have your data—which is far from being an easy step[^7]—I have developed, with the help of [Alexandre Truc](https://sites.google.com/view/alexandre-truc/home-and-contact) and [François Claveau](https://www.epistemopratique.org/en/), a package to make the creation of very large networks of bibliographic data easy and fast: [biblionetwork](https://agoutsmedt.github.io/biblionetwork/) ([Goutsmedt, Truc, and Claveau 2023](#ref-goutsmedt_2023_7677369)). What you need as an input is a corpus and the references cited by this corpus, and you will be able to create easily a list of links between articles, references, authors, institutions, *etc.*, with different measures of weights for these links.
 
 Once you have your edges/links, you can create a network with the help of the [igraph](https://igraph.org/r/) package ([Csardi and Nepusz 2006](#ref-igraph2006)). *igraph* is a very rich package with many functions to calculate network statistics (like centrality measures), find clusters and arrange the nodes in space. However, manipulating networks with *igraph* is not always very intuitive. Fortunately, the [tidygraph](https://tidygraph.data-imaginist.com/) package ([Pedersen 2020](#ref-R-tidygraph)) allows you to transform the networks in “tidy” data, in the *tidyverse* spirit, and to manipulate the networks accordingly. Similarly, the [ggraph](https://ggraph.data-imaginist.com/) package ([Pedersen 2021](#ref-R-ggraph)), which is an extension of *ggplot2*, allows the production of nice network visualisations.
 
@@ -111,7 +111,7 @@ Once you have your edges/links, you can create a network with the help of the [i
 
 <img src="example-graph.png" alt="Network example from the Mapping Macroeconomics project" width="1772" />
 <p class="caption">
-Figure 1: Network example from the Mapping Macroeconomics project
+<span id="fig:unnamed-chunk-1"></span>Figure 1: Network example from the Mapping Macroeconomics project
 </p>
 
 </div>
@@ -134,7 +134,7 @@ Finally, to help you running topic modelling in R (but also for other text minin
 
 <img src="NLP-R-ecosystem.png" alt="Natural Language Processing ecosystem in R" width="2116" />
 <p class="caption">
-Figure 2: Natural Language Processing ecosystem in R
+<span id="fig:unnamed-chunk-2"></span>Figure 2: Natural Language Processing ecosystem in R
 </p>
 
 </div>
@@ -219,9 +219,9 @@ Edwards, José, Yann Giraud, and Christophe Schinckus. 2018. “A Quantitative T
 
 </div>
 
-<div id="ref-R-biblionetwork" class="csl-entry">
+<div id="ref-goutsmedt_2023_7677369" class="csl-entry">
 
-Goutsmedt, Aurélien, François Claveau, and Alexandre Truc. 2021. *Biblionetwork: Create Different Types of Bibliometric Networks*.
+Goutsmedt, Aurélien, Alexandre Truc, and François Claveau. 2023. “<span class="nocase">biblionetwork: An R Package for Creating Different Types of Bibliometric Networks</span>.” Zenodo. <https://doi.org/10.5281/zenodo.7677369>.
 
 </div>
 
