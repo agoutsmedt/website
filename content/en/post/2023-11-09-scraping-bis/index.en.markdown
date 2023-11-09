@@ -47,7 +47,7 @@ In this post, you will learn how to scrape speeches from the [Bank of Internatio
 
 Web scraping is the process of extracting data from websites. It involves programmatically accessing a website’s content, extracting the data you want, and then saving it for further use. It involves going to a specific URL, retrieving the html content and extract the data you want from this content.
 
-In general, you need to use web scraping when there is no API (Application Programming Interface) for the website data you want to access. An API is a structured and authorized way to access data provided by a website, from a system of queries (for instance, [scopus](https://www.scopus.com/) provides an API to [retrieve its bibliometric data](../extracting-biblio-data-1/)).
+In general, you need to use web scraping when there is no [API](https://en.wikipedia.org/wiki/API) (Application Programming Interface) for the website data you want to access. An API is a structured and authorized way to access data provided by a website, from a system of queries (for instance, [scopus](https://www.scopus.com/) provides an API to [retrieve its bibliometric data](../extracting-biblio-data-1/)).
 
 Scraping data on a website implies various ethical and legal issues (for which I am not a specialist at all!). First, many websites have terms of service agreements that explicitly prohibit web scraping. Engaging in scraping without the website owner’s consent violates these terms and conditions. For instance, [Linkedin](https://www.linkedin.com/) prohibits scraping on its website. However, the “legality” of scraping Linkedin [remains a complex matter](https://www.forbes.com/sites/zacharysmith/2022/04/18/scraping-data-from-linkedin-profiles-is-legal-appeals-court-rules/). Before engaging in scraping, you need to know what are the terms and conditions, and know what are the risks if you violate them.
 
@@ -192,7 +192,7 @@ scraping_path
 
     ## glue("{bis_website_path}cbspeeches/index.htm?fromDate={day}%2F{month}%2F{year}&cbspeeches_page={page}&cbspeeches_page_length=25")
 
-But then I can enter the parameter I want for the date (here, the ninth of October, 2023).
+But then I can enter the parameters I want for the date (here, the ninth of October, 2023).
 
 ``` r
 day <- "09"
@@ -200,7 +200,7 @@ month <- "10"
 year <- 2023
 ```
 
-And I can evaluate the expression with these parameters, also entering a certain page. This will be useful later in a loop to navigate from one page to the next.
+And I can evaluate the expression with these parameters, also selecting a certain page. This will be useful later in a loop to navigate from one page to the next.
 
 ``` r
 eval(scraping_path, envir = list(page = 3))
@@ -233,14 +233,14 @@ remote_driver <- driver[["client"]]
 
 ### Extracting the data page by page
 
-What we want to do is to retrieve the data about each speech (the date, the title, its description, the speaker, and also its corresponding URL) page by page. This is something that we can do with a `for` loop. But we first need to know the number of pages. You can normally see it at the bottom right of the pages.
+What we want to do is to retrieve the data about each speech (the date, the title, its description, the speaker, and also its corresponding URL) page by page. This is something that we can do with a `for` loop. But we first need to know the number of pages. You can normally see it at the bottom right of the web page.
 
 There could be different way to extract this information. Here, we will use the “CSS selector”. Using the CSS selector has two advantages:
 
 - It has in general a simpler content than an XPATH
 - It can be easily retrieved thanks to a Firefox add-on (which exists also for Chrome): [ScrapeMate](https://addons.mozilla.org/fr/firefox/addon/scrapemate/)
 
-Once you have set up the add-on, you can go to the url we are working on and find the “CSS selector” for the number of pages:
+Once you have set up the add-on, you can go to the URL we are working on and find the “CSS selector” for the number of pages:
 
 <div class="figure" style="text-align: center">
 
@@ -269,7 +269,7 @@ nb_pages
 
 Ok. Now we can run the loop to retrieve all the data for the 3 pages. Here, we will conform to the delay set by the polite package: we will wait 5 seconds on each page, not to hammer the website with too many requests. As we need the web page to load properly to retrieve the data, it is also a way to take the time of loading the page to avoid missing data if your internet connection is too slow.
 
-Here, you just have to use *scrapemate* to find the appropriate css selector for each information and extract the corresponding text. You can also see that by clicking on the title of the speech, you are navigating towards the dedicated web page of the corresponding speech. It means that to the title is associated a URL link, a “href” in html language. So you need to extract the “href” attribute associated to the title thanks to *RSelenium*.
+Here, you just have to use *scrapemate* to find the appropriate CSS selector for each information and extract the corresponding text. You can also see that by clicking on the title of the speech, you are navigating towards the dedicated web page of the corresponding speech. It means that to the title is associated a URL link, a “href” in html language. So you need to extract the “href” attribute associated to the title thanks to *RSelenium*.
 
 ``` r
 metadata <- tibble(date = c(),
@@ -330,7 +330,7 @@ if(nb_items == nrow(metadata)){
 
 ### Downloading the PDF
 
-Now we have the metadata of the speeches. But one thing we are interested in at the end is to know what the speeches are about. Most of the speeches are stored in a pdf. To retrieve these PDF, you just need to use the URL of the speech, and replace the end of the URL “.htm” by “.pdf”. From the metadata list, we can have the whole list of the PDF we want to download.
+Now we have the metadata of the speeches. But one thing we are interested in at the end is to know what the speeches are about. Most of the speeches are stored in a pdf. To retrieve these PDFs, you just need to use the URL of the speech, and replace the end of the URL “.htm” by “.pdf”. From the metadata list, we can have the whole list of the PDFs we want to download.
 
 ``` r
 pdf_to_download <- metadata %>% 
@@ -365,7 +365,7 @@ polite_download <- function(domain, url, ...){
 }
 ```
 
-There is a possibility that some PDFs are missing (that is not the case here, but it happens with the whole dataset of BIS speeches). The problem is that if a PDF is missing, you will get an error and it will stop the process of downloading PDF So you need to use the `tryCatch()` function to take into account this error but continue the downloading process.
+There is a possibility that some PDFs are missing (that is not the case here, but it happens with the whole dataset of BIS speeches). The problem is that if a PDF is missing, you will get an error and it will stop the process of downloading PDFs So you need to use the `tryCatch()` function to take into account this error but continue the downloading process.
 
 ``` r
 tryCatch(
@@ -445,9 +445,9 @@ pdf_without_ocr
     ##  [6] "r231017b.pdf" "r231011g.pdf" "r231010g.pdf" "r231010e.pdf" "r231010d.pdf"
     ## [11] "r231010c.pdf" "r231010b.pdf"
 
-Setting the threshold at 250 words is a pure rule of thumb: it allows having only true positive, but it does not prevent for having false negative (missing document with OCR problem). It should be possible to find a better method to assess which pdf have no OCR.
+Setting the threshold at 250 words is a pure rule of thumb: it allows having only true positive, but it does not prevent for having false negative (missing documents with OCR problem). It should be possible to find a better method to assess which PDF have no OCR.
 
-Here is an example of a problematic pdf:
+Here is an example of a problematic PDF:
 
 ``` r
 text_data %>% 
@@ -524,6 +524,8 @@ file.remove(png_to_remove)
 ```
 
 And that’s it for the tutorial. You now have a data frame with the metadata of the speeches, and a data frame with the text, page by page for each speech.
+
+If you want to scrap BIS speeches on a regular basis without scraping again what you have already collected, you may have a look at this script [here](https://github.com/agoutsmedt/central_bank_database/blob/master/scraping_scripts/scraping_bis.R), which is part of a [project to collect central banks’ documents](https://github.com/agoutsmedt/central_bank_database/tree/master). You will also find in it some function to clean BIS data.
 
 ## References
 
