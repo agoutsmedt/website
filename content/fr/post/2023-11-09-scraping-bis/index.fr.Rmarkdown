@@ -13,7 +13,7 @@ tags:
 - Research Tools
 - Quantitative Analysis
 - Central Banks
-subtitle: Scraping Tutorials 1
+subtitle: "Scraping Tutorials 1"
 summary: "Dans ce billet, vous apprendrez comment moissonner les discours de la [base de données de la Banque des règlements internationaux](https://www.bis.org/cbspeeches/index.htm?m=256) qui rassemble la plupart des discours des banquiers centraux en anglais."
 authors: []
 lastmod: "`r Sys.Date()`"

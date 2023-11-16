@@ -44,9 +44,13 @@ projects: []
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, fig.dim=c(14,10), fig.align = "center")
 ```
 
+
+
 ## Scraping data
 
-In this post, you will learn how to scrape speeches from the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), which gathers most of central bankers' speeches in English. We will do it programming in R. Before going along the scraping, let's start by a general introduction about what web scraping is.
+In this post, you will learn how to scrape speeches from the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), which gathers most of central bankers' speeches in English. We will do it programming in R. The next [post](/post/scraping-ecb) focuses on scraping documents from the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website.
+
+Before going along the scraping, let's start by a general introduction about what web scraping is.
 
 ### What is web scraping?
 
@@ -126,7 +130,7 @@ session <- bow(bis_website_path)
 session
 ```
 
-By looking at the *robots.txt* file, we can see more in details which paths of the webstite are scrapable or not. 
+By looking at the *robots.txt* file, we can see more in details which paths of the website are scrapable or not. 
  
 ```{r robotstxt}
 cat(session$robotstxt$text)
