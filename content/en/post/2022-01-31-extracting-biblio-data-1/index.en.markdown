@@ -15,7 +15,7 @@ tags:
 subtitle: 'Exploring Scopus'
 summary: 'In this post, you will learn how to extract data from Scopus website or with Scopus APIs and how to clean the data extracted from Scopus website. These data allow you to build bibliographic networks.'
 authors: []
-lastmod: '2022-02-10'
+lastmod: '2023-11-16'
 featured: no
 draft: no
 lang: en
@@ -96,7 +96,7 @@ If you don’t have one, you will need to create an account on [Scopus](https://
 
 <img src="scopus_search.png" alt="Scopus search page" width="940" />
 <p class="caption">
-Figure 1: Scopus search page
+<span id="fig:scopus-search"></span>Figure 1: Scopus search page
 </p>
 
 </div>
@@ -105,7 +105,7 @@ Figure 1: Scopus search page
 
 <img src="scopus_search_2.png" alt="Scopus results page" width="942" />
 <p class="caption">
-Figure 2: Scopus results page
+<span id="fig:scopus-search-2"></span>Figure 2: Scopus results page
 </p>
 
 </div>
@@ -114,15 +114,15 @@ Figure 2: Scopus results page
 
 <img src="scopus_csv_export.png" alt="Choosing the information to export in a CSV" width="948" />
 <p class="caption">
-Figure 3: Choosing the information to export in a CSV
+<span id="fig:scopus-csv-export"></span>Figure 3: Choosing the information to export in a CSV
 </p>
 
 </div>
 
 The `.csv` you have exported gathers metadata on authors, title, journal, abstract, keywords, affiliations and references on documents (mainly articles, but also conference papers, book chapters, and reviews) mentioning DSGE in their title, abstract or keywords. There are two limits at this method for extracting data:
 
--   the quantity of data you can export is limited to 2000, which is not much;
--   part of the metadata are relatively raw, like affiliations and references, what involves some cleaning.
+- the quantity of data you can export is limited to 2000, which is not much;
+- part of the metadata are relatively raw, like affiliations and references, what involves some cleaning.
 
 I will show you how to clean these raw data in the next [section](#cleaning-scopus-data). But the following [sub-section](#alternative-method-using-scopus-apis-and-rscopus) explains you how to use Scopus APIs directly in R, to query more easily for different data and extract more items.
 
@@ -157,9 +157,9 @@ dsge_data_raw <- gen_entries_to_df(dsge_query$entries)
 
 We can finally separate the different `data.frames`. We get three tables with different types of information:
 
--   A table with all the articles and their metadata;
--   A table with the list of all authors of the articles;
--   A table with the list of affiliations.
+- A table with all the articles and their metadata;
+- A table with the list of all authors of the articles;
+- A table with the list of affiliations.
 
 ``` r
 dsge_papers <- dsge_data_raw$df
@@ -168,6 +168,8 @@ dsge_authors <- dsge_data_raw$author
 ```
 
 Now that we have the articles, we have to extract the references using scopus “[Abstract Retrieval API](https://dev.elsevier.com/documentation/AbstractRetrievalAPI.wadl)”. We use articles internal identifier to find references. But we cannot query references with multiple identifiers, so we need to make a loop to extract references one by one. We create a `list` where we put the references for each articles (we have as many `data.frames` as articles in our list) and we bind the `data.frames` together, associating each of them to the identifier of the corresponding citing article.[^4]
+
+\[Modification from November 16, 2023, following a comment by Olivier:\] Another issue with extracting references is that you cannot extract more than 40 references per article. If an article has more than 40 references in its bibliography, you need to make a loop in order to collect all the references.
 
 ``` r
 citing_articles <- dsge_papers$`dc:identifier` # extracting the IDs of our articles on dsge
@@ -178,12 +180,27 @@ for(i in 1:length(citing_articles)){
                                         identifier = "scopus_id",
                                         view = "REF",
                                         headers = insttoken)
-  citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)
-  
-  message(i)
-  if(length(citations$df) > 0){
-    message(paste0(citing_articles[i], " is not empty."))
-    citations <- citations$df %>% 
+  if(!is.null(citations_query$content$`abstracts-retrieval-response`)){ # Checking if the article has some references before collecting them
+    
+    nb_ref <- as.numeric(citations_query$content$`abstracts-retrieval-response`$references$`@total-references`)
+    citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+    
+    if(nb_ref > 40){ # The loop to collect all the references
+      nb_query_left_to_do <- floor((nb_ref) / 40)
+      cat("Number of requests left to do :", nb_query_left_to_do, "\n")
+      for (j in 1:nb_query_left_to_do){
+        cat("Request n°", j , "\n")
+        citations_query <- abstract_retrieval(citing_articles[i],
+                                              identifier = "scopus_id",
+                                              view = "REF",
+                                              startref = 40*j+1,
+                                              headers = insttoken)
+        citations_sup <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+        citations <- bind_rows(citations, citations_sup)
+      }
+    }
+    
+    citations <- citations %>% 
       as_tibble(.name_repair = "unique") %>%
       select_if(~!all(is.na(.)))
     
@@ -217,45 +234,45 @@ scopus_search <- rbind(scopus_search_1, scopus_search_2) %>%
 scopus_search
 ```
 
-    ## # A tibble: 2,608 x 23
+    ## # A tibble: 2,608 × 23
     ##    authors      title  year source_title volume issue art_no page_start page_end
     ##    <chr>        <chr> <dbl> <chr>        <chr>  <chr> <chr>  <chr>      <chr>   
-    ##  1 Ha J., So I. Infl~  2013 Global Econ~ 42     4     <NA>   396        424     
-    ##  2 Botero J., ~ Exog~  2013 Revista de ~ 16     1     <NA>   1          24      
-    ##  3 Kirsanova T~ Comm~  2013 Internation~ 9      4     <NA>   99         151     
-    ##  4 Ashimov A.A~ Para~  2013 Economic De~ <NA>   <NA>  <NA>   95         188     
-    ##  5 Khan A., Th~ Cred~  2013 Journal of ~ 121    6     <NA>   1055       1107    
-    ##  6 Jerábek T.,~ Pred~  2013 Acta Univer~ 61     7     <NA>   2229       2238    
-    ##  7 Hu X., Xu B~ Infl~  2013 Journal of ~ 5      12    <NA>   636        641     
-    ##  8 Cha H.       Taki~  2013 Internation~ 7      2     <NA>   280        296     
-    ##  9 da Silva M.~ The ~  2013 North Ameri~ 26     <NA>  <NA>   266        281     
-    ## 10 Sandri D., ~ Fina~  2013 Journal of ~ 45     SUPP~ <NA>   59         86      
-    ## # ... with 2,598 more rows, and 14 more variables: page_count <dbl>,
-    ## #   cited_by <dbl>, doi <chr>, affiliations <chr>,
-    ## #   authors_with_affiliations <chr>, abstract <chr>, author_keywords <chr>,
-    ## #   index_keywords <chr>, references <chr>, correspondence_address <chr>,
-    ## #   language_of_original_document <chr>, document_type <chr>, source <chr>,
-    ## #   citing_id <chr>
+    ##  1 Ha J., So I. Infl…  2013 Global Econ… 42     4     <NA>   396        424     
+    ##  2 Botero J., … Exog…  2013 Revista de … 16     1     <NA>   1          24      
+    ##  3 Kirsanova T… Comm…  2013 Internation… 9      4     <NA>   99         151     
+    ##  4 Ashimov A.A… Para…  2013 Economic De… <NA>   <NA>  <NA>   95         188     
+    ##  5 Khan A., Th… Cred…  2013 Journal of … 121    6     <NA>   1055       1107    
+    ##  6 Jeřábek T.,… Pred…  2013 Acta Univer… 61     7     <NA>   2229       2238    
+    ##  7 Hu X., Xu B… Infl…  2013 Journal of … 5      12    <NA>   636        641     
+    ##  8 Cha H.       Taki…  2013 Internation… 7      2     <NA>   280        296     
+    ##  9 da Silva M.… The …  2013 North Ameri… 26     <NA>  <NA>   266        281     
+    ## 10 Sandri D., … Fina…  2013 Journal of … 45     SUPP… <NA>   59         86      
+    ## # ℹ 2,598 more rows
+    ## # ℹ 14 more variables: page_count <dbl>, cited_by <dbl>, doi <chr>,
+    ## #   affiliations <chr>, authors_with_affiliations <chr>, abstract <chr>,
+    ## #   author_keywords <chr>, index_keywords <chr>, references <chr>,
+    ## #   correspondence_address <chr>, language_of_original_document <chr>,
+    ## #   document_type <chr>, source <chr>, citing_id <chr>
 
 There are several things to clean:
 
--   We have several `authors` per document. For some analysis, for instance co-authorship networks, it is better to have an “author table” which associates each author to a list of papers;
--   We have several `affiliations` per article as well as several `authors_with_affiliations`. It allows us to connect authors with their affiliations, but here again we need to separate it in as many lines as authors (if I am not mistaken, it seems there is only one affiliation per author in this set of data);
--   `references`;
--   Possibly to separate `author_keywords` and `index_keywords` if you want to use it.
+- We have several `authors` per document. For some analysis, for instance co-authorship networks, it is better to have an “author table” which associates each author to a list of papers;
+- We have several `affiliations` per article as well as several `authors_with_affiliations`. It allows us to connect authors with their affiliations, but here again we need to separate it in as many lines as authors (if I am not mistaken, it seems there is only one affiliation per author in this set of data);
+- `references`;
+- Possibly to separate `author_keywords` and `index_keywords` if you want to use it.
 
 In what follows, we clean `scopus_search` in order to produce 3 additional `data.frames`:
 
--   one `data.frame` which associates each article to a list of authors and their corresponding affiliation (see [below](#extracting-affiliations-and-authors));
--   one data.frame which associate each article to the list of references it cites (one article has as many lines as the number of cited references): this is a “direct citation” table (see [here](#clean-references));
--   a list of all the references cited, which implies to find which references are the same in the direct citation table (see this [sub-section](#matching-references))
+- one `data.frame` which associates each article to a list of authors and their corresponding affiliation (see [below](#extracting-affiliations-and-authors));
+- one data.frame which associate each article to the list of references it cites (one article has as many lines as the number of cited references): this is a “direct citation” table (see [here](#clean-references));
+- a list of all the references cited, which implies to find which references are the same in the direct citation table (see this [sub-section](#matching-references))
 
 ### Extracting affiliations and authors
 
 We have two columns for affiliations:
 
--   one column `affiliations` with affiliations alone;
--   one column, `authors_with_affiliations` with both authors and affiliations.
+- one column `affiliations` with affiliations alone;
+- one column, `authors_with_affiliations` with both authors and affiliations.
 
 ``` r
 affiliations_raw <- scopus_search %>% 
@@ -401,8 +418,8 @@ cleaned_non_articles <- cleaning_non_articles %>%
 
 We merge the two `data.frames` and:
 
--   we normalize and clean authors’ name to facilitate matching of references later;
--   we extract useful information like [DOI](https://en.wikipedia.org/wiki/Digital_object_identifier) and [PII](https://en.wikipedia.org/wiki/Publisher_Item_Identifier).
+- we normalize and clean authors’ name to facilitate matching of references later;
+- we extract useful information like [DOI](https://en.wikipedia.org/wiki/Digital_object_identifier) and [PII](https://en.wikipedia.org/wiki/Publisher_Item_Identifier).
 
 ``` r
 # merging the two files.
@@ -438,11 +455,11 @@ knitr::kable(head(cleaned_ref, n = 3))
 
 What we need to do now is to find which references are the same, to give them a unique ID. The trade-off is to match as many true positive as possible (references that are the same) while avoiding to match false positive, that is references that have some information in common, but that actually are not the same references. For instance, matching only by the authors’ names and the year of publication is too broad, as these authors can have published several articles during the same year. Here are several ways to identify a common reference that bear very few risks of matching together different references:
 
--   same first author surname or authors, year, volume and page (this is the most secure ones): let’s call them `fayvp` & `ayvp`;
--   same journal, volume, issue and first page: `jvip`;
--   same author, year and title: `ayt`;
--   same title, year and first page: `typ`;
--   same Doi or PII.[^6]
+- same first author surname or authors, year, volume and page (this is the most secure ones): let’s call them `fayvp` & `ayvp`;
+- same journal, volume, issue and first page: `jvip`;
+- same author, year and title: `ayt`;
+- same title, year and first page: `typ`;
+- same Doi or PII.[^6]
 
 We extract first author surname to favour matching as there are more possibilities of small differences for several authors that would prevent us to match similar references.[^7]
 
@@ -604,7 +621,7 @@ knitr::kable(head(bib_ref))
 
 For now, there is one major limitation to this method (which is most likely linked to my lack of mastery of anystyle and ruby): the result is a list of unique references. In other words, anystyle merge together references that are similar. It means that I have to find a way to build a link between the original references `data.frame` and the `data.frame` build on the `.bib`.[^9]
 
-Ideally, you can clean a bit the result. Anystyle is pretty good (and clearly better than I) for identifying the types of references, and thus to extract book title for chapter in books and editors. It is quite efficient to extract authors, and also titles even if saw many mistakes (but relatively to clean, as most of the time it is the year that has been put with the title). However, I also saw many mistakes for journals (incomplete name) that are not so easy to correct. If you want to clean your references data as much as possible, perhaps the best thing to do is to mix the coding cleaning approach used above with the anystyle method, and to complete missing information with one or another method.
+Ideally, you can clean a bit the result. Anystyle is pretty good (and clearly better than I) for identifying the types of references, and thus to extract book title for chapter in books and editors. It is quite efficient to extract authors and titles even if I have seen many mistakes (but relatively easy to clean, as most of the time it is the year that has been put with the title). However, I also saw many mistakes for journals (incomplete name) that are not so easy to correct. If you want to clean your references data as much as possible, perhaps the best thing to do is to mix the coding cleaning approach used above with the anystyle method, and to complete missing information with one or another method.
 
 ## Exploring the DSGE literature
 
@@ -664,7 +681,7 @@ direct_citation %>%
 
 <img src="{{< blogdown/postref >}}index.en_files/figure-html/top-ref-country-1.png" alt="Most cited references per countries" width="1152" />
 <p class="caption">
-Figure 4: Most cited references per countries
+<span id="fig:top-ref-country"></span>Figure 4: Most cited references per countries
 </p>
 
 </div>
@@ -692,18 +709,20 @@ edges <- biblionetwork::biblio_cocitation(filter(direct_citation, new_id_ref %in
 edges
 ```
 
-    ##         from    to    weight Source Target
-    ##     1:     2     4 0.2354379      2      4
-    ##     2:     2     5 0.1244966      2      5
-    ##     3:     2     6 0.0518193      2      6
-    ##     4:     2     7 0.1623352      2      7
-    ##     5:     2    14 0.1349191      2     14
-    ##    ---                                    
-    ## 42657: 64761 64841 0.4045199  64761  64841
-    ## 42658: 64841 64936 0.3481553  64841  64936
-    ## 42659: 66416 68931 0.7453560  66416  68931
-    ## 42660: 66416 68935 0.5039526  66416  68935
-    ## 42661: 68931 68935 0.6761234  68931  68935
+    ## Key: <Source>
+    ##          from     to    weight Source Target
+    ##        <char> <char>     <num>  <int>  <int>
+    ##     1:      2      4 0.2354379      2      4
+    ##     2:      2      5 0.1244966      2      5
+    ##     3:      2      6 0.0518193      2      6
+    ##     4:      2      7 0.1623352      2      7
+    ##     5:      2     14 0.1349191      2     14
+    ##    ---                                      
+    ## 42657:  64761  64841 0.4045199  64761  64841
+    ## 42658:  64841  64936 0.3481553  64841  64936
+    ## 42659:  66416  68931 0.7453560  66416  68931
+    ## 42660:  66416  68935 0.5039526  66416  68935
+    ## 42661:  68931  68935 0.6761234  68931  68935
 
 We can then take our corpus and these edges to create a network/graph thanks to [`tidygraph`](https://tidygraph.data-imaginist.com/index.html) ([Pedersen 2020](#ref-R-tidygraph)) and [`networkflow`](https://github.com/agoutsmedt/networkflow). I don’t enter in the details here as that is not the purpose of this tutorial and that the different steps are explained on `networkflow` [website](https://github.com/agoutsmedt/networkflow).
 
@@ -718,26 +737,26 @@ graph
     ## #
     ## # An undirected simple graph with 1 component
     ## #
-    ## # Node Data: 2,836 x 18 (active)
-    ##      Id authors  year title journal volume issue pages first_page book_title
-    ##   <int> <chr>   <int> <chr> <chr>   <chr>  <chr> <chr> <chr>      <chr>     
-    ## 1     2 CALVO,~  1983 "STA~ JOURNA~ 12     3     383-~ 383        <NA>      
-    ## 2     4 DIXIT,~  1977 "MON~ AMERIC~ 67     3     297-~ 297        <NA>      
-    ## 3     5 GERALI~  2010 "CRE~ WORKIN~ 42     6     107-~ 107        <NA>      
-    ## 4     6 GOODFR~  2007 "BAN~ JOURNA~ 54     5     1480~ 1480       <NA>      
-    ## 5     7 IACOVI~  2005 "HOU~ AMERIC~ 95     3     739-~ 739        <NA>      
-    ## 6    14 ROTEMB~  1982 "MON~ REVIEW~ 49     4     517-~ 517        <NA>      
-    ## # ... with 2,830 more rows, and 8 more variables: publisher <chr>,
-    ## #   references <chr>, doi <chr>, pii <chr>, first_author <chr>,
-    ## #   first_author_surname <chr>, nb_na <dbl>, n <int>
+    ## # A tibble: 2,836 × 18
+    ##      Id authors      year title journal volume issue pages first_page book_title
+    ##   <int> <chr>       <int> <chr> <chr>   <chr>  <chr> <chr> <chr>      <chr>     
+    ## 1     2 CALVO, G.    1983 "STA… JOURNA… 12     3     383-… 383        <NA>      
+    ## 2     4 DIXIT, A.,…  1977 "MON… AMERIC… 67     3     297-… 297        <NA>      
+    ## 3     5 GERALI, A.…  2010 "CRE… WORKIN… 42     6     107-… 107        <NA>      
+    ## 4     6 GOODFRIEND…  2007 "BAN… JOURNA… 54     5     1480… 1480       <NA>      
+    ## 5     7 IACOVIELLO…  2005 "HOU… AMERIC… 95     3     739-… 739        <NA>      
+    ## 6    14 ROTEMBERG,…  1982 "MON… REVIEW… 49     4     517-… 517        <NA>      
+    ## # ℹ 2,830 more rows
+    ## # ℹ 8 more variables: publisher <chr>, references <chr>, doi <chr>, pii <chr>,
+    ## #   first_author <chr>, first_author_surname <chr>, nb_na <dbl>, n <int>
     ## #
-    ## # Edge Data: 42,661 x 5
+    ## # A tibble: 42,661 × 5
     ##    from    to weight Source Target
     ##   <int> <int>  <dbl>  <int>  <int>
     ## 1     1     2 0.235       2      4
     ## 2     1     3 0.124       2      5
     ## 3     1     4 0.0518      2      6
-    ## # ... with 42,658 more rows
+    ## # ℹ 42,658 more rows
 
 ``` r
 set.seed(1234)
@@ -806,7 +825,7 @@ ggraph(graph, "manual", x = x, y = y) +
 
 <img src="featured.png" alt="Bibliographic coupling network of articles using DSGE models" width="1181" />
 <p class="caption">
-Figure 5: Bibliographic coupling network of articles using DSGE models
+<span id="fig:display-network"></span>Figure 5: Bibliographic coupling network of articles using DSGE models
 </p>
 
 </div>
@@ -842,7 +861,7 @@ invisible(dev.off())
 
 <img src="top-ref-country-1.png" alt="Most cited references per communities" width="1378" />
 <p class="caption">
-Figure 6: Most cited references per communities
+<span id="fig:top-ref-community-plot"></span>Figure 6: Most cited references per communities
 </p>
 
 </div>

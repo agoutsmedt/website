@@ -22,7 +22,7 @@
 
 [[fr.menu.main]]
   name = "Blog"
-  url = "../post/"
+  url = "../fr/post/"
   weight = 20
 
 [[fr.menu.main]]
@@ -37,5 +37,5 @@
 
 [[fr.menu.main]]
   name = "Enseignement"
-  url = "courses/"
+  url = "/fr/courses/"
   weight = 60

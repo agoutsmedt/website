@@ -1,7 +1,7 @@
 ---
 title: "Scraping Working Papers from the European Central Bank Website"
 author: "Aurélien Goutsmedt"
-date: "2023-11-13"
+date: "2023-11-16"
 slug: "scraping-ecb"
 categories:
 - Scraping
@@ -270,9 +270,9 @@ And you now have a nice table of metadata for ECB occasional papers! The [post o
 
 ## Another Method?
 
-You can use the method above to scrape the metadata for the almost 3000 thousands working papers of the ECB. But you can imagine that it takes a very long time to scroll down the page, and above all to open all the "Details" menu. *RSelenium* is wonderfully useful to interact with web browser, but sometimes, by digging into the source code of a webpage, you may find easier ways to extract relevant information. 
+You can use the method above to scrape the metadata for the almost 3000 working papers of the ECB. But you can imagine that it takes a very long time to scroll down the page, and above all to open all the "Details" menu. *RSelenium* is wonderfully useful to interact with web browser, but sometimes, by digging into the source code of a webpage, you may find easier ways to extract relevant information. 
 
-And this is possible for the ECB research pages. We already add a clue of it above in this post. Indeed, let's look again at the code related to the "lazyload-container". 
+And this is possible for the ECB research pages. We have already come across a clue to this earlier in this post. Indeed, let's look again at the code related to the "lazyload-container". 
 
 ```{r lazyload-again, fig.cap="Digging into ECB's website code",  echo=FALSE}
 knitr::include_graphics("lazyload.png")
@@ -284,7 +284,7 @@ Actually it tells us that the website is loading some other pages, ending with "
 knitr::include_graphics("new_ecb_page.png")
 ```
 
-So we can scrape quite easily the occasional-papers for 2023:
+So we can scrape quite easily the occasional papers for 2023:
 
 ```{r other-ecb-method, eval = FALSE}
 

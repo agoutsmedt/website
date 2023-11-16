@@ -162,6 +162,8 @@ dsge_authors <- dsge_data_raw$author
 
 Now that we have the articles, we have to extract the references using scopus "[Abstract Retrieval API](https://dev.elsevier.com/documentation/AbstractRetrievalAPI.wadl)". We use articles internal identifier to find references. But we cannot query references with multiple identifiers, so we need to make a loop to extract references one by one. We create a `list` where we put the references for each articles (we have as many `data.frames` as articles in our list) and we bind the `data.frames` together, associating each of them to the identifier of the corresponding citing article.^[We remove all `citations` `data.frames` that are empty (i.e. when an article cites nothing).] 
 
+[Modification from November 16, 2023, following a comment by Olivier:] Another issue with extracting references is that you cannot extract more than 40 references per article. If an article has more than 40 references in its bibliography, you need to make a loop in order to collect all the references.
+
 ```{r extract-references-api, eval = FALSE}
 citing_articles <- dsge_papers$`dc:identifier` # extracting the IDs of our articles on dsge
 citation_list <- list()
@@ -171,12 +173,27 @@ for(i in 1:length(citing_articles)){
                                         identifier = "scopus_id",
                                         view = "REF",
                                         headers = insttoken)
-  citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)
-  
-  message(i)
-  if(length(citations$df) > 0){
-    message(paste0(citing_articles[i], " is not empty."))
-    citations <- citations$df %>% 
+  if(!is.null(citations_query$content$`abstracts-retrieval-response`)){ # Checking if the article has some references before collecting them
+    
+    nb_ref <- as.numeric(citations_query$content$`abstracts-retrieval-response`$references$`@total-references`)
+    citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+    
+    if(nb_ref > 40){ # The loop to collect all the references
+      nb_query_left_to_do <- floor((nb_ref) / 40)
+      cat("Number of requests left to do :", nb_query_left_to_do, "\n")
+      for (j in 1:nb_query_left_to_do){
+        cat("Request n°", j , "\n")
+        citations_query <- abstract_retrieval(citing_articles[i],
+                                              identifier = "scopus_id",
+                                              view = "REF",
+                                              startref = 40*j+1,
+                                              headers = insttoken)
+        citations_sup <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+        citations <- bind_rows(citations, citations_sup)
+      }
+    }
+    
+    citations <- citations %>% 
       as_tibble(.name_repair = "unique") %>%
       select_if(~!all(is.na(.)))
     
@@ -530,7 +547,7 @@ knitr::kable(head(bib_ref))
 
 For now, there is one major limitation to this method (which is most likely linked to my lack of mastery of anystyle and ruby): the result is a list of unique references. In other words, anystyle merge together references that are similar. It means that I have to find a way to build a link between the original references `data.frame` and the `data.frame` build on the `.bib`.^[As I find anystyle a very interesting tool, I will try to work on that issue in the following months and find a solution. An easy way to do it would perhaps be to save one `.txt` per citing article and to run anystyle for all the `.txt`. We will have as many `.bib` as articles and we will just have to bind the resulting `data.frames`.]
 
-Ideally, you can clean a bit the result. Anystyle is pretty good (and clearly better than I) for identifying the types of references, and thus to extract book title for chapter in books and editors. It is quite efficient to extract authors, and also titles even if saw many mistakes (but relatively to clean, as most of the time it is the year that has been put with the title). However, I also saw many mistakes for journals (incomplete name) that are not so easy to correct. If you want to clean your references data as much as possible, perhaps the best thing to do is to mix the coding cleaning approach used above with the anystyle method, and to complete missing information with one or another method.
+Ideally, you can clean a bit the result. Anystyle is pretty good (and clearly better than I) for identifying the types of references, and thus to extract book title for chapter in books and editors. It is quite efficient to extract authors and titles even if I have seen many mistakes (but relatively easy to clean, as most of the time it is the year that has been put with the title). However, I also saw many mistakes for journals (incomplete name) that are not so easy to correct. If you want to clean your references data as much as possible, perhaps the best thing to do is to mix the coding cleaning approach used above with the anystyle method, and to complete missing information with one or another method.
 
 ## Exploring the DSGE literature
 

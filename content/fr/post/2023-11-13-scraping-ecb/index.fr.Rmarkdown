@@ -1,0 +1,322 @@
+---
+title: "Moissonner les documents de travail de la Banque Centrale Européenne"
+author: "Aurélien Goutsmedt"
+date: "2023-11-16"
+slug: "scraping-ecb"
+categories:
+- Scraping
+- R Tutorials
+- Central Banks
+tags:
+- Scraping
+- R
+- Research Tools
+- Quantitative Analysis
+- Central Banks
+subtitle: "Scraping Tutorials 2"
+summary: "Dans ce billet, vous apprendrez comment moissonner divers documents de recherche sur le site de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html)."
+authors: []
+lastmod: "`r Sys.Date()`"
+featured: no
+draft: no
+lang: en
+bibliography: bibliography.bib
+link-citations: yes
+color-links: yes
+linkcolor: teal
+urlcolor: blue
+citecolor: red
+endnote: no
+toc: yes
+number_sections: true
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+{{% toc %}}
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, fig.dim=c(14,10), fig.align = "center")
+```
+
+Après un [premier billet](/fr/post/scraping-bis) sur le *scraping* de la [base de données des discours de la Banque des règlements internationaux](https://www.bis.org/cbspeeches/index.htm?m=256), ce billet vous apprend à moissonner les documents du site de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html). Plus précisément, nous ne récupérerons pas les discours des membres du conseil d'administration de la BCE, car ils sont déjà disponibles au format `.csv` [ici](https://www.ecb.europa.eu/press/key/html/downloads.en.html). Nous allons plutôt nous attaquer aux documents de recherche via les différentes séries de documents de travail publiés par la BCE. 
+
+Dans le billet précédent, nous avons appris la différence entre les pages web statiques et dynamiques. Les pages web dynamiques impliquent une interaction avec votre navigateur web : dans ce cas, vous avez besoin du pacquet [RSelenium](https://docs.ropensci.org/RSelenium/) [@R-rselenium].^[Voir la fin de ce tutoriel pour quelques astuces pour "transformer" des pages web dynamiques complexes en pages plus simples et ne pas utiliser *RSelenium*]. 
+
+Là encore, nous serons confrontés à des pages web dynamiques. Cependant, ces pages web soulèvent de nouvelles questions. Avec la base de données de la BRI, le principal problème était de passer à la page suivante pour récupérer les métadonnées des discours suivants. Nous l'avons fait en [trouvant comment le numéro de page était intégré dans l'URL](/fr/post/scraping-bis/#aller-sur-le-site-web-de-la-bri-et-lancer-le-bot). Avec le site de la BCE, le problème sera plus délicat pour deux raisons : 
+
+- Premièrement, tous les documents sont sur la même page mais comme la page peut être très longue (en fonction du type de documents), la page n'est pas entièrement chargée par votre navigateur. Vous devrez donc faire défiler la page vers le bas jusqu'à ce que tous les documents soient chargés. 
+- Deuxièmement, certaines informations (comme le résumé ou les [codes JEL](https://www.aeaweb.org/econlit/jelCodes.php?view=jel) d'un document de travail) sont cachées, et vous devez cliquer sur un bouton pour les afficher.
+
+Avant d'explorer cela en détail, chargeons les paquets nécessaires. Cette fois, nous utiliserons [rvest](https://rvest.tidyverse.org/) [@R-rvest] en complément de *RSelenium* et [polite](https://dmi3kno.github.io/polite/) [@R-polite]. A la fin de ce billet, nous testerons une seconde méthode avec *rvest* uniquement et non *RSelenium* pour récupérer des documents de travail.
+
+```{r needed-packages}
+# pacman is a useful package to install missing packages and load them
+if(! "pacman" %in% installed.packages()){
+  install.packages("pacman", dependencies = TRUE)
+}
+
+pacman::p_load(tidyverse,
+               RSelenium,
+               rvest,
+               polite,
+               glue)
+```
+
+## Un coup d'œil sur le site de la BCE
+
+Supposons que nous voulions extraire les métadonnées des "*occasional papers*" de la BCE à l'adresse "https://www.ecb.europa.eu/pub/research/occasional-papers/html/index.en.html".
+
+```{r show-op, fig.cap="Les 'occasional papers' de la BCE",  echo=FALSE}
+knitr::include_graphics("occasional_papers.png")
+```
+
+```{r stoping-browser, echo=FALSE}
+tryCatch({ # This is just to rerun the rmarkdown
+  if(remDr$server$process$get_status() == "running") remDr$server$stop()
+}, error = function(e){
+  message("No server running")
+}
+)
+```
+
+```{r number-papers, echo=FALSE, results='hide'}
+ecb_op_path <- "https://www.ecb.europa.eu/pub/research/occasional-papers/html/index.en.html"
+
+remDr <- rsDriver(browser = "firefox",
+                  port = 4444L,
+                  chromever = NULL)
+browser <- remDr[["client"]]
+browser$navigate(ecb_op_path)
+Sys.sleep(3)
+browser$findElement("css", "a.cross.linkButton.linkButtonLarge.floatRight.highlight-extra-light")$clickElement() # Refusing cookies
+
+nb_op <- browser$findElement("css selector", "dd:nth-child(2) .category")$getElementText()[[1]] %>% 
+  str_extract(., "\\d+$")
+```
+
+Nous pouvons voir qu'il y a `r nb_op` *occasional papers* sur le site de la BCE. Essayons de les *scraper*. Tout d'abord, nous utilisons *polite* pour nous "incliner" devant le site de la BCE. Nous spécifions qui nous sommes dans le paramètre `user_agent`, afin que le webmaster puisse nous contacter en cas de problème. En effet, nous essayons ici de suivre certaines règles éthiques en matière de *scraping* (voir quelques précisions sur cette question [ici](https://towardsdatascience.com/ethics-in-web-scraping-b96b18136f01)). La fonction `bow()` nous permet de vérifier les permissions pour le scraping.
+
+```{r bowing-bis}
+ecb_op_path <- "https://www.ecb.europa.eu/pub/research/occasional-papers/html/index.en.html"
+
+session <- bow(ecb_op_path,
+               user_agent = "polite R package - used for https://github.com/agoutsmedt/central_bank_database (aurelien.goutsmedt[at]uclouvain.be)")
+session
+```
+
+En examinant le fichier *robots.txt*, nous pouvons voir plus en détail quels chemins du site web sont moissonnables ou non. Rien sur le chemin relatifs aux publications de recherche ici, la voie est libre !
+ 
+```{r robotstxt}
+cat(session$robotstxt$text)
+```
+
+Nous pouvons lancer le robot :
+
+```{r eval=FALSE}
+remDr <- rsDriver(browser = "firefox",
+                  port = 4444L,
+                  chromever = NULL)
+browser <- remDr[["client"]]
+browser$navigate(ecb_op_path)
+Sys.time(session$delay) # letting the page load
+browser$findElement("css", "a.cross.linkButton.linkButtonLarge.floatRight.highlight-extra-light")$clickElement() # Refusing cookies
+```
+
+## Défilement vers le bas et ouverture de menus supplémentaires
+
+Nous pouvons essayer quelque chose rapidement : nous extrayons la liste des numéros des *occasional papers* (l'information "No. XXX" juste au-dessus du titre).
+
+```{r extract-categories}
+categories <- browser$findElements("css selector", ".category") %>% 
+  map_chr(., ~.$getElementText()[[1]]) 
+
+tail(categories)
+```
+
+Nous avons quelque chose qui cloche ici. Le dernier article de la liste est `r tail(categories, 1)`. Mais si nous faisons défiler la page jusqu'en bas, nous pouvons voir que le dernier document devrait être "No. 1".
+
+```{r show-last-op, fig.cap="Les 'occasional papers' de la BCE",  echo=FALSE}
+knitr::include_graphics("last_occasional_papers.png")
+```
+
+Fouillons un peu dans le code `html` de la page web. Dans Firefox, vous pouvez aller dans les "outils supplémentaires" et ouvrir les "outils de développement web". Vous pouvez voir qu'il y a quelque chose appelé `lazyload-container`.
+
+```{r lazyload, fig.cap="Le code source de la page web des occasional papers",  echo=FALSE}
+knitr::include_graphics("lazyload.png")
+```
+
+Comme le nombre de documents occasionnels est assez élevé, pour des raisons d'efficacité, le site web ne charge pas l'ensemble des informations. Par conséquent, si vous souhaitez récupérer tous les articles, vous devez faire défiler la page vers le bas, et vous devez faire défiler *progressivement* pour être sûr que tous les conteneurs sont chargés. La fonction `executeScript()` de *RSelenium* vous permet d'utiliser du code JavaScript. Ici, on ne veut pas faire défiler horizontalement, mais verticalement : il faut donc définir le nombre de pixels dont on veut descendre (mettons 1600 pour être sûr de descendre lentement). Nous allons répéter cette opération un certain nombre de fois : comme faire défiler vers le bas de 1600 pixels équivaut à faire défiler vers le bas d'un peu plus de cinq papiers, nous divisons le nombre de papiers par 5, pour connaître le nombre d'itérations du mouvement de défilement vers le bas.
+
+```{r}
+scroll_height <- 1600
+scroll_iteration <- str_extract(categories[1], "\\d+") %>% 
+  as.numeric()/5
+
+  for(i in 1:ceiling(scroll_iteration)) {
+    browser$executeScript(glue("window.scrollBy(0,{scroll_height});"))
+    Sys.sleep(0.3)
+  }
+```
+
+Vérifions que tous les documents de travail sont maintenant disponibles : 
+
+```{r}
+categories <- browser$findElements("css selector", ".category") %>% 
+  map_chr(., ~.$getElementText()[[1]]) 
+
+length(categories)
+```
+
+Tout va bien. Mais nous sommes confrontés à un deuxième problème : certaines informations importantes ne sont pas encore visibles. En effet, il faut cliquer sur le bouton "Détails" pour accéder au résumé et aux codes *JEL* de l'article. 
+
+```{r details, fig.cap="The 'details' menu",  echo=FALSE}
+knitr::include_graphics("details.png")
+```
+
+Mais tant que le menu *Détails* est fermé, l'information n'est pas accessible. Il faut donc trouver tous les boutons qui permettent de cliquer sur le menu "Détails". Mais attention, nous ne voulons que le bouton "Détails", et pas d'autres types de boutons. Comme dans le [précédent billet]((/fr/post/scraping-bis)), le module complémentaire Firefox [ScrapeMate](https://addons.mozilla.org/fr/firefox/addon/scrapemate/) est indispensable pour trouver le bon *sélecteur CSS*.
+
+```{r scrapemate, fig.cap="ScrapeMate Beta",  echo=FALSE}
+knitr::include_graphics("scrapemate.png")
+```
+
+Nous pouvons maintenant cliquer sur tous les boutons "Détails", et uniquement sur les boutons "Détails" :
+
+```{r}
+  buttons <- browser$findElements("css selector", ".ecb-langSelector+ .accordion .header:nth-child(1) .title")
+  for(i in seq_along(buttons)){
+    buttons[[i]]$clickElement()
+    Sys.sleep(0.4)
+  }
+```
+
+Nous disposons désormais de toutes les informations qui nous intéressent. Le problème restant est que certaines informations peuvent être manquantes (ou inexistantes) pour certains documents (par exemple, un document n'a pas d'auteur). Nous extrayons donc les dates séparément, puis nous groupons l'ensemble des informations (hors date) pour chaque article dans l'objet `papers_whole_information`. De cet objet, nous extrayons tour à tour le titre, les auteurs, l'URL du pdf, et les informations en détail^[S'il n'y a pas d'auteur, nous aurons une chaîne de caractères vide.].  
+
+```{r}
+papers_whole_information <- browser$getPageSource()[[1]] %>% # we extract the whole info of each paper here (without the date)
+  read_html() %>%
+  html_elements("dd")
+
+metadata <- tibble(
+  category = categories,
+  dates = browser$findElements("css selector", ".loaded > dt") %>% 
+    map_chr(., ~.$getElementText()[[1]]),
+  titles = papers_whole_information %>% 
+    html_elements(".category+ .title a") %>% 
+    html_text(),
+  authors = papers_whole_information %>% 
+    html_elements("ul") %>% 
+    html_text2(),
+  details = papers_whole_information %>% 
+    html_elements(".ecb-langSelector+ .accordion .content-box:nth-child(2)") %>%
+    html_text2(),
+  url_pdf = papers_whole_information %>% 
+    html_elements(".authors+ .ecb-langSelector .pdf") %>% 
+    html_attr("href") 
+)
+
+head(metadata)
+```
+
+Deux points à clarifier ici :
+
+- le *sélecteur CSS* doit être choisi avec soin. Par exemple, un document peut avoir plusieurs `.title a`, car il regroupe des documents complémentaires. Le document 209 en est un exemple. On ne veut donc que le titre après la catégorie. D'où le sélecteur `.category+ .title a`. C'est la même logique pour le menu "détails" : vous ne voulez pas ce qui se trouve dans "annexe" par exemple. De même, vous pouvez avoir plusieurs liens pdf, et vous ne voulez que le lien PDF sous les auteurs, qui est lien vers le PDF de l'article (et pas le lien vers le PDF d'un annexe technique).
+- les colonnes `authors` et `details` doivent encore être nettoyées. En effet, vous pouvez avoir plusieurs auteurs, et la colonne `details` rassemble des informations sur le résumé et les codes *JEL*, mais aussi, en de rares occasions, la "Taxonomy" et le "Network". C'est pourquoi nous utilisons la fonction `html_text2()` de *rvest* : chaque type d'information est séparé par un saut de ligne ("\\n").
+
+Nettoyons les détails. Vous séparez d'abord les lignes :
+
+```{r}
+details_cleaned <- metadata %>% 
+  select(category, details) %>% 
+  separate_longer_delim(details, "\n") %>% 
+    filter(! details == "")
+
+head(details_cleaned, 20)
+```
+
+Ce qu'il faut faire, c'est extraire la catégorie d'information ("Abstract|JEL Code|Taxonomy|Network"), et le texte ci-dessous représente le contenu de cette catégorie d'information. Vous pouvez ensuite faire pivoter les données pour remplir chaque colonne de l'article. Bien entendu, la plupart des colonnes relatives à la taxonomie et au réseau seront vides. Comme vous avez plusieurs codes *JEL* pour chaque article, `pivot_wider()` crée des colonnes sous forme de liste pour chaque type d'information. Mais vous pouvez transformer en chaîne de caractères les valeurs des colonnes avec des valeurs uniques ("Abstract", "Taxonomy", et "Network").
+
+```{r}
+details_cleaned <- details_cleaned %>% 
+  mutate(type = str_extract(details, "^Abstract$|^JEL Code$|^Taxonomy$|^Network$")) %>% 
+  fill(type, .direction = "down") %>% # we replace NA values in the type column by the information above which is non NA
+  filter(! str_detect(details, "^Abstract$|^JEL Code$|^Taxonomy$|^Network$")) %>% # we remove the title rows
+  pivot_wider(names_from = type, values_from = details) %>% 
+  unnest(cols = c("Abstract", "Taxonomy", "Network")) 
+
+head(details_cleaned)
+```
+
+Regardons de plus prêt ce que contient la colonne `JEL code` :
+
+```{r}
+head(details_cleaned %>% select(category, `JEL Code`) %>%  unnest(`JEL Code`))
+```
+
+Enfin, il suffit de fusionner les détails nettoyés avec les métadonnées :
+
+```{r}
+metadata_cleaned <- metadata %>% 
+  select(-details) %>% 
+  left_join(details_cleaned)
+
+head(metadata_cleaned)
+```
+
+Et vous avez maintenant une table de métadonnées pour les documents occasionnels de la BCE ! Le [post sur la BRI](/fr/post/scraping-bis) explique ensuite comment télécharger le PDF, et comment exécuter l'OCR si le texte des PDFs n'est pas reconnu. Le code de ce post-ci fonctionne également pour les "discussion papers" et "working papers" de la BCE.
+
+## Une autre méthode
+
+Vous pouvez utiliser la méthode ci-dessus pour récupérer les métadonnées de près de 3000 documents de travail de la BCE. Mais vous pouvez imaginer qu'il faut beaucoup de temps pour faire défiler la page, et surtout pour ouvrir tous les menus "Détails". *RSelenium* est merveilleusement utile pour interagir avec le navigateur web, mais parfois, en creusant dans le code source d'une page web, vous pouvez trouver des moyens plus faciles d'extraire des informations pertinentes. 
+
+C'est le cas pour les pages de recherche de la BCE. Nous avons déjà croisé un indice à ce sujet dans ce billet. En effet, regardons à nouveau le code relatif au "*lazyload-container*". 
+
+```{r lazyload-again, fig.cap="Digging into ECB's website code",  echo=FALSE}
+knitr::include_graphics("lazyload.png")
+```
+
+En fait, il nous indique que le site web charge d'autres pages, qui se terminent par "papers-2023.include.en.html", "papers-2022.include.en.html", etc., jusqu'à "papers-1999.include.en.html". Essayons la première : "https://www.ecb.europa.eu/pub/research/working-papers/html/papers-2023.include.en.html"
+
+```{r, fig.cap="A simpler ECB page",  echo=FALSE}
+knitr::include_graphics("new_ecb_page.png")
+```
+
+Nous pouvons donc moissonner assez facilement les *occasional papers* pour 2023 :
+
+```{r other-ecb-method, eval = FALSE}
+
+url <- "https://www.ecb.europa.eu/pub/research/occasional-papers/html/papers-2023.include.en.html"
+
+html_info <- read_html(url) %>%
+  html_elements(xpath = "/html/body/dd")
+
+metadata <- tibble(
+  category = html_info %>% 
+    html_elements(".category") %>% 
+    html_text(),
+  dates = read_html(url) %>%
+    html_elements(".date") %>%
+    html_text(),
+  titles = html_info %>% 
+    html_elements(".category+ .title a") %>% 
+    html_text(),
+  authors = html_info %>% 
+    html_elements("ul") %>% 
+    html_text2(),
+  details = html_info %>% 
+    html_elements(".ecb-langSelector+ .accordion .content-box:nth-child(2)") %>%
+    html_text2(),
+  url_pdf = html_info %>% 
+    html_elements(".pdf") %>% 
+    html_attr("href") 
+)
+
+head(metadata)
+```
+
+## Bibliographie {-}
+

@@ -1,5 +1,5 @@
 ---
-title: "Extracting and Cleaning Bibliometric Data with R (1)"
+title: "Extraire et nettoyer des données bibliométriques avec R (1)"
 author: Aurélien Goutsmedt
 date: '2022-01-31'
 slug: extracting-biblio-data-1
@@ -13,7 +13,7 @@ tags:
   - Research Tools
   - Quantitative Analysis
 subtitle: 'Exploring Scopus'
-summary: 'In this post, you will learn how to extract data from Scopus website or with Scopus APIs and how to clean the data extracted from Scopus website. These data allow you to build bibliographic networks.'
+summary: "Dans ce billet, vous apprendrez comment extraire des données à partir du site web de Scopus ou avec l'API de Scopus et comment nettoyer les données extraites du site web de Scopus. Ces données permettent de construire des réseaux bibliographiques."
 authors: []
 lastmod: '`r Sys.Date()`'
 featured: no
@@ -43,15 +43,15 @@ projects: []
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
 
-After the [roadmap](/post/2022-01-03-roadmap-quantitative-hpe/) for learning to programme in R where I listed useful tutorials and packages, I propose here to get to the heart of the matter and to learn how to extract and clean bibliometric data. This tutorial keeps in mind the issues that historians of economics can encounter, but I hope it could be also useful for other social scientists. 
+Après le [guide](/fr/post/2022-01-03-roadmap-quantitative-hpe/) pour apprendre à programmer en R où j'ai listé des tutoriels et *packages* utiles, je propose ici d'entrer dans le vif du sujet et d'apprendre à extraire et nettoyer des données bibliométriques. Ce tutoriel garde à l'esprit les problèmes que peuvent rencontrer les historiens de l'économie, mais j'espère qu'il pourra également être utile à d'autres chercheurs en sciences sociales. 
 
-It is not easy to navigate between the different existing bibliometric database (Web of Science, Scopus, Dimensions, Jstor, Econlit, RePEc...), and to know which information they gather and how much data we can extract. I will thus bring here a series of tutorials on how to find and extract such data (if possible, by doing it via R scripts), but also on how to clean them. Indeed, depending on the database one uses, the data are in different formats, and one often has to do some cleaning (notably for the bibliographic references cited by the corpus one has extracted). In this tutorial, we will focus on [Scopus](https://www.scopus.com/home.uri) data for which you will need an institutional access. The next [post](/post/extracting-biblio-data-2) focuses on [Dimensions](https://app.dimensions.ai/discover/publication) data and the one after will deal with [Constellate application](https://constellate.org/) of JSTOR. Both Dimensions and Constellate are accessible without institutional access. 
+Il n'est pas facile de naviguer entre les différentes bases de données bibliométriques existantes (Web of Science, Scopus, Dimensions, Jstor, Econlit, RePEc...), et de savoir quelles informations elles collectent et quelle quantité de données on peut en extraire. J'apporterai donc ici une série de tutoriels sur la manière de trouver et d'extraire de telles données (si possible, en le faisant via des scripts R), mais aussi sur la manière de les nettoyer. En effet, selon la base de données utilisée, les données sont dans des formats différents, et il faut souvent faire un peu de nettoyage (notamment pour les références bibliographiques citées par le corpus que l'on a extrait). Dans ce tutoriel, nous nous concentrerons sur les données [Scopus](https://www.scopus.com/home.uri) pour lesquelles vous aurez besoin d'un accès institutionnel. Le prochain [post](/fr/post/extracting-biblio-data-2) se concentre sur les données de [Dimensions](https://app.dimensions.ai/discover/publication) et le suivant traitera de [l'application Constellate](https://constellate.org/) de JSTOR. Dimensions et Constellate sont accessibles sans accès institutionnel. 
 
-At the end of this tutorial, you will know how to get the data needed for building bibliographic networks and I will give an example of a co-citation network using the [`biblionetwork` package](https://agoutsmedt.github.io/biblionetwork/) [@R-biblionetwork]. What you only need in this tutorial is a basic understanding of some functions of [Tidyverse](https://www.tidyverse.org/) packages [@R-tidyverse;@tidyverse2019]---mainly `dplyr` and `stringr`---as well as a (less) basic understanding of "regex" ([Regular Expressions](https://en.wikipedia.org/wiki/Regular_expression)).[^1] At some points I dig into more complicated and tortuous methods when using [Elsevier/Scopus APIs](https://dev.elsevier.com/) with [`rscopus`](https://johnmuschelli.com/rscopus/index.html) or cleaning references with the machine learning software [anystyle](https://anystyle.io) using the command line. This will be explained in separated sections that beginners can skip.
+A la fin de ce tutoriel, vous saurez comment obtenir les données nécessaires pour construire des réseaux bibliographiques et je donnerai un exemple de réseau de co-citations en utilisant le package [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) [@R-biblionetwork]. Ce dont vous avez seulement besoin dans ce tutoriel est une compréhension de base de certaines fonctions des paquets [Tidyverse](https://www.tidyverse.org/) [@R-tidyverse;@tidyverse2019]--principalement `dplyr` et `stringr`--ainsi qu'une compréhension (moins) basique de "regex" ([Expressions Régulières](https://en.wikipedia.org/wiki/Regular_expression))[^1]. À certains moments, je me plonge dans des méthodes plus compliquées et tortueuses en utilisant [Elsevier/Scopus APIs](https://dev.elsevier.com/) avec [`rscopus`](https://johnmuschelli.com/rscopus/index.html) ou en nettoyant des références avec le logiciel d'apprentissage automatique [anystyle](https://anystyle.io) en utilisant la ligne de commande. Ceci sera expliqué dans des sections séparées que les débutants peuvent sauter.
 
-[^1]: Don't worry if you don't understand regex at the beginning, that is a good occasion to learn and to practice. You can find simpler examples [here](https://stringr.tidyverse.org/articles/regular-expressions.html) and learn `stringr` by the same occasion. 
+[^1] : Ne vous inquiétez pas si vous ne comprenez pas les expressions régulières au début, c'est une bonne occasion d'apprendre et de pratiquer. Vous pouvez trouver des exemples plus simples [ici](https://stringr.tidyverse.org/articles/regular-expressions.html) et apprendre `stringr` par la même occasion. 
 
-Let's first load all the packages we need and set the path to the directory where I put the data extracted from Scopus:
+Chargeons d'abord tous les paquets dont nous avons besoin et définissons le chemin vers le répertoire où je place les données extraites de Scopus :
 
 ```{r loading-packages}
 # packages
@@ -92,13 +92,13 @@ scopus_path <- here(data_path,
 ```
 
 
-## Extracting data from Scopus
+## Extraire des données de Scopus
 
-### Using Scopus website
+### Utilisation du site web de Scopus
 
-I focus here on a not so much historical subject because a very recent one: the Dynamic Stochastic General Equilibrium (DSGE) models. This type of models has emerged in the late 1990s and has become standard in academic publications as well as in policymaking institutions, notably in central banks.^[For reflexive and historical discussions of DSGE models, see De Vroey [-@devroey2016d, chapter 20], @vines2018 and @sergi2020.] 
+Je me concentre ici sur de l'histoire récente : les modèles d'équilibre général stochastique dynamique (DGSE, en anglais). Ce type de modèles est apparu à la fin des années 1990 et est devenu la norme dans les publications universitaires ainsi que dans les institutions chargées de l'élaboration des politiques, notamment dans les banques centrales.^[Pour des discussions réflexives et historiques sur les modèles DSGE, voir De Vroey [-@devroey2016d, chapitre 20], @vines2018 et @sergi2020]. 
 
-If you don't have one, you will need to create an account on [Scopus](https://www.scopus.com/home.uri) using your institutional email address. Once you are on the "Documents" query page, you can search for "DSGE" or "Dynamic Stochastic General Equilibrium" in documents titles, abstracts and keywords (see Figure \@ref(fig:scopus-search)). On January 2022, I got 2633 results. You can select "All" the documents and then click on the down arrow on the righ of "CSV export" (see Figure \@ref(fig:scopus-search-2)). You then have to choose all the information you want to download in a `.csv`. What we need is to cross the "Include References" box as we need it for the bibliographic co-citation later (see Figure \@ref(fig:scopus-csv-export)).^[Normally, you won't be able to download all the data in one extraction as there is a 2000 items limit, and thus you will need to do it in two steps. The easiest is to filter by year.]  
+Si vous n'en avez pas, vous devrez créer un compte sur [Scopus](https://www.scopus.com/home.uri) en utilisant votre adresse électronique institutionnelle. Une fois sur la page de recherche "Documents", vous pouvez rechercher "DSGE" ou "Dynamic Stochastic General Equilibrium" dans les titres, les résumés et les mots-clés des documents (voir Figure \@ref(fig:scopus-search)). Le 20 janvier 2022, j'ai obtenu 2633 résultats. Vous pouvez sélectionner "Tous" les documents puis cliquer sur la flèche vers le bas à droite de "CSV export" (voir Figure \@ref(fig:scopus-search-2)). Vous devez alors choisir toutes les informations que vous souhaitez télécharger dans un fichier `.csv`. Ce dont nous avons besoin, c'est de cocher la case "Inclure les références" car nous en avons besoin pour la co-citation bibliographique plus tard (voir la figure \@ref(fig:scopus-csv-export))^[Normalement, vous ne pourrez pas télécharger toutes les données en une seule extraction car il y a une limite de 2000 éléments, et vous devrez donc le faire en deux étapes. La plus simple consiste à filtrer par année].   
 
 ```{r scopus-search, fig.cap="Scopus search page", echo=FALSE}
 knitr::include_graphics("scopus_search.png")
@@ -112,34 +112,34 @@ knitr::include_graphics("scopus_search_2.png")
 knitr::include_graphics("scopus_csv_export.png")
 ```
 
-The `.csv` you have exported gathers metadata on authors, title, journal, abstract, keywords, affiliations and references on documents (mainly articles, but also conference papers, book chapters, and reviews) mentioning DSGE in their title, abstract or keywords. There are two limits at this method for extracting data:
+Le fichier `.csv` que vous avez exporté rassemble des métadonnées sur les auteurs, le titre, la revue, le résumé, les mots-clés, les affiliations et les références sur les documents (principalement des articles, mais aussi des documents de conférence, des chapitres de livres et des revues) mentionnant DSGE dans leur titre, leur résumé ou leurs mots-clés. Cette méthode d'extraction de données présente deux limites :
 
-- the quantity of data you can export is limited to 2000, which is not much;
-- part of the metadata are relatively raw, like affiliations and references, what involves some cleaning.
+- la quantité de données que vous pouvez exporter est limitée à 2000, ce qui est peu ;
+- une partie des métadonnées est relativement brute, comme les affiliations et les références, ce qui implique un certain nettoyage.
 
-I will show you how to clean these raw data in the next [section](#cleaning-scopus-data). But the following [sub-section](#alternative-method-using-scopus-apis-and-rscopus) explains you how to use Scopus APIs directly in R, to query more easily for different data and extract more items. 
+Je vous montrerai comment nettoyer ces données brutes dans la prochaine [section](#cleaning-scopus-data). Mais la [sous-section](#alternative-method-using-scopus-apis-and-rscopus) suivante vous explique comment utiliser l'API de Scopus directement dans R, pour interroger plus facilement différentes données et extraire plus d'éléments. 
 
-### Alternative method: Using Scopus APIs and `rscopus`
+### Méthode alternative : Utiliser les API de Scopus et `rscopus`
 
-You first need to create an "API Key" on Scopus website (see more info [here](https://johnmuschelli.com/rscopus/index.html)) associated to your account. Using the APIs allows you to extract larger set of data (see the available APIs and corresponding quotas [here](https://dev.elsevier.com/api_key_settings.html)). 
+Vous devez d'abord créer une "clé API" sur le site Web de Scopus (voir plus d'informations [ici](https://johnmuschelli.com/rscopus/index.html)) associée à votre compte. L'utilisation des APIs vous permet d'extraire un plus grand nombre de données (voir les API disponibles et les quotas correspondants [ici](https://dev.elsevier.com/api_key_settings.html)). 
 
-Let's use `Rscopus` and set the API key:
+Utilisons `Rscopus` et définissons la clé API :
 
 ```{r api_key, eval = FALSE}
 api_key <- "your_api_key"
 set_api_key(api_key)
 ```
 
-Most of the time (and it was the case for me) your institutional access is linked to an IP address and you are not able to use the APIs if you are not connected to your institution internet network. If you want to work remotely, you need to ask for a "token-based" authentification ad ask for an "Institutional Token" or "Insttoken" (see explanations [here](https://dev.elsevier.com/tecdoc_api_authentication.html)). You just have to [write to Elsevier](https://service.elsevier.com/app/contact/supporthub/researchproductsapis/) to explain which kind of research you are doing and ask them for an "insttoken". That is also a good occasion, if necessary, to ask them for higher quotas.  
+La plupart du temps (et c'était le cas pour moi), votre accès institutionnel est lié à une adresse IP et vous ne pouvez pas utiliser les API si vous n'êtes pas connecté au réseau Internet de votre institution. Si vous souhaitez travailler à distance, vous devez demander une authentification "basée sur un jeton" et demander un "jeton institutionnel" ou "Insttoken" (voir les explications [ici](https://dev.elsevier.com/tecdoc_api_authentication.html)). Il vous suffit d'écrire à Elsevier (https://service.elsevier.com/app/contact/supporthub/researchproductsapis/) pour expliquer le type de recherche que vous menez et leur demander un "insttoken". C'est aussi une bonne occasion, si nécessaire, de leur demander des quotas plus élevés.  
 
-Let's set the institutional token:
+Définissons le jeton institutionnel :
 
 ```{r insttoken, eval = FALSE}
 insttoken <- "your_institutional_token"
 insttoken <- inst_token_header(insttoken)
 ```
 
-We first run the query using "[Scopus Search API](https://dev.elsevier.com/documentation/ScopusSearchAPI.wadl)" via `rscopus`. That is the API corresponding to the search we have done [above](#using-scopus-website) on Scopus website. We can now extract as much as 20000 items directly per week. We get raw data with a lot of information in it (the data but also information on the query, etc.). Using `rscopus` [`gen_entries_to_df` function](https://johnmuschelli.com/rscopus/reference/gen_entries_to_df.html), we convert these raw data in `data.frames`.
+Nous lançons d'abord la requête en utilisant "[Scopus Search API](https://dev.elsevier.com/documentation/ScopusSearchAPI.wadl)" via `rscopus`. Il s'agit de l'API correspondant à la recherche que nous avons effectuée [ci-dessus] (#using-scopus-website) sur le site web de Scopus. Nous pouvons maintenant extraire directement jusqu'à 20000 articles par semaine. Nous obtenons des données brutes avec beaucoup d'informations (les données mais aussi des informations sur la requête, etc.) En utilisant la fonction `rscopus` [`gen_entries_to_df`](https://johnmuschelli.com/rscopus/reference/gen_entries_to_df.html), nous convertissons ces données brutes en `data.frames`.
 
 ```{r dsge-query, eval = FALSE}
 dsge_query <- rscopus::scopus_search("TITLE-ABS-KEY(DSGE) OR TITLE-ABS-KEY(\"Dynamic Stochastic General Equilibrium\")", 
@@ -148,11 +148,11 @@ dsge_query <- rscopus::scopus_search("TITLE-ABS-KEY(DSGE) OR TITLE-ABS-KEY(\"Dyn
 dsge_data_raw <- gen_entries_to_df(dsge_query$entries)
 ```
 
-We can finally separate the different `data.frames`. We get three tables with different types of information:
+Nous pouvons enfin séparer les différents `data.frames`. Nous obtenons trois tableaux contenant différents types d'informations :
 
-- A table with all the articles and their metadata;
-- A table with the list of all authors of the articles;
-- A table with the list of affiliations.
+- Un tableau avec tous les articles et leurs métadonnées ;
+- Un tableau avec la liste de tous les auteurs des articles ;
+- Un tableau avec la liste des affiliations.
 
 ```{r separing-data, eval = FALSE}
 dsge_papers <- dsge_data_raw$df
@@ -160,7 +160,9 @@ dsge_affiliations <- dsge_data_raw$affiliation
 dsge_authors <- dsge_data_raw$author
 ```
 
-Now that we have the articles, we have to extract the references using scopus "[Abstract Retrieval API](https://dev.elsevier.com/documentation/AbstractRetrievalAPI.wadl)". We use articles internal identifier to find references. But we cannot query references with multiple identifiers, so we need to make a loop to extract references one by one. We create a `list` where we put the references for each articles (we have as many `data.frames` as articles in our list) and we bind the `data.frames` together, associating each of them to the identifier of the corresponding citing article.^[We remove all `citations` `data.frames` that are empty (i.e. when an article cites nothing).] 
+Maintenant que nous avons les articles, nous devons extraire les références en utilisant scopus "[Abstract Retrieval API](https://dev.elsevier.com/documentation/AbstractRetrievalAPI.wadl)". Nous utilisons l'identifiant interne des articles pour trouver les références. Mais nous ne pouvons pas interroger les références avec plusieurs identifiants, nous devons donc faire une boucle pour extraire les références une par une. Nous créons une `liste` où nous mettons les références pour chaque article (nous avons autant de `data.frames` que d'articles dans notre liste) et nous lions les `data.frames` ensemble, en associant chacun d'eux à l'identifiant de l'article citant correspondant.^[Nous supprimons tous les `data.frames` `citations` qui sont vides (c'est à dire quand un article ne cite rien)]. 
+
+[Modification du 16 novembre 2023, suite à un commentaire d'Olivier :] Un autre problème avec l'extraction des références est que vous ne pouvez pas extraire plus de 40 références par article. Si un article a plus de 40 références dans sa bibliographie, il faut faire une boucle pour collecter toutes les références.
 
 ```{r extract-references-api, eval = FALSE}
 citing_articles <- dsge_papers$`dc:identifier` # extracting the IDs of our articles on dsge
@@ -171,12 +173,27 @@ for(i in 1:length(citing_articles)){
                                         identifier = "scopus_id",
                                         view = "REF",
                                         headers = insttoken)
-  citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)
-  
-  message(i)
-  if(length(citations$df) > 0){
-    message(paste0(citing_articles[i], " is not empty."))
-    citations <- citations$df %>% 
+  if(!is.null(citations_query$content$`abstracts-retrieval-response`)){ # Checking if the article has some references before collecting them
+    
+    nb_ref <- as.numeric(citations_query$content$`abstracts-retrieval-response`$references$`@total-references`)
+    citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+    
+    if(nb_ref > 40){ # The loop to collect all the references
+      nb_query_left_to_do <- floor((nb_ref) / 40)
+      cat("Number of requests left to do :", nb_query_left_to_do, "\n")
+      for (j in 1:nb_query_left_to_do){
+        cat("Request n°", j , "\n")
+        citations_query <- abstract_retrieval(citing_articles[i],
+                                              identifier = "scopus_id",
+                                              view = "REF",
+                                              startref = 40*j+1,
+                                              headers = insttoken)
+        citations_sup <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+        citations <- bind_rows(citations, citations_sup)
+      }
+    }
+    
+    citations <- citations %>% 
       as_tibble(.name_repair = "unique") %>%
       select_if(~!all(is.na(.)))
     
@@ -187,15 +204,16 @@ for(i in 1:length(citing_articles)){
 dsge_references <- bind_rows(citation_list, .id = "citing_art")
 ```
 
-Once you have these four `data.frames` (articles metadata, authors, affiliations and references), you can proceed to the bibliometric analysis. The only difficulty now is to navigate between the numerous columns of each  `data.frame` and to understand what the different information are. To link the articles metadata `data.frame` with the reference one, you can use the scopus identifier that we have put in the reference table (in the column `citing_art`). If you want to join the articles metadata `data.frame` with the authors and affiliations ones, you have to use the `entry_number` column that exists in the three  `data.frames`. This number is created by Scopus after your query, meaning that articles, affiliations and authors are not linked by a permanent identifier. Consequently, the identifiers will be regenerated and thus different if you change your query. 
+Une fois que vous avez ces quatre `data.frames` (métadonnées des articles, auteurs, affiliations et références), vous pouvez procéder à l'analyse bibliométrique. La seule difficulté est maintenant de naviguer entre les nombreuses colonnes de chaque `data.frame` et de comprendre ce que sont les différentes informations. Pour relier les métadonnées du `data.frame` des articles à celles de la référence, vous pouvez utiliser l'identifiant scopus que nous avons placé dans la table de référence (dans la colonne `citing_art`). Si vous voulez joindre les métadonnées des articles avec celles des auteurs et des affiliations, vous devez utiliser la colonne `entry_number` qui existe dans les trois `data.frames`. Ce numéro est créé par Scopus après votre requête, ce qui signifie que les articles, les affiliations et les auteurs ne sont pas liés par un identifiant permanent. Par conséquent, les identifiants seront régénérés et donc différents si vous changez votre requête. 
 
-In addition to saving you the laborious task of cleaning references and affiliations, when you use the APIs, the references already have an identifier, given by Scopus. It means that if two articles cite the same reference, you will know it because this reference will have a common identifier in the citations of both the first and second article. Below, when manipulating the data extracted from Scopus website, we will need to find which citations are corresponding to the same reference ourselves.^[I will try to check that for another tutorial on bibliometric data, but I observed that I got fewer citations with the API method than with the Scopus website method. It means perhaps that if Scopus has not been able to give an identifier to a reference (perhaps because of not sufficiently clean metadata), the citation of this reference is removed from the data. Consequently, if our cleaning method is good, we could be able to keep more citations and thus to keep references that could be excluded in the APIs data extraction.] 
+En plus de vous épargner la tâche laborieuse de nettoyer les références et les affiliations, lorsque vous utilisez les API, les références ont déjà un identifiant, donné par Scopus. Cela signifie que si deux articles citent la même référence, vous le saurez car cette référence aura un identifiant commun dans les citations du premier et du second article. Plus bas, lorsque nous manipulerons les données extraites du site web de Scopus, nous devrons trouver nous-mêmes quelles citations correspondent à la même référence.^[J'essaierai de vérifier cela pour un autre tutoriel sur les données bibliométriques, mais j'ai observé que j'ai obtenu moins de citations avec la méthode API qu'avec la méthode du site web de Scopus. Cela signifie peut-être que si Scopus n'a pas été en mesure de donner un identifiant à une référence (peut-être en raison de métadonnées pas suffisamment propres), la citation de cette référence est supprimée des données. Par conséquent, si notre méthode de nettoyage est bonne, nous pourrions être en mesure de conserver plus de citations et donc de conserver des références qui pourraient être exclues dans l'extraction des données des API]. 
 
-If you are not to afraid by Scopus categories and language, or by querying a website through an R script, that is perhaps the quickest method to get data (and that is a method that allows you to get more data, with more complicated queries). However, in the next [section](#cleaning-scopus-data), I show you how to clean the data extracted from the Scopus website [above](#using-scopus-website).
 
-## Cleaning Scopus data
+Si vous n'avez pas peur des catégories et de la langue de Scopus, ou si vous interrogez un site web par le biais d'un script R, c'est peut-être la méthode la plus rapide pour obtenir des données (et c'est une méthode qui vous permet d'obtenir plus de données, avec des requêtes plus compliquées). Cependant, dans la [section](#cleaning-scopus-data) suivante, je vous montre comment nettoyer les données extraites du site web de Scopus [ci-dessus](#using-scopus-website).
 
-So let's come back to the data we have downloaded on Scopus website:
+## Nettoyage des données Scopus
+
+Revenons aux données que nous avons téléchargées sur le site Scopus :
 
 ```{r load-scopus-data}
 #' # Cleaning scopus data from website search
@@ -210,25 +228,25 @@ scopus_search <- rbind(scopus_search_1, scopus_search_2) %>%
 scopus_search
 ```
 
-There are several things to clean:
+Il y a plusieurs choses à nettoyer :
 
-- We have several `authors` per document. For some analysis, for instance co-authorship networks, it is better to have an "author table" which associates each author to a list of papers;
-- We have several `affiliations` per article as well as several `authors_with_affiliations`. It allows us to connect authors with their affiliations, but here again we need to separate it in as many lines as authors (if I am not mistaken, it seems there is only one affiliation per author in this set of data);
-- `references`;
-- Possibly to separate `author_keywords` and `index_keywords` if you want to use it.
+- Nous avons plusieurs "auteurs" par document. Pour certaines analyses, par exemple les réseaux de co-auteurs, il est préférable d'avoir une "table d'auteurs" qui associe chaque auteur à une liste d'articles ;
+- Nous avons plusieurs `affiliations` par article ainsi que plusieurs `authors_with_affiliations`. Cela nous permet de relier les auteurs à leurs affiliations, mais là encore nous devons les séparer en autant de lignes que d'auteurs (si je ne me trompe pas, il semble qu'il n'y ait qu'une seule affiliation par auteur dans cet ensemble de données) ;
+- `references` ;
+- Peut-être pour séparer `author_keywords` et `index_keywords` si vous voulez les utiliser.
 
-In what follows, we clean `scopus_search` in order to produce 3 additional `data.frames`:
+Dans ce qui suit, nous nettoyons `scopus_search` afin de produire 3 `data.frames` supplémentaires :
 
-- one `data.frame` which associates each article to a list of authors and their corresponding affiliation (see [below](#extracting-affiliations-and-authors));
-- one data.frame which associate each article to the list of references it cites (one article has as many lines as the number of cited references): this is a "direct citation" table (see [here](#clean-references));
-- a list of all the references cited, which implies to find which references are the same in the direct citation table (see this [sub-section](#matching-references))
+- un `data.frame` qui associe chaque article à une liste d'auteurs et leur affiliation correspondante (voir [ci-dessous](#extracting-affiliations-and-authors)) ;
+- un data.frame qui associe chaque article à la liste des références qu'il cite (un article a autant de lignes que le nombre de références citées) : c'est une table de "citation directe" (voir [ici](#clean-references)) ;
+- une liste de toutes les références citées, qui permet de retrouver les références identiques dans le tableau des citations directes (voir cette [sous-section](#matching-references))
 
-### Extracting affiliations and authors
+### Extraction des affiliations et des auteurs
 
-We have two columns for affiliations:
+Nous avons deux colonnes pour les affiliations :
 
-- one column `affiliations` with affiliations alone;
-- one column, `authors_with_affiliations` with both authors and affiliations.
+- une colonne `affiliations` avec les affiliations seules ;
+- une colonne, `authors_with_affiliations` avec les auteurs et les affiliations.
 
 ```{r example-affiliations}
 affiliations_raw <- scopus_search %>% 
@@ -237,7 +255,7 @@ affiliations_raw <- scopus_search %>%
 knitr::kable(head(affiliations_raw, n = 2))
 ```
 
-For a more secure cleaning, we opt for the second column, as it allows us to associate the author with his/her own affiliation as described in the column `authors_with_affiliations`. The strategy here is to separate each author from the `authors` column, then to separate the different authors and affiliations in the `authors_with_affiliations` column. Finally, we keep only the lines where the author from `authors_with_affiliations` is the same as in `authors`
+Pour un nettoyage plus sûr, nous optons pour la deuxième colonne, car elle nous permet d'associer l'auteur à sa propre affiliation, comme décrit dans la colonne `authors_with_affiliations`. La stratégie consiste ici à séparer chaque auteur dans la colonne `authors`, puis à séparer les différents auteurs et affiliations dans la colonne `authors_with_affiliations`. Enfin, nous ne conservons que les lignes où l'auteur de la colonne `authors_with_affiliations` est le même que celui de la colonne `authors`
 
 ```{r extract-affiliations}
 scopus_affiliations <- affiliations_raw %>% 
@@ -255,9 +273,9 @@ scopus_affiliations <- affiliations_raw %>%
 knitr::kable(head(scopus_affiliations))
 ```
 
-### Clean references
+### Nettoyer les références
 
-Let's first extract the `references` column while keeping the identifier of the citing article. We put each reference cited by an article on a separated line, using the fact that the references are separated by a semi-colon. We create an identifier for each reference.
+Commençons par extraire la colonne `references` en conservant l'identifiant de l'article citant. Nous mettons chaque référence citée par un article sur une ligne séparée, en utilisant le fait que les références sont séparées par un point-virgule. Nous créons un identifiant pour chaque référence.
 
 ```{r extract-references}
 #' ## Extracting and cleaning references
@@ -271,7 +289,7 @@ references_extract <- scopus_search %>%
 knitr::kable(head(references_extract))
 ```
 
-We now have one reference per line and complications begin. We need to find ways to extract the different pieces of information for each reference: authors, year, pages, volume & issue information, journal, title, etc... Here are some regex that will match some of these information.
+Nous avons maintenant une référence par ligne et les complications commencent. Nous devons trouver des moyens d'extraire les différents éléments d'information pour chaque référence : auteurs, année, pages, volume et numéro, journal, titre, etc... Voici quelques expressions rationnelles qui permettront d'extraire certaines de ces informations.
 
 ```{r useful-regex}
 extract_authors <- ".*[:upper:][:alpha:]+( Jr(.)?)?, ([A-Z]\\.[ -]?)?([A-Z]\\.[ -]?)?([A-Z]\\.)?[A-Z]\\."
@@ -280,7 +298,7 @@ extract_pages <- "(?<= (p)?p\\. )([A-Z])?\\d+(-([A-Z])?\\d+)?"
 extract_volume_and_number <- "(?<=( |^)?)\\d+ \\(\\d+(-\\d+)?\\)"
 ```
 
-We can now extract authors and year. We create a new column, `remaining_ref` which keeps the information from the `references` column but we remove the authors from it. For easier cleaning, we separate references depending on the position of the year of publication in the reference. We use the variable `is_article` to determinate where the year is and thus if the title is before the year or not.
+Nous pouvons maintenant extraire les auteurs et l'année. Nous créons une nouvelle colonne, `remaining_ref` qui conserve les informations de la colonne `references` mais nous en retirons les auteurs. Pour faciliter le nettoyage, nous séparons les références en fonction de la position de l'année de publication dans la référence. Nous utilisons la variable `is_article` pour déterminer où se trouve l'année et donc si le titre est avant l'année ou non.
 
 ```{r clean-references-1}
 cleaning_references <- references_extract %>% 
@@ -290,9 +308,9 @@ cleaning_references <- references_extract %>%
          year = str_extract(references, extract_year_brackets) %>% as.integer)
 ```
 
-I cannot detail all the regex below but the goal is to extract as many relevant metadata as possible, first for references with the year of publication after the title (`is_article == TRUE`), which are most of the time journal articles.
+Je ne peux pas détailler toutes les regex ci-dessous mais le but est d'extraire le plus de métadonnées pertinentes possible, d'abord pour les références dont l'année de publication suit le titre (`is_article == TRUE`), ce qui correspond la plupart du temps à des articles de journaux.
 
-> This code has been written in January 2022 and I will try to improve it later, notably because this use of the `is_article` variable makes the code unecessarily longer. 
+> Ce code a été écrit en janvier 2022 et j'essaierai de l'améliorer plus tard, notamment parce que l'utilisation de la variable `is_article` rallonge inutilement le code. 
 
 ```{r clean-articles}
 cleaning_articles <- cleaning_references %>% 
@@ -322,7 +340,7 @@ cleaned_articles <- cleaning_articles %>%
   select(citing_id, id_ref, authors, year, title, journal, volume, issue, pages, first_page, book_title, publisher, references)
 ```
 
-We do the same now with the remaining references that are less numerous but that are also less easy to clean, due to the fact that the title is not clearly separated from other information (journal or publisher).
+Nous faisons maintenant de même avec les références restantes qui sont moins nombreuses mais qui sont aussi moins faciles à nettoyer, du fait que le titre n'est pas clairement séparé des autres informations (revue ou éditeur).
 
 ```{r clean-non-articles}
 cleaning_non_articles <- cleaning_references %>% 
@@ -349,10 +367,10 @@ cleaned_non_articles <- cleaning_non_articles %>%
   select(citing_id, id_ref, authors, year, title, journal, volume, issue, pages, first_page, book_title, publisher, references)
 ```
 
-We merge the two `data.frames` and:
+Nous fusionnons les deux `data.frames` et :
 
-- we normalize and clean authors' name to facilitate matching of references later;
-- we extract useful information like [DOI](https://en.wikipedia.org/wiki/Digital_object_identifier) and [PII](https://en.wikipedia.org/wiki/Publisher_Item_Identifier).
+- nous normalisons et nettoyons le nom des auteurs afin de faciliter la mise en correspondance des références par la suite ;
+- nous extrayons des informations utiles telles que [DOI](https://en.wikipedia.org/wiki/Digital_object_identifier) et [PII](https://en.wikipedia.org/wiki/Publisher_Item_Identifier).
 
 ```{r final-cleaning}
 # merging the two files.
@@ -376,19 +394,19 @@ cleaned_ref <- cleaned_ref %>%
 knitr::kable(head(cleaned_ref, n = 3))
 ```
 
-> Practically speaking, if you are targetting a serious quantitative work, more cleaning would be needed to remove small errors. As often in this kind of automatised cleaning, 95% of cleaning can be done with few lines of code, and the rest involves many more work. I do not go further here as this is just a tutorial. 
+> En pratique, si vous visez un travail quantitatif sérieux, un nettoyage plus poussé sera nécessaire pour éliminer les petites erreurs. Comme souvent dans ce type de nettoyage automatisé, 95% du nettoyage peut être fait avec quelques lignes de code, et le reste implique beaucoup plus de travail. Je n'irai pas plus loin car il s'agit d'un simple tutoriel. 
 
-### Matching references
+### Correspondance des références
 
-What we need to do now is to find which references are the same, to give them a unique ID. The trade-off is to match as many true positive as possible (references that are the same) while avoiding to match false positive, that is references that have some information in common, but that actually are not the same references. For instance, matching only by the authors' names and the year of publication is too broad, as these authors can have published several articles during the same year. Here are several ways to identify a common reference that bear very few risks of matching together different references:
+Ce que nous devons faire maintenant, c'est trouver quelles références sont les mêmes, afin de leur donner un identifiant unique. Le compromis consiste à faire correspondre autant de vrais positifs que possible (références identiques) tout en évitant de faire correspondre des faux positifs, c'est-à-dire des références qui ont des informations en commun, mais qui ne sont en fait pas les mêmes références. Par exemple, l'appariement sur la base du nom des auteurs et de l'année de publication est trop large, car ces auteurs peuvent avoir publié plusieurs articles au cours de la même année. Voici plusieurs façons d'identifier une référence commune qui comportent très peu de risques d'appariement de références différentes :
 
-- same first author surname or authors, year, volume and page (this is the most secure ones): let's call them `fayvp` & `ayvp`;
-- same journal, volume, issue and first page: `jvip`;
-- same author, year and title: `ayt`;
-- same title, year and first page: `typ`;
-- same Doi or PII.^[I have perhaps forget some useful combinations.]
+- même nom de famille du ou des premiers auteurs, même année, même volume et même page (ce sont les plus sûrs) : appelons-les `fayvp` & `ayvp` ;
+- même revue, même volume, même numéro et même première page : `jvip` ;
+- même auteur, même année et même titre : `ayt` ;
+- même titre, même année et même première page : `typ` ;
+- même Doi ou PII [j'ai peut-être oublié quelques combinaisons utiles].
 
-We extract first author surname to favour matching as there are more possibilities of small differences for several authors that would prevent us to match similar references.^[Most of the differences are due to the authors' initials: some reference have only one when others have two initials for some authors.] 
+Nous extrayons le nom de famille du premier auteur pour favoriser l'appariement car il y a plus de possibilités de petites différences pour plusieurs auteurs qui nous empêcheraient d'apparier des références similaires^[La plupart des différences sont dues aux initiales des auteurs : certaines références n'en ont qu'une seule alors que d'autres ont deux initiales pour certains auteurs]. 
 
 ```{r extracting-first-author}
 cleaned_ref <- cleaned_ref %>%
@@ -397,7 +415,7 @@ cleaned_ref <- cleaned_ref %>%
          across(.cols = c("authors", "first_author", "journal", "title"), ~toupper(.))) 
 ```
 
-For each type of matching, we are giving a new id to the matched references, by giving the `id_ref` of the first references matched. At the end, we compare all the new id created with all the matching methods, and we take the smaller id. 
+Pour chaque type d'appariement, nous donnons un nouvel identifiant aux références appariées, en donnant le `id_ref` des premières références appariées. A la fin, nous comparons tous les nouveaux identifiants créés avec toutes les méthodes d'appariement, et nous prenons l'identifiant le plus petit. 
 
 ```{r match-references}
 matching_ref <- function(data, id_ref, ..., col_name){
@@ -423,7 +441,7 @@ identifying_ref <- cleaned_ref %>%
   matching_ref(id_ref, doi, col_name = "doi") 
 ```
 
-Now we have our direct citation table connecting the citing articles to the references. We have as many lines as the number of citations by citing articles.
+Nous avons maintenant notre tableau de citations directes reliant les articles citants aux références. Nous avons autant de lignes que le nombre de citations d'articles.
 
 ```{r creating-direct-citation}
 direct_citation <- identifying_ref %>%  
@@ -435,7 +453,7 @@ direct_citation <- identifying_ref %>%
 knitr::kable(head(filter(direct_citation, new_id_ref == 2), n = 4))
 ```
 
-We can extract the list of all the references cited. We have as many lines as references cited by citing articles (i.e. a reference cited multiple times is present only once in the table). As for matched references, we have different information (due to the fact that the references were cited differently depending on the citing articles), we take a line where information seems to be the most complete.
+Nous pouvons extraire la liste de toutes les références citées. Nous avons autant de lignes que de références citées par les articles citants (c'est-à-dire qu'une référence citée plusieurs fois n'est présente qu'une seule fois dans le tableau). Comme pour les références appariées, nous disposons d'informations différentes (dues au fait que les références ont été citées différemment selon les articles citants), nous prenons une ligne où l'information semble la plus complète.
 
 ```{r references-table}
 important_info <- c("authors",
@@ -461,29 +479,28 @@ knitr::kable(head(references, n = 4))
 nb_cit <- nrow(direct_citation %>% count(new_id_ref) %>% filter(n > 1))
 ```
 
+A partir des `r nrow(direct_citation)` citations initiales, nous obtenons `r nrow(references)` références différentes, avec `r nb_cit` cité au moins deux fois.
 
-From the initial `r nrow(direct_citation)` citations, we get `r nrow(references)` different references, with `r nb_cit` cited at least twice.
-
-We also remove the `references` column of the initial `data.frame` as references cited are now gathered in `direct_citation`.
+Nous supprimons également la colonne `references` du `data.frame` initial car les références citées sont maintenant regroupées dans `direct_citation`.
 
 ```{r creating-corpus}
 corpus <- scopus_search %>% 
 select(-references)
 ```
 
-I imagine that after so many steps, you can't wait to look at these data on DSGE models. But you will have to wait, as the following subsection presents you another method to clean (without cleaning yourself) the references. Or you can go directly to the [last section](#exploring-the-dsge-literature) that explores the cleaned data.
+J'imagine qu'après tant d'étapes, vous avez hâte de consulter ces données sur les modèles DSGE. Mais vous devrez attendre, car la sous-section suivante vous présente une autre méthode pour nettoyer (sans vous nettoyer vous-même) les références. Vous pouvez aussi aller directement à la [dernière section] (#exploring-the-dsge-literature) qui explore les données nettoyées.
 
-### Alternative method: [anystyle](https://anystyle.io)
+### Méthode alternative : [anystyle](https://anystyle.io)
 
-[anystyle](https://anystyle.io) is a great references parser relyng on machine learning heuristics. It has an online version where you can put the text for which you want to identify references. However, we will use the command line in order to identify more references than what the online website allows (10 000 while we have `r nrow(direct_citation)` raw references). 
+[anystyle](https://anystyle.io) est un excellent analyseur de références qui s'appuie sur des heuristiques d'apprentissage automatique. Il dispose d'une version en ligne dans laquelle vous pouvez placer le texte pour lequel vous souhaitez identifier des références. Cependant, nous utiliserons la ligne de commande afin d'identifier plus de références que ce que le site en ligne permet (10 000 alors que nous avons `r nrow(direct_citation)` références brutes). 
 
-Anystyle can be installed as a RubyGem. You thus need to install Ruby ([here](https://rubyinstaller.org/downloads/) for Windows) and then install anystyle using the command line: `gem install anystyle` (see more information [here](https://anystyle.io/)). As you need to use the command line interface, you also need to install anystyle-cli: `gem install anystyle-cli`. 
+Anystyle peut être installé en tant que RubyGem. Vous devez donc installer Ruby ([ici](https://rubyinstaller.org/downloads/) pour Windows) et ensuite installer anystyle en utilisant la ligne de commande : `gem install anystyle` (voir plus d'informations [ici](https://anystyle.io/)). Comme vous devez utiliser l'interface en ligne de commande, vous devez aussi installer anystyle-cli : `gem install anystyle-cli`. 
 
-> Some frightened reader: "What, what? wait! Command line you said?"
+> Un lecteur effrayé : "Quoi, quoi ? Attendez ! Ligne de commande vous avez dit ?"
 
-Oh, yes. And that is a good occasion to refer you to these great tutorials of the great [Programming Historian Website](https://programminghistorian.org/en/): one for the [bash command line](https://programminghistorian.org/en/lessons/intro-to-bash) and one for the [Windows Powershell Command Line](https://programminghistorian.org/en/lessons/intro-to-powershell). And it will be the occasion to use a bit [Rstudio Terminal](https://support.rstudio.com/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE) to enter the commands. 
+Oh, oui. Et c'est une bonne occasion de vous renvoyer à ces excellents tutoriels du [Programming Historian Website](https://programminghistorian.org/en/) : un pour la [ligne de commande bash](https://programminghistorian.org/en/lessons/intro-to-bash) et un pour la [ligne de commande Windows Powershell](https://programminghistorian.org/en/lessons/intro-to-powershell). Et ce sera l'occasion d'utiliser un peu de [Rstudio Terminal](https://support.rstudio.com/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE) pour entrer les commandes. 
 
-Once you have installed anystyle, you need to save all the references (with one reference per line) in a `.txt`. 
+Une fois que vous avez installé anystyle, vous devez sauvegarder toutes les références (avec une référence par ligne) dans un fichier `.txt`.
 
 ```{r preparing-references}
 ref_text <- paste0(references_extract$references, collapse = "\\\n")
@@ -493,7 +510,7 @@ write_file(ref_text,
                 name_file))
 ```
 
-To create the anystyle command, you need to name the repository where you will send the `.bib` created by anystyle from your `.txt`
+Pour créer la commande anystyle, vous devez nommer le dépôt où vous enverrez le `.bib` créé par anystyle à partir de votre `.txt`.
 
 ```{r preparing-command}
 destination_anystyle <- "anystyle_cleaned"
@@ -505,14 +522,14 @@ anystyle_command <- paste0("anystyle -f bib parse ",
                            destination_anystyle)
 ```
 
-To use anystyle, you have to use the command line of the terminal. You first have to set the path where the `.txt` is (which is here the `scopus_path`): `cd the_path_where_is_the_.txt`.
+Pour utiliser anystyle, vous devez utiliser la ligne de commande du terminal. Vous devez d'abord définir le chemin où se trouve le `.txt` (qui est ici le `scopus_path`) : `cd le_chemin_où_est_le_.txt`.
 
-Then you copy and paste the anystyle command in the terminal, which here is:
-`anystyle -f bib parse ref_in_text.txt anystyle_cleaned`. Hopefully it will work and you wil just have to wait for the creation of the `.bib` (it took something like 10 minutes on my laptop).^[In case you want to know more on the different commands of anystyle, see the [API documentation](https://rubydoc.info/gems/anystyle).]
+Ensuite, vous copiez et collez la commande anystyle dans le terminal, qui est ici :
+`anystyle -f bib parse ref_in_text.txt anystyle_cleaned`. Avec un peu de chance, cela fonctionnera et vous n'aurez qu'à attendre la création du `.bib` (cela a pris environ 10 minutes sur mon ordinateur portable)^[Au cas où vous voudriez en savoir plus sur les différentes commandes d'anystyle, consultez la [documentation API] (https://rubydoc.info/gems/anystyle)].
 
-> ...waiting...
+> ...en attendant...
 
-Once we have our `.bib`, we transform it in a data frame thanks to the [`bib2df`](https://docs.ropensci.org/bib2df/) package.
+Une fois que nous avons notre `.bib`, nous le transformons en data frame grâce au package [`bib2df`](https://docs.ropensci.org/bib2df/).
 
 ```{r extracting-bib}
 options(encoding = "UTF-8")
@@ -528,13 +545,13 @@ bib_ref <- bib_ref %>%
 knitr::kable(head(bib_ref))
 ```
 
-For now, there is one major limitation to this method (which is most likely linked to my lack of mastery of anystyle and ruby): the result is a list of unique references. In other words, anystyle merge together references that are similar. It means that I have to find a way to build a link between the original references `data.frame` and the `data.frame` build on the `.bib`.^[As I find anystyle a very interesting tool, I will try to work on that issue in the following months and find a solution. An easy way to do it would perhaps be to save one `.txt` per citing article and to run anystyle for all the `.txt`. We will have as many `.bib` as articles and we will just have to bind the resulting `data.frames`.]
+Pour l'instant, il y a une limitation majeure à cette méthode (qui est très probablement liée à mon manque de maîtrise d'anystyle et de ruby) : le résultat est une liste de références uniques. En d'autres termes, anystyle fusionne les références qui sont similaires. Cela signifie que je dois trouver un moyen de construire un lien entre les références originales `data.frame` et le `data.frame` construit sur le `.bib`.^[Comme je trouve qu'anystyle est un outil très intéressant, j'essaierai de travailler sur ce problème dans les mois à venir et de trouver une solution. Une façon simple de le faire serait peut-être d'enregistrer un `.txt` par article cité et de lancer anystyle pour tous les `.txt`. Nous aurons autant de `.bib` que d'articles et nous n'aurons plus qu'à lier les `data.frames` qui en résulteront].
 
-Ideally, you can clean a bit the result. Anystyle is pretty good (and clearly better than I) for identifying the types of references, and thus to extract book title for chapter in books and editors. It is quite efficient to extract authors, and also titles even if saw many mistakes (but relatively to clean, as most of the time it is the year that has been put with the title). However, I also saw many mistakes for journals (incomplete name) that are not so easy to correct. If you want to clean your references data as much as possible, perhaps the best thing to do is to mix the coding cleaning approach used above with the anystyle method, and to complete missing information with one or another method.
+Idéalement, vous pouvez nettoyer un peu le résultat. Anystyle est assez bon (et clairement meilleur que moi) pour identifier les types de références, et donc pour extraire le titre du livre pour les chapitres dans les livres et les éditeurs. Il est assez efficace pour extraire les auteurs, et aussi les titres même si j'ai vu beaucoup d'erreurs (mais relativement à nettoyer, car la plupart du temps c'est l'année qui a été mise avec le titre). Cependant, j'ai aussi vu beaucoup d'erreurs pour les revues (nom incomplet) qui ne sont pas si faciles à corriger. Si vous souhaitez nettoyer vos données de références autant que possible, la meilleure chose à faire est peut-être de combiner l'approche de nettoyage par codage utilisée ci-dessus avec la méthode anystyle, et de compléter les informations manquantes avec l'une ou l'autre méthode.
 
-## Exploring the DSGE literature
+## Exploration de la littérature sur les DSGE
 
-Now we have our bibliographic data, the first thing we can look at is the most cited references in our corpus. 
+Maintenant que nous disposons de nos données bibliographiques, la première chose que nous pouvons faire est d'examiner les références les plus citées dans notre corpus. 
 
 ```{r top-ref}
 direct_citation %>% 
@@ -547,7 +564,7 @@ direct_citation %>%
   knitr::kable()
 ```
 
-As we have the affiliations, we can try to see which are the top references for economists based in different countries:
+Comme nous disposons des affiliations, nous pouvons essayer de voir quelles sont les principales références pour les économistes basés dans différents pays :
 
 ```{r top-ref-country, fig.cap="Most cited references per countries", fig.dim=c(12,9)}
 direct_citation %>% 
@@ -574,11 +591,11 @@ direct_citation %>%
   
 ```
 
-By using affiliations we can observe a regional preference pattern: in European countries, economists tend to cite more @smets2003a (the source of the European Central Bank DSGE model) than @christianoetal2005, while the opposite is true in the United States [@smets2007a is on US data]. We can also notice that @kydland1982 is less popular in continental Europe.
+En utilisant les affiliations, nous pouvons observer un modèle de préférence régionale : dans les pays européens, les économistes ont tendance à citer davantage @smets2003a (la source du modèle DSGE de la Banque centrale européenne) que @christianoetal2005, alors que l'inverse est vrai aux États-Unis [@smets2007a est sur des données américaines]. Nous pouvons également remarquer que @kydland1982 est moins populaire en Europe continentale.
 
-### Bibliographic co-citation analysis
+### Analyse des co-citations bibliographiques
 
-To conclude this (long) tutorial, we can build a co-citation network: the references we have matched are the nodes of the network, and they are linked together depending on the number of times they are cited together (or in other words, the number of times they are together in a bibliography). We use the `biblio_cocitation` function of the [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) package. The edge between two nodes is weighted depending of the total number of times each reference has been cited in the whole corpus (see [here](https://agoutsmedt.github.io/biblionetwork/reference/biblio_cocitation.html) for more details).
+Pour conclure ce (long) tutoriel, nous pouvons construire un réseau de co-citation : les références que nous avons appariées sont les noeuds du réseau, et elles sont reliées entre elles en fonction du nombre de fois qu'elles sont citées ensemble (ou en d'autres termes, le nombre de fois qu'elles sont ensemble dans une bibliographie). Nous utilisons la fonction `biblio_cocitation` du package [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/). L'arête entre deux nœuds est pondérée en fonction du nombre total de fois où chaque référence a été citée dans l'ensemble du corpus (voir [ici](https://agoutsmedt.github.io/biblionetwork/reference/biblio_cocitation.html) pour plus de détails).
 
 ```{r creating-edges}
 citations <- direct_citation %>% 
@@ -597,7 +614,7 @@ edges <- biblionetwork::biblio_cocitation(filter(direct_citation, new_id_ref %in
 edges
 ```
 
-We can then take our corpus and these edges to create a network/graph thanks to [`tidygraph`](https://tidygraph.data-imaginist.com/index.html) [@R-tidygraph] and [`networkflow`](https://github.com/agoutsmedt/networkflow). I don't enter in the details here as that is not the purpose of this tutorial and that the different steps are explained on `networkflow` [website](https://github.com/agoutsmedt/networkflow).
+Nous pouvons alors prendre notre corpus et ces arêtes pour créer un réseau/graphique grâce à [`tidygraph`](https://tidygraph.data-imaginist.com/index.html) [@R-tidygraph] et [`networkflow`](https://agoutsmedt.github.io/networkflow/). Je n'entre pas dans les détails ici car ce n'est pas le but de ce tutoriel et que les différentes étapes sont expliquées sur [le site de `networkflow`](https://agoutsmedt.github.io/networkflow/).
 
 ```{r building-graph}
 graph <- tbl_main_component(nodes = references_filtered, 
@@ -648,8 +665,7 @@ community_labels <- community_labels(graph,
                                      community_threshold = 0.02)
 ```
 
-A co-citation network allows us to observe what are the main influences of a field of research. At the center of the network, we find the most cited references. On the borders of the graph, there are specific communities that influence different parts of the literature on DSGE. Here, the size of nodes depends on the number of times they are cited in our corpus.
-
+Un réseau de co-citations permet d'observer quelles sont les principales influences d'un domaine de recherche. Au centre du réseau, nous trouvons les références les plus citées. Sur les bords du graphe, on trouve des communautés spécifiques qui influencent différentes parties de la littérature sur le DSGE. Ici, la taille des nœuds dépend du nombre de fois qu'ils sont cités dans notre corpus.
 
 ```{r projecting-graph, eval=FALSE}
 graph <- graph %>% 
@@ -695,7 +711,7 @@ invisible(dev.off())
 knitr::include_graphics("featured.png")
 ```
 
-Let's conclude by observing what are the most cited nodes in each community. We see that community `04` deals with international issues while the  `07` is linked to fiscal policy issues.
+Terminons en observant quels sont les nœuds les plus cités dans chaque communauté. Nous constatons que la communauté `04` traite des questions internationales tandis que la `07` est liée aux questions de politique fiscale.
 
 ```{r top-ref-community, eval=FALSE}
 ragg::agg_png(here("content", "en", "post", "2022-01-31-extracting-biblio-data-1", "top-ref-country-1.png"),
@@ -726,7 +742,5 @@ invisible(dev.off())
 knitr::include_graphics("top-ref-country-1.png")
 ```
 
-
-
-## References {-}
+## Bibliographie {-}
 

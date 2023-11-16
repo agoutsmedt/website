@@ -1,5 +1,5 @@
 ---
-title: "Scraping Working Papers from the European Central Bank Website"
+title: "Moissonner les documents de travail de la Banque Centrale Européenne"
 author: "Aurélien Goutsmedt"
 date: "2023-11-16"
 slug: "scraping-ecb"
@@ -14,7 +14,7 @@ tags:
 - Quantitative Analysis
 - Central Banks
 subtitle: "Scraping Tutorials 2"
-summary: "In this post, you will learn how to scrape various research documents from the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website."
+summary: "Dans ce billet, vous apprendrez comment moissonner divers documents de recherche sur le site de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html)."
 authors: []
 lastmod: "2023-11-16"
 featured: no
@@ -38,16 +38,16 @@ projects: []
 
 {{% toc %}}
 
-After a [first post](/post/scraping-bis) on scraping the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), this post teaches how to scrape documents from the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website. More accurately, we won’t scrape the speeches of the ECB’s board members, as they are already available in a `.csv` format [here](https://www.ecb.europa.eu/press/key/html/downloads.en.html). Rather, we will tackle research documents via the various series of working papers published by the ECB.
+Après un [premier billet](/fr/post/scraping-bis) sur le *scraping* de la [base de données des discours de la Banque des règlements internationaux](https://www.bis.org/cbspeeches/index.htm?m=256), ce billet vous apprend à moissonner les documents du site de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html). Plus précisément, nous ne récupérerons pas les discours des membres du conseil d’administration de la BCE, car ils sont déjà disponibles au format `.csv` [ici](https://www.ecb.europa.eu/press/key/html/downloads.en.html). Nous allons plutôt nous attaquer aux documents de recherche via les différentes séries de documents de travail publiés par la BCE.
 
-In the previous post, we learnt the difference between static and dynamic webpages. Dynamic webpages involve interaction with your web browser: in this case, you need the [RSelenium](https://docs.ropensci.org/RSelenium/) ([Harrison 2022](#ref-R-rselenium)) package.[^1]
+Dans le billet précédent, nous avons appris la différence entre les pages web statiques et dynamiques. Les pages web dynamiques impliquent une interaction avec votre navigateur web : dans ce cas, vous avez besoin du pacquet [RSelenium](https://docs.ropensci.org/RSelenium/) ([Harrison 2022](#ref-R-rselenium)).[^1].
 
-Here again, we will be confronted to dynamic webpages. However, these webpages raise novel issues. With the BIS database, the main issue was to go to the next page to scrape the metadata of the following speeches. We did it by [finding how the page number was integrated into the URL](/post/scraping-bis/#going-on-the-bis-website-and-launching-the-bot). With the ECB website, the problem will be trickier for two reasons:
+Là encore, nous serons confrontés à des pages web dynamiques. Cependant, ces pages web soulèvent de nouvelles questions. Avec la base de données de la BRI, le principal problème était de passer à la page suivante pour récupérer les métadonnées des discours suivants. Nous l’avons fait en [trouvant comment le numéro de page était intégré dans l’URL](/fr/post/scraping-bis/#aller-sur-le-site-web-de-la-bri-et-lancer-le-bot). Avec le site de la BCE, le problème sera plus délicat pour deux raisons :
 
-- First, all the documents are on the same page but as the page may be very long (depending on the type of documents), the page is not loaded entirely by your browser. You will thus learn to scroll down until all the documents are loaded.
-- Second, some information (like the abstract or the [JEL codes](https://www.aeaweb.org/econlit/jelCodes.php?view=jel) of a working paper) are hidden, and you have to click on a button to display them.
+- Premièrement, tous les documents sont sur la même page mais comme la page peut être très longue (en fonction du type de documents), la page n’est pas entièrement chargée par votre navigateur. Vous devrez donc faire défiler la page vers le bas jusqu’à ce que tous les documents soient chargés.
+- Deuxièmement, certaines informations (comme le résumé ou les [codes JEL](https://www.aeaweb.org/econlit/jelCodes.php?view=jel) d’un document de travail) sont cachées, et vous devez cliquer sur un bouton pour les afficher.
 
-Before exploring that in details, let’s load the needed packages. This time, we will use [rvest](https://rvest.tidyverse.org/) ([Wickham 2022](#ref-R-rvest)) in complement of *RSelenium* and [polite](https://dmi3kno.github.io/polite/) ([Perepolkin 2023](#ref-R-polite)). At the end of this post, we will test a second method with *rvest* only and not *RSelenium* to scrape working papers (but don’t spoil yourself!).
+Avant d’explorer cela en détail, chargeons les paquets nécessaires. Cette fois, nous utiliserons [rvest](https://rvest.tidyverse.org/) ([Wickham 2022](#ref-R-rvest)) en complément de *RSelenium* et [polite](https://dmi3kno.github.io/polite/) ([Perepolkin 2023](#ref-R-polite)). A la fin de ce billet, nous testerons une seconde méthode avec *rvest* uniquement et non *RSelenium* pour récupérer des documents de travail.
 
 ``` r
 # pacman is a useful package to install missing packages and load them
@@ -62,20 +62,20 @@ pacman::p_load(tidyverse,
                glue)
 ```
 
-## A look at the ECB Website
+## Un coup d’œil sur le site de la BCE
 
-Let’s say we want to scrape the metadata of ECB’s “occasional papers” at “https://www.ecb.europa.eu/pub/research/occasional-papers/html/index.en.html”.
+Supposons que nous voulions extraire les métadonnées des “*occasional papers*” de la BCE à l’adresse “https://www.ecb.europa.eu/pub/research/occasional-papers/html/index.en.html”.
 
 <div class="figure" style="text-align: center">
 
-<img src="occasional_papers.png" alt="ECB's occasional papers" width="788" />
+<img src="occasional_papers.png" alt="Les 'occasional papers' de la BCE" width="788" />
 <p class="caption">
-<span id="fig:show-op"></span>Figure 1: ECB’s occasional papers
+<span id="fig:show-op"></span>Figure 1: Les ‘occasional papers’ de la BCE
 </p>
 
 </div>
 
-We can see that there is 333 occasional papers on the ECB website. Let’s try to scrape them. First, we use *polite* to “bow” in front of the ECB website. We specify who we are in the `user_agent` parameter, in order for the webmaster to contact us in case of problem. Indeed, we are trying here to follow some scraping ethical guidelines (find more developments on this issue [here](https://towardsdatascience.com/ethics-in-web-scraping-b96b18136f01)). The `bow()` function allows us to look at permissions for scraping.
+Nous pouvons voir qu’il y a 333 *occasional papers* sur le site de la BCE. Essayons de les *scraper*. Tout d’abord, nous utilisons *polite* pour nous “incliner” devant le site de la BCE. Nous spécifions qui nous sommes dans le paramètre `user_agent`, afin que le webmaster puisse nous contacter en cas de problème. En effet, nous essayons ici de suivre certaines règles éthiques en matière de *scraping* (voir quelques précisions sur cette question [ici](https://towardsdatascience.com/ethics-in-web-scraping-b96b18136f01)). La fonction `bow()` nous permet de vérifier les permissions pour le scraping.
 
 ``` r
 ecb_op_path <- "https://www.ecb.europa.eu/pub/research/occasional-papers/html/index.en.html"
@@ -91,7 +91,7 @@ session
     ##    Crawl delay: 5 sec
     ##   The path is scrapable for this user-agent
 
-By looking at the *robots.txt* file, we can see more in details which paths of the website are scrapable or not. Nothing about the publications path here!
+En examinant le fichier *robots.txt*, nous pouvons voir plus en détail quels chemins du site web sont moissonnables ou non. Rien sur le chemin relatifs aux publications de recherche ici, la voie est libre !
 
 ``` r
 cat(session$robotstxt$text)
@@ -133,7 +133,7 @@ cat(session$robotstxt$text)
     ## Disallow: /euro/changeover/shared/data/
     ## Crawl-delay: 5
 
-Let’s launch our bot.
+Nous pouvons lancer le robot :
 
 ``` r
 remDr <- rsDriver(browser = "firefox",
@@ -145,9 +145,9 @@ Sys.time(session$delay) # letting the page load
 browser$findElement("css", "a.cross.linkButton.linkButtonLarge.floatRight.highlight-extra-light")$clickElement() # Refusing cookies
 ```
 
-## Scrolling down and opening supplementary menus
+## Défilement vers le bas et ouverture de menus supplémentaires
 
-We can try something quickly: we extract the list of the occasional papers number (the “No. XXX” information just above the title).
+Nous pouvons essayer quelque chose rapidement : nous extrayons la liste des numéros des *occasional papers* (l’information “No. XXX” juste au-dessus du titre).
 
 ``` r
 categories <- browser$findElements("css selector", ".category") %>% 
@@ -158,29 +158,29 @@ tail(categories)
 
     ## [1] "No. 315" "No. 314" "No. 313" "No. 312" "No. 311" "No. 310"
 
-We got something weird here. The last paper we got in the list is No. 310. But if we scroll all the way down to the page, we can see that the last paper should be “No. 1”.
+Nous avons quelque chose qui cloche ici. Le dernier article de la liste est No. 310. Mais si nous faisons défiler la page jusqu’en bas, nous pouvons voir que le dernier document devrait être “No. 1”.
 
 <div class="figure" style="text-align: center">
 
-<img src="last_occasional_papers.png" alt="ECB's occasional papers" width="796" />
+<img src="last_occasional_papers.png" alt="Les 'occasional papers' de la BCE" width="796" />
 <p class="caption">
-<span id="fig:show-last-op"></span>Figure 2: ECB’s occasional papers
+<span id="fig:show-last-op"></span>Figure 2: Les ‘occasional papers’ de la BCE
 </p>
 
 </div>
 
-Let’s dig a bit into the `html` code of the webpage. In Firefox, you can go to the supplementary tools and open the “web development tools”. You can see that there is something called `lazyload-container`.
+Fouillons un peu dans le code `html` de la page web. Dans Firefox, vous pouvez aller dans les “outils supplémentaires” et ouvrir les “outils de développement web”. Vous pouvez voir qu’il y a quelque chose appelé `lazyload-container`.
 
 <div class="figure" style="text-align: center">
 
-<img src="lazyload.png" alt="Digging into ECB's website source code" width="836" />
+<img src="lazyload.png" alt="Le code source de la page web des occasional papers" width="836" />
 <p class="caption">
-<span id="fig:lazyload"></span>Figure 3: Digging into ECB’s website source code
+<span id="fig:lazyload"></span>Figure 3: Le code source de la page web des occasional papers
 </p>
 
 </div>
 
-As the number of occasional papers is quite big, for efficiency reasons, the website does not load the whole information. Consequently, if you want to scrape all the papers, you need to scroll down the page, and you need to scroll progressively to be sure that all the containers are loaded. The `executeScript()` function of *RSelenium* allows you to use some JavaScript code. Here, you don’t want to scroll horizontally, but you want to scroll vertically: you thus need to define the number of pixels by which you want to scroll down (let’s use 1600 to be sure that we will scroll down slowly). We will repeat this operation a certain number of time: as scrolling down by 1600 pixels is equivalent to scroll down by (a bit more than) five papers, we divide the number of papers by 5, to know the number of iterations of the scrolling down move.
+Comme le nombre de documents occasionnels est assez élevé, pour des raisons d’efficacité, le site web ne charge pas l’ensemble des informations. Par conséquent, si vous souhaitez récupérer tous les articles, vous devez faire défiler la page vers le bas, et vous devez faire défiler *progressivement* pour être sûr que tous les conteneurs sont chargés. La fonction `executeScript()` de *RSelenium* vous permet d’utiliser du code JavaScript. Ici, on ne veut pas faire défiler horizontalement, mais verticalement : il faut donc définir le nombre de pixels dont on veut descendre (mettons 1600 pour être sûr de descendre lentement). Nous allons répéter cette opération un certain nombre de fois : comme faire défiler vers le bas de 1600 pixels équivaut à faire défiler vers le bas d’un peu plus de cinq papiers, nous divisons le nombre de papiers par 5, pour connaître le nombre d’itérations du mouvement de défilement vers le bas.
 
 ``` r
 scroll_height <- 1600
@@ -193,7 +193,7 @@ scroll_iteration <- str_extract(categories[1], "\\d+") %>%
   }
 ```
 
-Let’s check that now all the discussion papers are available:
+Vérifions que tous les documents de travail sont maintenant disponibles :
 
 ``` r
 categories <- browser$findElements("css selector", ".category") %>% 
@@ -202,9 +202,9 @@ categories <- browser$findElements("css selector", ".category") %>%
 length(categories)
 ```
 
-    ## [1] 333
+    ## [1] 298
 
-That’s all good. But we face a second issue: some important information are not visible yet. Indeed, by clicking on the “Details” button, you can access the abstract and the JEL codes of the paper.
+Tout va bien. Mais nous sommes confrontés à un deuxième problème : certaines informations importantes ne sont pas encore visibles. En effet, il faut cliquer sur le bouton “Détails” pour accéder au résumé et aux codes *JEL* de l’article.
 
 <div class="figure" style="text-align: center">
 
@@ -215,18 +215,18 @@ That’s all good. But we face a second issue: some important information are no
 
 </div>
 
-But as long as the *Details* menu is closed, the information is not accessible. So we need to find all the buttons that allow to click on the “Details” menu. But be careful, we want only the “Details” button, and not other types of button. As in the [former post]((/post/scraping-bis)), the [ScrapeMate](https://addons.mozilla.org/fr/firefox/addon/scrapemate/) Firefox add-on is essential to find the right *CSS selector*.
+Mais tant que le menu *Détails* est fermé, l’information n’est pas accessible. Il faut donc trouver tous les boutons qui permettent de cliquer sur le menu “Détails”. Mais attention, nous ne voulons que le bouton “Détails”, et pas d’autres types de boutons. Comme dans le [précédent billet]((/fr/post/scraping-bis)), le module complémentaire Firefox [ScrapeMate](https://addons.mozilla.org/fr/firefox/addon/scrapemate/) est indispensable pour trouver le bon *sélecteur CSS*.
 
 <div class="figure" style="text-align: center">
 
-<img src="scrapemate.png" alt="Using ScrapeMate Beta" width="938" />
+<img src="scrapemate.png" alt="ScrapeMate Beta" width="938" />
 <p class="caption">
-<span id="fig:scrapemate"></span>Figure 5: Using ScrapeMate Beta
+<span id="fig:scrapemate"></span>Figure 5: ScrapeMate Beta
 </p>
 
 </div>
 
-We can now click on all the “Details” buttons, and only the “Details” buttons:
+Nous pouvons maintenant cliquer sur tous les boutons “Détails”, et uniquement sur les boutons “Détails” :
 
 ``` r
   buttons <- browser$findElements("css selector", ".ecb-langSelector+ .accordion .header:nth-child(1) .title")
@@ -236,7 +236,7 @@ We can now click on all the “Details” buttons, and only the “Details” bu
   }
 ```
 
-Now, we have at our disposal all the information that is of interest to us. The remaining issue is that some information may be missing (or non-existent) for some papers (for instance, one paper has no author). So we extract the dates separately, and then we select the whole set of information for each paper (in the `papers_whole_information` object), and in this set, we extract in turn the title, the authors, the URL of the pdf, and the information in details.[^2]
+Nous disposons désormais de toutes les informations qui nous intéressent. Le problème restant est que certaines informations peuvent être manquantes (ou inexistantes) pour certains documents (par exemple, un document n’a pas d’auteur). Nous extrayons donc les dates séparément, puis nous groupons l’ensemble des informations (hors date) pour chaque article dans l’objet `papers_whole_information`. De cet objet, nous extrayons tour à tour le titre, les auteurs, l’URL du pdf, et les informations en détail[^2].
 
 ``` r
 papers_whole_information <- browser$getPageSource()[[1]] %>% # we extract the whole info of each paper here (without the date)
@@ -274,12 +274,12 @@ head(metadata)
     ## 5 No. 329  20 September 2023 How usable are capital buf… "Georg… "Abstr… /pub/p…
     ## 6 No. 317  13 September 2023 Recent advances in the lit… "Rolan… "Abstr… /pub/p…
 
-Two points of clarification here:
+Deux points à clarifier ici :
 
-- the *CSS selector* must be selected carefully. For instance, a paper may have several “.title a”, because it gathers some complementary documents. Paper 209 is an example. So you only want the title after the category. Hence the selector “.category+ .title a”. That’s the same logic for the “details” menu: you don’t want what is in the Annex for instance. Also, you may have several pdf links, and you just want the pdf link below the authors, which is the pdf of the paper.
-- the `authors` and `details` columns remain to be cleaned. Indeed, you can have several authors, and the `details` column gathers information about the abstract and JEL_codes, but also, in rare occasion, the “taxonomy” and the “network”. That’s why we use the `html_text2()` function of *rvest*: each type of information is separated by a linebreak (“\n”).
+- le *sélecteur CSS* doit être choisi avec soin. Par exemple, un document peut avoir plusieurs `.title a`, car il regroupe des documents complémentaires. Le document 209 en est un exemple. On ne veut donc que le titre après la catégorie. D’où le sélecteur `.category+ .title a`. C’est la même logique pour le menu “détails” : vous ne voulez pas ce qui se trouve dans “annexe” par exemple. De même, vous pouvez avoir plusieurs liens pdf, et vous ne voulez que le lien PDF sous les auteurs, qui est lien vers le PDF de l’article (et pas le lien vers le PDF d’un annexe technique).
+- les colonnes `authors` et `details` doivent encore être nettoyées. En effet, vous pouvez avoir plusieurs auteurs, et la colonne `details` rassemble des informations sur le résumé et les codes *JEL*, mais aussi, en de rares occasions, la “Taxonomy” et le “Network”. C’est pourquoi nous utilisons la fonction `html_text2()` de *rvest* : chaque type d’information est séparé par un saut de ligne (“\n”).
 
-Let’s clean the details. You first separate the lines and get something like that:
+Nettoyons les détails. Vous séparez d’abord les lignes :
 
 ``` r
 details_cleaned <- metadata %>% 
@@ -314,7 +314,7 @@ head(details_cleaned, 20)
     ## 19 No. 331  G23 : Financial Economics→Financial Institutions and Services→Non-b…
     ## 20 No. 331  G32 : Financial Economics→Corporate Finance and Governance→Financin…
 
-What you need to do is to extract the category of information (“Abstract\|JEL Code\|Taxonomy\|Network”), and the text below represents the content of this category of information. You can then pivot the data to fill each column for the paper. Of course, most columns for taxonomy and network will be empty. As you have several JEL codes for each paper, `pivot_wider()` creates list columns for each type of information. But you can “unnest” the columns with single values (“Abstract”, “Taxonomy”, and “Network”)
+Ce qu’il faut faire, c’est extraire la catégorie d’information (“Abstract\|JEL Code\|Taxonomy\|Network”), et le texte ci-dessous représente le contenu de cette catégorie d’information. Vous pouvez ensuite faire pivoter les données pour remplir chaque colonne de l’article. Bien entendu, la plupart des colonnes relatives à la taxonomie et au réseau seront vides. Comme vous avez plusieurs codes *JEL* pour chaque article, `pivot_wider()` crée des colonnes sous forme de liste pour chaque type d’information. Mais vous pouvez transformer en chaîne de caractères les valeurs des colonnes avec des valeurs uniques (“Abstract”, “Taxonomy”, et “Network”).
 
 ``` r
 details_cleaned <- details_cleaned %>% 
@@ -337,7 +337,7 @@ head(details_cleaned)
     ## 5 No. 329  This paper analyses banksâ€™ ability to … <chr [2]>  <NA>    <NA>    
     ## 6 No. 317  Large swings in cross-border capital flo… <chr [2]>  <NA>    <NA>
 
-Let’s “zoom” to the `JEL code` column:
+Regardons de plus prêt ce que contient la colonne `JEL code` :
 
 ``` r
 head(details_cleaned %>% select(category, `JEL Code`) %>%  unnest(`JEL Code`))
@@ -353,7 +353,7 @@ head(details_cleaned %>% select(category, `JEL Code`) %>%  unnest(`JEL Code`))
     ## 5 No. 332  C3 : Mathematical and Quantitative Methods→Multiple or Simultaneous …
     ## 6 No. 332  E3 : Macroeconomics and Monetary Economics→Prices, Business Fluctuat…
 
-Finally, you just need to merge the details cleaned with the metadata:
+Enfin, il suffit de fusionner les détails nettoyés avec les métadonnées :
 
 ``` r
 metadata_cleaned <- metadata %>% 
@@ -373,13 +373,13 @@ head(metadata_cleaned)
     ## 5 No. 329  20 Septe… How u… "Georg… /pub/p… This pa… <chr [2]>  <NA>    <NA>    
     ## 6 No. 317  13 Septe… Recen… "Rolan… /pub/p… Large s… <chr [2]>  <NA>    <NA>
 
-And you now have a nice table of metadata for ECB occasional papers! The [post on the BIS](/post/scraping-bis) explains then how to download the PDF, and how to run OCR if the text of the PDFs is not searchable. The code in this current post is also working for ECB’s “discussion papers” and “working papers”.
+Et vous avez maintenant une table de métadonnées pour les documents occasionnels de la BCE ! Le [post sur la BRI](/fr/post/scraping-bis) explique ensuite comment télécharger le PDF, et comment exécuter l’OCR si le texte des PDFs n’est pas reconnu. Le code de ce post-ci fonctionne également pour les “discussion papers” et “working papers” de la BCE.
 
-## Another Method?
+## Une autre méthode
 
-You can use the method above to scrape the metadata for the almost 3000 working papers of the ECB. But you can imagine that it takes a very long time to scroll down the page, and above all to open all the “Details” menu. *RSelenium* is wonderfully useful to interact with web browser, but sometimes, by digging into the source code of a webpage, you may find easier ways to extract relevant information.
+Vous pouvez utiliser la méthode ci-dessus pour récupérer les métadonnées de près de 3000 documents de travail de la BCE. Mais vous pouvez imaginer qu’il faut beaucoup de temps pour faire défiler la page, et surtout pour ouvrir tous les menus “Détails”. *RSelenium* est merveilleusement utile pour interagir avec le navigateur web, mais parfois, en creusant dans le code source d’une page web, vous pouvez trouver des moyens plus faciles d’extraire des informations pertinentes.
 
-And this is possible for the ECB research pages. We have already come across a clue to this earlier in this post. Indeed, let's look again at the code related to the "lazyload-container".
+C’est le cas pour les pages de recherche de la BCE. Nous avons déjà croisé un indice à ce sujet dans ce billet. En effet, regardons à nouveau le code relatif au “*lazyload-container*”.
 
 <div class="figure" style="text-align: center">
 
@@ -390,7 +390,7 @@ And this is possible for the ECB research pages. We have already come across a c
 
 </div>
 
-Actually it tells us that the website is loading some other pages, ending with “papers-2023.include.en.html”, “papers-2022.include.en.html”, etc., until “papers-1999.include.en.html”. Let’s try the first one: “https://www.ecb.europa.eu/pub/research/working-papers/html/papers-2023.include.en.html”
+En fait, il nous indique que le site web charge d’autres pages, qui se terminent par “papers-2023.include.en.html”, “papers-2022.include.en.html”, etc., jusqu’à “papers-1999.include.en.html”. Essayons la première : “https://www.ecb.europa.eu/pub/research/working-papers/html/papers-2023.include.en.html”
 
 <div class="figure" style="text-align: center">
 
@@ -401,7 +401,7 @@ Actually it tells us that the website is loading some other pages, ending with �
 
 </div>
 
-So we can scrape quite easily the occasional papers for 2023:
+Nous pouvons donc moissonner assez facilement les *occasional papers* pour 2023 :
 
 ``` r
 url <- "https://www.ecb.europa.eu/pub/research/occasional-papers/html/papers-2023.include.en.html"
@@ -433,7 +433,7 @@ metadata <- tibble(
 head(metadata)
 ```
 
-## References
+## Bibliographie
 
 <div id="refs" class="references csl-bib-body hanging-indent">
 
@@ -457,6 +457,6 @@ Wickham, Hadley. 2022. *Rvest: Easily Harvest (Scrape) Web Pages*. <https://CRAN
 
 </div>
 
-[^1]: See the end of this tutorial for some tricks to “transform” complex dynamic webpages in simpler pages and not use *RSelenium*.
+[^1]: Voir la fin de ce tutoriel pour quelques astuces pour “transformer” des pages web dynamiques complexes en pages plus simples et ne pas utiliser *RSelenium*
 
-[^2]: If there is no author, we will have a blank string.
+[^2]: S’il n’y a pas d’auteur, nous aurons une chaîne de caractères vide.
