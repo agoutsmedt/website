@@ -1,0 +1,263 @@
+---
+title: "Moissonner des documents du site de la Banque d'Angleterre"
+author: "Aurélien Goutsmedt"
+date: "2023-11-28"
+slug: "scraping-boe"
+categories:
+- Scraping
+- R Tutorials
+- Central Banks
+tags:
+- Scraping
+- R
+- Research Tools
+- Quantitative Analysis
+- Central Banks
+subtitle: "Scraping Tutorials 3"
+summary: "Dans ce billet, vous apprendrez à récupérer divers documents de recherche sur le site de la [Banque d'Angleterre](https://www.bankofengland.co.uk/)."
+authors: []
+lastmod: "`r Sys.Date()`"
+featured: no
+draft: no
+lang: en
+bibliography: bibliography.bib
+link-citations: yes
+color-links: yes
+linkcolor: teal
+urlcolor: blue
+citecolor: red
+endnote: no
+toc: yes
+number_sections: true
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+{{% toc %}}
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, fig.dim=c(14,10), fig.align = "center")
+```
+
+Dans le [premier tutoriel](/post/scraping-bis) sur le web scraping, j'ai expliqué comment récupérer la [base de données des discours de la Banque des règlements internationaux](https://www.bis.org/cbspeeches/index.htm?m=256). Le [deuxième tutoriel](/post/scraping-ecb) s'est concentré sur les documents de travail du site web de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html). Dans ce troisième billet, je montrerai une méthode pour récupérer des documents sur le site de la [Banque d'Angleterre](https://www.bankofengland.co.uk/). 
+
+Dans les deux premiers billets, nous avions une liste de documents sur une page web avec différentes informations (ou "métadonnées") que nous voulions récupérer. Pour la BRI, nous avons dû comprendre la structure de l'URL, l'utiliser pour changer de page et récupérer les métadonnées de tous les discours qui nous intéressaient. Pour la BCE, nous devions plutôt faire défiler la page vers le bas et cliquer sur de petits menus pour ouvrir des détails supplémentaires. Ici, nous allons utiliser une approche radicalement différente, consistant à extraire la structure du site web, le "sitemap", pour voir où nous pouvons trouver les métadonnées des documents.^[Cette méthode est inspirée d'un script initialement écrit par [François Claveau](https://www.usherbrooke.ca/recherche/specialistes/details/francois.claveau) et [Jérémie Dion](https://www.epistemopratique.org/chaire/equipe/dion-jeremie/) pour un [projet de recherche sur la Banque d'Angleterre](https://www.rebuildingmacroeconomics.ac.uk/academia-policy-pipeline).]
+
+Contrairement aux deux premiers posts, nous n'aurons pas besoin de [RSelenium](https://docs.ropensci.org/RSelenium/) [@R-rselenium] ici. Nous n'utiliserons que [rvest](https://rvest.tidyverse.org/) [@R-rvest] et [polite](https://dmi3kno.github.io/polite/) [@R-polite]. En effet, la méthode choisie n'implique pas d'interaction avec un navigateur web. 
+
+```{r needed-packages}
+# pacman is a useful package to install missing packages and load them
+if(! "pacman" %in% installed.packages()){
+  install.packages("pacman", dependencies = TRUE)
+}
+
+pacman::p_load(tidyverse,
+               rvest,
+               polite)
+```
+
+## A look at the BoE Website
+
+Let's have a look, for instance, at the speeches of the BoE at "https://www.bankofengland.co.uk/news/speeches".
+
+```{r show-op, fig.cap="BoE Speeches",  echo=FALSE}
+knitr::include_graphics("featured.png")
+```
+
+We have a list of speeches relatively similar to what we had for the BIS, with a list of pages that you can change at the bottom of the webpage. However, the URL stays the same when you move to another page. I did not find any way to manipulate the URL in order to move from a page to another. But you could easily use *RSelenium* to click on the button to go to the next page. 
+
+Nonetheless, we can collect more information by clicking on each speech, as each speech has a dedicated webpage like this: 
+
+```{r, fig.cap="A Speech Webpage",  echo=FALSE}
+knitr::include_graphics("example_speech.png")
+```
+
+This means that for each speech of the BoE's policymakers, an URL exists, and thus we should be able to find this URL from the "sitemap".^[Actually, the same method could be used for scraping the speeches of the [Bank of International Settlements database](https://www.bis.org/cbspeeches/index.htm?m=256).] 
+
+## Exploring the Sitemap
+
+As explained in the first post, it is important to declare who we are to the website and check for the scraping rules on this website by reading the *robot.txt*.   
+
+```{r bowing}
+root_url_BoE <- "https://www.bankofengland.co.uk"
+user_agent <- "polite R package - used for https://github.com/agoutsmedt/central_bank_database (aurelien.goutsmedt[at]uclouvain.be)"
+session <- bow(root_url_BoE,
+               user_agent = user_agent)
+
+session$robotstxt$text
+```
+
+The *robot.txt* also indicates us the URL of the sitemap:
+
+```{r sitemap}
+sitemap <- session$robotstxt$sitemap$value
+
+sitemap
+```
+
+This webpage gathers a (very long) list of all the existing URLs of the website. You can try to have a look at it on your browser, but it takes a very long time to load. The easiest is to read it directly here via *rvest*.
+
+```{r xml_sitemap}
+xml_sitemap <- rvest::read_html(sitemap)
+
+xml_sitemap %>% html_element(xpath = "body")
+```
+
+We can see that it is the "loc" argument that interests us.
+
+```{r url-list}
+data_frame_sitemap <- tibble(hyperlink= xml_sitemap %>% 
+                                   rvest::html_elements(xpath = ".//loc") %>% 
+                                   rvest::html_text()) %>% 
+  filter(hyperlink != root_url_BoE) # we exclude the base url that we don't need anymore
+
+data_frame_sitemap
+```
+
+We now have a list of `r nrow(data_frame_sitemap)` URLs. What we need now is to understand what these URLs are about: we can know that by looking at what follows the base URLs:
+
+```{r categories}
+data_frame_sitemap <- data_frame_sitemap %>% 
+  mutate(category = str_remove(hyperlink, "https://www.bankofengland.co.uk/") %>% 
+                     str_remove("/.*"))
+
+unique(data_frame_sitemap$category) 
+```
+
+We can now filter the URLs depending on what we want to scrape. For this time, let's forget the speeches and say that we are interested in the "minutes":
+
+```{r}
+minutes_urls <- data_frame_sitemap %>% 
+  filter(category == "minutes")
+
+minutes_urls
+```
+
+## Scraping Minutes Metadata
+
+Thanks to the URLs of the minutes, we have the dates of the minutes. Let's focus on the minutes of 2023.
+
+```{r}
+minutes_urls <- minutes_urls %>% 
+  mutate(dates = str_extract(hyperlink, "(?<=/)\\d{4}(?=/)") %>% as.integer()) %>% 
+  filter(dates == 2023)
+```
+
+We can have a look at the first URL in our data:
+
+```{r, fig.cap="A Minutes Webpage",  echo=FALSE}
+knitr::include_graphics("example_minute.png")
+```
+
+Using *rvest*, we first extract the `.html` code of the first webpage. You can see that the text of the minutes can be extracted directly from this webpage. We want to scrape the title of the document, its date, its summary, and the text content.
+
+```{r}
+page <- minutes_urls %>% 
+  slice(1) %>% 
+  pull(hyperlink) %>% 
+  read_html
+
+extracted_title <-  page %>% 
+  html_nodes("h1") %>% 
+  html_text()
+extracted_date <- page %>%  
+  html_nodes(".published-date") %>% 
+  html_text(trim = TRUE) %>% 
+  str_extract("\\d+ [A-z]+ \\d+$") %>% 
+  dmy()
+
+# As the abstract and the text may gather several paragraphs, the object could be a vector of several strings. We thus save these strings as a list format (because we want one line per URL/document)
+abstract <-  page %>% 
+  html_nodes(".hero") %>% 
+  html_text(trim= TRUE) %>% 
+  list()
+text <- page %>% 
+  # We extract the titles and the text together
+  html_nodes('.page-section .content-block h2 , .page-section .content-block h3, .page-section .content-block .page-content p')  %>% 
+  html_text() %>% 
+  list()
+
+metadata <- tibble(title = extracted_title,
+                   date = extracted_date,
+                   abstract = abstract,
+                   text = text)  
+
+metadata
+```
+
+We can have a look at the first lines of the text extracted:
+
+```{r}
+metadata %>%
+  pull(text) %>% 
+  unlist() %>% 
+  .[1:30] %>%  
+  str_c(collapse = "\n") %>% 
+  cat()
+```
+
+Now, we just have to build a loop to scrape the metadata for all the minutes. To avoid overloading the BoE website, we need to set a delay between navigating on the different URLs. 
+
+```{r, include=FALSE}
+delay <- 1
+```
+
+```{r, eval=FALSE}
+delay <- session$delay
+```
+
+We will also use the `TryCatch()` function to avoid breaking the loop in case of error (for instance when a page is not loaded correctly).
+
+```{r results='hide'}
+errors <- list()
+metadata <- vector(mode = "list", length = nrow(minutes_urls))
+
+  for(i in minutes_urls$hyperlink){ 
+    tryCatch({
+      page <- read_html(i)
+      cat(paste("Now scraping URL: ", i, "\n"))
+      Sys.sleep(delay)
+      
+      extracted_title <-  page %>% 
+        html_nodes("h1") %>% 
+        html_text()
+      extracted_date <- page %>%  
+        html_nodes(".published-date") %>% 
+        html_text(trim = TRUE) %>% 
+        str_extract("\\d+ [A-z]+ \\d+$") %>% 
+        dmy()
+      abstract <-  page %>% 
+        html_nodes(".hero") %>% 
+        html_text(trim= TRUE) %>% 
+        list()
+      text <- page %>% 
+  # We extract the titles and the text together
+      html_nodes('.page-section .content-block h2 , .page-section .content-block h3, .page-section .content-block .page-content p')  %>% 
+      html_text() %>% 
+        list()
+      
+      metadata[[i]] <- tibble(title = extracted_title,
+                              url = i,
+                              date = extracted_date,
+                              abstract = abstract,
+                              text = text)   
+    }, error = function(e) {
+      cat(paste("Problem with scraping URL: ", i, "\n"))
+    errors[[i]] <- i
+    })
+  }
+
+minutes_metadata <- bind_rows(metadata)
+
+minutes_metadata
+```
+
+
+When all documents have their own webpage, the *sitemap* data becomes a powerful information to facilitate your scraping. Here, it can be used to scrape easily all the documents published by the Bank of England. However, the structure of the page is not exactly the same within a category (the text of the minutes is not available on the webpages before 2022 but you can scrape the URL of the PDF), and between categories (look for instance at a speech or a working paper). Consequently, a more refined code is needed. You will find such a more complete script [here](https://github.com/agoutsmedt/central_bank_database/blob/master/scraping_scripts/scraping_boe.R).
+
+## References {-}
+
