@@ -16,7 +16,7 @@ tags:
 subtitle: "Scraping Tutorials 3"
 summary: "Dans ce billet, vous apprendrez à récupérer divers documents de recherche sur le site de la [Banque d'Angleterre](https://www.bankofengland.co.uk/)."
 authors: []
-lastmod: "2023-11-28"
+lastmod: "2023-11-29"
 featured: no
 draft: no
 lang: fr
@@ -38,7 +38,7 @@ projects: []
 
 {{% toc %}}
 
-Dans le [premier tutoriel](/post/scraping-bis) sur le web scraping, j’ai expliqué comment récupérer la [base de données des discours de banquiers centraux de la Banque des règlements internationaux](https://www.bis.org/cbspeeches/index.htm?m=256). Le [deuxième tutoriel](/post/scraping-ecb) s’est concentré sur les documents de travail du site web de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html). Dans ce troisième billet, je montrerai une méthode pour récupérer des documents sur le site de la [Banque d’Angleterre](https://www.bankofengland.co.uk/).
+Dans le [premier tutoriel](/fr/post/scraping-bis) sur le web scraping, j’ai expliqué comment récupérer la [base de données des discours de banquiers centraux de la Banque des règlements internationaux](https://www.bis.org/cbspeeches/index.htm?m=256). Le [deuxième tutoriel](/fr/post/scraping-ecb) s’est concentré sur les documents de travail du site web de la [Banque centrale européenne](https://www.ecb.europa.eu/home/html/index.en.html). Dans ce troisième billet, je montrerai une méthode pour récupérer des documents sur le site de la [Banque d’Angleterre](https://www.bankofengland.co.uk/).
 
 Dans les deux premiers billets, nous avions une liste de documents sur une page web avec différentes informations (ou “métadonnées”) que nous voulions récupérer. Pour la BRI, nous avons dû comprendre la structure de l’URL, l’utiliser pour changer de page et récupérer les métadonnées de tous les discours qui nous intéressaient. Pour la BCE, nous devions plutôt faire défiler la page vers le bas et cliquer sur des menus pour ouvrir des détails supplémentaires. Ici, nous allons utiliser une approche radicalement différente, consistant à extraire la structure du site web, le “sitemap”, pour voir où nous pouvons trouver les métadonnées des documents.[^1]
 
@@ -57,7 +57,7 @@ pacman::p_load(tidyverse,
 
 ## Explorer le site de la BoE
 
-Jetons un coup d’oeil, par exemple, aux discours de la BoE sur “https://www.bankofengland.co.uk/news/speeches”.
+Jetons un coup d’oeil, par exemple, aux discours de la BoE sur `https://www.bankofengland.co.uk/news/speeches`.
 
 <div class="figure" style="text-align: center">
 
@@ -85,7 +85,7 @@ Cela signifie que pour chaque discours des responsables politiques de la BoE, il
 
 ## Explorer la structure du site
 
-Comme expliqué dans le premier billet, il est important de déclarer qui nous sommes au site web et de vérifier les règles de scraping sur ce site web en lisant le *robot.txt*.
+Comme expliqué dans le [premier tutoriel](/fr/post/scraping-bis), il est important de déclarer qui nous sommes au site web et de vérifier les règles de scraping sur ce site web en lisant le *robot.txt*.
 
 ``` r
 root_url_BoE <- "https://www.bankofengland.co.uk"
@@ -387,9 +387,9 @@ minutes_metadata <- bind_rows(metadata)
 minutes_metadata
 ```
 
-Lorsque tous les documents ont leur propre page web, les données *sitemap* deviennent une information puissante pour faciliter votre scraping. Ici, elle peut être utilisée pour récupérer facilement tous les documents publiés par la Banque d’Angleterre. Cependant, la structure de la page n’est pas exactement la même au sein d’une catégorie (le texte des minutes n’est pas disponible sur les pages web avant 2022 mais vous pouvez récupérer l’URL du PDF), et entre les catégories (regardez par exemple un discours ou un document de travail). Par conséquent, un code plus raffiné est nécessaire. Vous trouverez un tel script plus complet [ici](https://github.com/agoutsmedt/central_bank_database/blob/master/scraping_scripts/scraping_boe.R).
+Lorsque tous les documents ont leur propre page web, les données *sitemap* deviennent une information puissante pour faciliter votre scraping. Ici, elle peut être utilisée pour récupérer facilement tous les documents publiés par la Banque d’Angleterre. Cependant, la structure de la page n’est pas exactement la même au sein d’une catégorie (le texte des minutes n’est pas disponible sur les pages web avant 2022 mais vous pouvez récupérer l’URL du PDF), et entre les catégories (regardez par exemple un discours ou un document de travail). Par conséquent, un code plus raffiné est nécessaire. Vous trouverez un tel script [ici](https://github.com/agoutsmedt/central_bank_database/blob/master/scraping_scripts/scraping_boe.R).
 
-## References
+## Bibliographie
 
 <div id="refs" class="references csl-bib-body hanging-indent">
 

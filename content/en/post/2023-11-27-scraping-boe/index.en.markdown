@@ -16,7 +16,7 @@ tags:
 subtitle: "Scraping Tutorials 3"
 summary: "In this post, you will learn how to scrape various research documents from the [Bank of England](https://www.bankofengland.co.uk/) website."
 authors: []
-lastmod: "2023-11-28"
+lastmod: "2023-11-29"
 featured: no
 draft: no
 lang: en
@@ -38,11 +38,11 @@ projects: []
 
 {{% toc %}}
 
-In the [first tutorial](/post/scraping-bis) on web scraping, I explained how to scrape the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256). The [second tutorial](/post/scraping-ecb) focused on the working papers of the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website. In this third post, I will show a method to scrape documents from the [Bank of England](https://www.bankofengland.co.uk/) website.
+In the [first tutorial](/post/scraping-bis) on web scraping, I explained how to scrape the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256). The [second tutorial](/post/scraping-ecb) focused on the working papers of the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website. In this third post, I will show a method to scrape documents from the [Bank of England’s](https://www.bankofengland.co.uk/) website.
 
-In the first two posts, we had a list of documents on a webpage with different information (or “metadata”) that we wanted to scrape. For the BIS, we had to understand the structure of the URL, to use it to change the page and scrape the metadata for all the speeches we were interested in. For the ECB, we rather needed to scroll down and click on small menus to open supplementary details. Here, we will use a radically different approach, involving to extract the structure of the website, the “sitemap”, to see where we can find the documents metadata.[^1]
+In the first two posts, we had a list of documents on a webpage with different information (or “metadata”) that we wanted to scrape. For the BIS, we needed to understand the structure of the URL, to use it to change the page and scrape the metadata for all the speeches we were interested in. For the ECB, we rather needed to scroll down and click on menus to open additional details. Here, we will use a radically different approach, which involves retrieving the structure of the website, the “sitemap”, to see where we can find the metadata for the documents.[^1]
 
-Contrary to the first two posts, we won’t need [RSelenium](https://docs.ropensci.org/RSelenium/) ([Harrison 2022](#ref-R-rselenium)) here. We will only use [rvest](https://rvest.tidyverse.org/) ([Wickham 2022](#ref-R-rvest)) and [polite](https://dmi3kno.github.io/polite/) ([Perepolkin 2023](#ref-R-polite)). Indeed, the method chosen doesn’t involve interacting with a web browser.
+Unlike the first two posts, we won’t need [RSelenium](https://docs.ropensci.org/RSelenium/) ([Harrison 2022](#ref-R-rselenium)) here. We will only use [rvest](https://rvest.tidyverse.org/) ([Wickham 2022](#ref-R-rvest)) and [polite](https://dmi3kno.github.io/polite/) ([Perepolkin 2023](#ref-R-polite)). Indeed, the chosen method doesn’t involve interacting with a web browser.
 
 ``` r
 # pacman is a useful package to install missing packages and load them
@@ -57,7 +57,7 @@ pacman::p_load(tidyverse,
 
 ## A look at the BoE Website
 
-Let’s have a look, for instance, at the speeches of the BoE at “https://www.bankofengland.co.uk/news/speeches”.
+Let’s have a look, for instance, at the speeches of the BoE at `https://www.bankofengland.co.uk/news/speeches`.
 
 <div class="figure" style="text-align: center">
 
@@ -68,7 +68,7 @@ Let’s have a look, for instance, at the speeches of the BoE at “https://www.
 
 </div>
 
-We have a list of speeches relatively similar to what we had for the BIS, with a list of pages that you can change at the bottom of the webpage. However, the URL stays the same when you move to another page. I did not find any way to manipulate the URL in order to move from a page to another. But you could easily use *RSelenium* to click on the button to go to the next page.
+We have a list of speeches that is relatively similar to what we had for the BIS, with a list of pages that you can change to the bottom of the webpage. However, the URL stays the same when you move to another page. I have not found any way to manipulate the URL in order to move from a page to another. But you could easily use *RSelenium* to click on the button to go to the next page.
 
 Nonetheless, we can collect more information by clicking on each speech, as each speech has a dedicated webpage like this:
 
@@ -85,7 +85,7 @@ This means that for each speech of the BoE’s policymakers, an URL exists, and 
 
 ## Exploring the Sitemap
 
-As explained in the first post, it is important to declare who we are to the website and check for the scraping rules on this website by reading the *robot.txt*.
+As explained in the [first tutorial](/post/scraping-bis), it is important to tell the website who we are and to check the scraping rules on that site by reading the *robot.txt*.
 
 ``` r
 root_url_BoE <- "https://www.bankofengland.co.uk"
@@ -114,7 +114,7 @@ session$robotstxt$text
     ## Sitemap: https://www.bankofengland.co.uk/_api/sitemap/getsitemap
     ## Host: www.bankofengland.co.uk
 
-The *robot.txt* also indicates us the URL of the sitemap:
+The *robot.txt* also indicates the URL of the sitemap:
 
 ``` r
 sitemap <- session$robotstxt$sitemap$value
@@ -124,7 +124,7 @@ sitemap
 
     ## [1] "https://www.bankofengland.co.uk/_api/sitemap/getsitemap"
 
-This webpage gathers a (very long) list of all the existing URLs of the website. You can try to have a look at it on your browser, but it takes a very long time to load. The easiest is to read it directly here via *rvest*.
+This webpage gathers a (very long) list of all the existing URLs of the website. You can try to have a look at it on your browser, but it takes a very long time to load. The easiest is to read it directly here using *rvest*.
 
 ``` r
 xml_sitemap <- rvest::read_html(sitemap)
@@ -162,7 +162,7 @@ data_frame_sitemap
     ## 10 https://www.bankofengland.co.uk/about/get-involved/citizens-panels/nick-chen…
     ## # ℹ 13,130 more rows
 
-We now have a list of 13140 URLs. What we need now is to understand what these URLs are about: we can know that by looking at what follows the base URLs:
+We now have a list of 13140 URLs. What we need to do now is to understand what these URLs are about. We can find this by looking at what follows the base URLs:
 
 ``` r
 data_frame_sitemap <- data_frame_sitemap %>% 
@@ -233,7 +233,7 @@ minutes_urls
 
 ## Scraping Minutes Metadata
 
-Thanks to the URLs of the minutes, we have the dates of the minutes. Let’s focus on the minutes of 2023.
+Thanks to the URLs of the minutes, we have the year of the minutes. Let’s focus on the minutes of 2023.
 
 ``` r
 minutes_urls <- minutes_urls %>% 
@@ -241,7 +241,7 @@ minutes_urls <- minutes_urls %>%
   filter(dates == 2023)
 ```
 
-We can have a look at the first URL in our data:
+Here is the first URL in our data:
 
 <div class="figure" style="text-align: center">
 
@@ -252,14 +252,16 @@ We can have a look at the first URL in our data:
 
 </div>
 
-Using *rvest*, we first extract the `.html` code of the first webpage. You can see that the text of the minutes can be extracted directly from this webpage. We want to scrape the title of the document, its date, its summary, and the text content.
+Using *rvest*, we first extract the `html` code of the first webpage. You can see that the text of the minutes can be extracted directly from this webpage. We want to scrape the title of the document, its date, its summary, and the text content.
 
 ``` r
+# first, we read the html
 page <- minutes_urls %>% 
   slice(1) %>% 
   pull(hyperlink) %>% 
   read_html
 
+# second, we extract the different information
 extracted_title <-  page %>% 
   html_nodes("h1") %>% 
   html_text()
@@ -335,7 +337,7 @@ metadata %>%
     ## Though SVB and Credit Suisse had failed for different reasons, the events had taken place in close proximity to each other. As a result of this, investors perceived that the outlook for the global banking sector was uncertain. The Governor noted that more broadly the backdrop for these events was an uncertain outlook for global economic activity. The Bank was monitoring the financial system closely, particularly the impact of recent events on financial markets, UK banks and economic conditions. The Governor noted that UK banks are well capitalised, liquid and resilient to continue supporting households and businesses.
     ## Providing further detail about this work, Sam Woods explained that the FPC and the PRA had been closely examining developments across the financial system as a whole.
 
-Now, we just have to build a loop to scrape the metadata for all the minutes. To avoid overloading the BoE website, we need to set a delay between navigating on the different URLs.
+Now, we just need to build a loop to scrape the metadata for all the minutes. To avoid overloading the BoE website, we set a delay between navigating to the different URLs.
 
 ``` r
 delay <- session$delay
@@ -387,7 +389,7 @@ minutes_metadata <- bind_rows(metadata)
 minutes_metadata
 ```
 
-When all documents have their own webpage, the *sitemap* data becomes a powerful information to facilitate your scraping. Here, it can be used to scrape easily all the documents published by the Bank of England. However, the structure of the page is not exactly the same within a category (the text of the minutes is not available on the webpages before 2022 but you can scrape the URL of the PDF), and between categories (look for instance at a speech or a working paper). Consequently, a more refined code is needed. You will find such a more complete script [here](https://github.com/agoutsmedt/central_bank_database/blob/master/scraping_scripts/scraping_boe.R).
+When all documents have their own webpage, the *sitemap* data becomes a powerful piece of information to facilitate your scraping. Here, it can be used to easily scrape all documents published by the Bank of England. However, the structure of the page is not exactly the same within a category (the text of the minutes is not available on the webpages before 2022 but you can scrape the URL of the PDF), and between categories (e.g., look at a speech or a working paper). Consequently, a more refined code is needed. So a more sophisticated script can be found [here](https://github.com/agoutsmedt/central_bank_database/blob/master/scraping_scripts/scraping_boe.R).
 
 ## References
 

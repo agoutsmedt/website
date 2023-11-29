@@ -16,7 +16,7 @@ tags:
 subtitle: Scraping Tutorials 1
 summary: "In this post, you will learn how to scrape speeches from the [Bank of International Settlements database](https://www.bis.org/cbspeeches/index.htm?m=256) which gathers most of central bankers' speeches in English."
 authors: []
-lastmod: "2023-11-09"
+lastmod: "2023-11-29"
 featured: no
 draft: no
 lang: en
@@ -41,7 +41,9 @@ projects: []
 
 ## Scraping data
 
-In this post, you will learn how to scrape speeches from the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), which gathers most of central bankers’ speeches in English. We will do it programming in R. Before going along the scraping, let’s start by a general introduction about what web scraping is.
+In this post, you will learn how to scrape speeches from the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), which gathers most of central bankers’ speeches in English. We will do it programming in R. The [second tutorial](/post/scraping-ecb) focuses on scraping documents from the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website and the [third one](/post/scraping-boe) scrape the Bank of England’s website.
+
+Before going along the scraping, let’s start by a general introduction about what web scraping is.
 
 ### What is web scraping?
 
@@ -132,7 +134,7 @@ session
     ##    Crawl delay: 5 sec
     ##   The path is scrapable for this user-agent
 
-By looking at the *robots.txt* file, we can see more in details which paths of the webstite are scrapable or not.
+By looking at the *robots.txt* file, we can see more in details which paths of the website are scrapable or not.
 
 ``` r
 cat(session$robotstxt$text)
@@ -265,36 +267,30 @@ nb_pages <- remote_driver$findElement("css selector", ".pageof")$getElementText(
 nb_pages
 ```
 
-    ## [1] 3
+    ## [1] 6
 
-Ok. Now we can run the loop to retrieve all the data for the 3 pages. Here, we will conform to the delay set by the polite package: we will wait 5 seconds on each page, not to hammer the website with too many requests. As we need the web page to load properly to retrieve the data, it is also a way to take the time of loading the page to avoid missing data if your internet connection is too slow.
+Ok. Now we can run the loop to retrieve all the data for the 6 pages. Here, we will conform to the delay set by the polite package: we will wait 5 seconds on each page, not to hammer the website with too many requests. As we need the web page to load properly to retrieve the data, it is also a way to take the time of loading the page to avoid missing data if your internet connection is too slow.
 
 Here, you just have to use *scrapemate* to find the appropriate CSS selector for each information and extract the corresponding text. You can also see that by clicking on the title of the speech, you are navigating towards the dedicated web page of the corresponding speech. It means that to the title is associated a URL link, a “href” in html language. So you need to extract the “href” attribute associated to the title thanks to *RSelenium*.
 
 ``` r
-metadata <- tibble(date = c(),
-                   title = c(),
-                   description = c(),
-                   speaker = c(),
-                   url = c())
+metadata <- vector(mode = "list", length = nb_pages)
+
 for(page in 1:nb_pages){
   remote_driver$navigate(eval(scraping_path))
   nod <- nod(session, eval(scraping_path)) # introducing to the new page
   Sys.sleep(session$delay) # using the delay time set by polite
 
-dates <- remote_driver$findElements("css selector", ".item_date")
-titles <- remote_driver$findElements("css selector", ".dark")
-descriptions <- remote_driver$findElements("css selector", "p p")
-speakers <- remote_driver$findElements("css selector", "span+ p")
-urls <- remote_driver$findElements("css selector", ".dark")
-
-metadata <- metadata %>% 
-  bind_rows(tibble(date = map_chr(dates, ~.$getElementText()[[1]]),
-                   title = map_chr(titles, ~.$getElementText()[[1]]),
-                   description = map_chr(descriptions, ~.$getElementText()[[1]]),
-                   speaker = map_chr(speakers, ~.$getElementText()[[1]]),
-                   url = map_chr(urls, ~.$getElementAttribute("href")[[1]])))
+  metadata[[page]] <- tibble(date = remote_driver$findElements("css selector", ".item_date") %>% 
+                            map_chr(., ~.$getElementText()[[1]]),
+                          info = remote_driver$findElements("css selector", ".item_date+ td") %>% 
+                            map_chr(., ~.$getElementText()[[1]]),
+                          url = remote_driver$findElements("css selector", ".dark") %>% 
+                            map_chr(., ~.$getElementAttribute("href")[[1]])) 
 }
+
+metadata <- bind_rows(metadata) %>% 
+  separate(info, c("title", "description", "speaker"), "\n")
 
 head(metadata)
 ```
@@ -302,12 +298,12 @@ head(metadata)
     ## # A tibble: 6 × 5
     ##   date        title                                    description speaker url  
     ##   <chr>       <chr>                                    <chr>       <chr>   <chr>
-    ## 1 08 Nov 2023 "Joachim Nagel: Maintaining price stabi… Speech by … by Joa… http…
-    ## 2 08 Nov 2023 "Andrew Bailey: Openness beats fragment… Speech by … by And… http…
-    ## 3 08 Nov 2023 "Michael Debabrata Patra: Towards a gre… Speech by … by Mic… http…
-    ## 4 07 Nov 2023 "Ueda Kazuo: Japan's economy and moneta… Speech by … by Kaz… http…
-    ## 5 07 Nov 2023 "Lisa D Cook: Financial stability - res… Speech by … by Lis… http…
-    ## 6 07 Nov 2023 "Andrew Hauser: \"Less is more\" or \"L… Speech by … by And… http…
+    ## 1 27 Nov 2023 "Ahmet Ismaili: Welcoming remarks - Wor… "Welcoming… by Ahm… http…
+    ## 2 27 Nov 2023 "Ahmet Ismaili: Creating values – a gat… "Introduct… by Ahm… http…
+    ## 3 22 Nov 2023 "Christine Lagarde: Monetary policy in … "Speech by… by Chr… http…
+    ## 4 22 Nov 2023 "Sabine Mauderer: Exposing and acting o… "Speech by… by Sab… http…
+    ## 5 21 Nov 2023 "Jon Cunliffe: Money and payments - a \… "Speech by… by Jon… http…
+    ## 6 21 Nov 2023 "Shaktikanta Das: Emerging India - a la… "Keynote s… by Sha… http…
 
 The `findElements()` function of *RSelenium* finds all the corresponding elements (here 25) and stores them in a list. The `map_chr()` allows you to get the text of each element one by one and stores the result in a vector.
 
@@ -341,19 +337,34 @@ pdf_to_download <- metadata %>%
 pdf_to_download
 ```
 
-    ##  [1] "r231108c.pdf" "r231108b.pdf" "r231108a.pdf" "r231107c.pdf" "r231107b.pdf"
-    ##  [6] "r231107a.pdf" "r231102a.pdf" "r231026l.pdf" "r231026j.pdf" "r231026g.pdf"
-    ## [11] "r231026f.pdf" "r231026e.pdf" "r231026m.pdf" "r231026d.pdf" "r231026c.pdf"
-    ## [16] "r231026b.pdf" "r231026a.pdf" "r231023h.pdf" "r231023g.pdf" "r231023e.pdf"
-    ## [21] "r231023c.pdf" "r231023b.pdf" "r231023a.pdf" "r231020f.pdf" "r231020e.pdf"
-    ## [26] "r231020d.pdf" "r231020c.pdf" "r231020b.pdf" "r231020a.pdf" "r231019g.pdf"
-    ## [31] "r231019e.pdf" "r231019d.pdf" "r231019c.pdf" "r231019b.pdf" "r231019a.pdf"
-    ## [36] "r231018f.pdf" "r231018e.pdf" "r231018d.pdf" "r231018c.pdf" "r231018b.pdf"
-    ## [41] "r231018a.pdf" "r231017e.pdf" "r231017d.pdf" "r231017c.pdf" "r231017b.pdf"
-    ## [46] "r231012a.pdf" "r231017a.pdf" "r231011d.pdf" "r231012b.pdf" "r231011g.pdf"
-    ## [51] "r231011f.pdf" "r231011e.pdf" "r231011a.pdf" "r231011b.pdf" "r231010h.pdf"
-    ## [56] "r231010g.pdf" "r231010f.pdf" "r231010e.pdf" "r231010d.pdf" "r231010c.pdf"
-    ## [61] "r231010b.pdf" "r231010a.pdf"
+    ##   [1] "r231127c.pdf" "r231127d.pdf" "r231122b.pdf" "r231122a.pdf" "r231121a.pdf"
+    ##   [6] "r231115e.pdf" "r231121i.pdf" "r231121h.pdf" "r231121g.pdf" "r231121f.pdf"
+    ##  [11] "r231121e.pdf" "r231121d.pdf" "r231121c.pdf" "r231121b.pdf" "r231120j.pdf"
+    ##  [16] "r231120h.pdf" "r231120i.pdf" "r231114a.pdf" "r231114b.pdf" "r231115r.pdf"
+    ##  [21] "r231115s.pdf" "r231114c.pdf" "r231115t.pdf" "r231115u.pdf" "r231120g.pdf"
+    ##  [26] "r231120f.pdf" "r231120e.pdf" "r231120d.pdf" "r231120c.pdf" "r231120b.pdf"
+    ##  [31] "r231120a.pdf" "r231113s.pdf" "r231115q.pdf" "r231115o.pdf" "r231115n.pdf"
+    ##  [36] "r231115m.pdf" "r231115j.pdf" "r231115i.pdf" "r231115f.pdf" "r231115h.pdf"
+    ##  [41] "r231115g.pdf" "r231114d.pdf" "r231115d.pdf" "r231115p.pdf" "r231113n.pdf"
+    ##  [46] "r231115a.pdf" "r231113m.pdf" "r231115c.pdf" "r231114e.pdf" "r231114f.pdf"
+    ##  [51] "r231113t.pdf" "r231113o.pdf" "r231113q.pdf" "r231113x.pdf" "r231113w.pdf"
+    ##  [56] "r231113v.pdf" "r231113u.pdf" "r231113p.pdf" "r231113r.pdf" "r231113k.pdf"
+    ##  [61] "r231113j.pdf" "r231113i.pdf" "r231113h.pdf" "r231113g.pdf" "r231113f.pdf"
+    ##  [66] "r231113e.pdf" "r231113d.pdf" "r231113c.pdf" "r231113b.pdf" "r231113l.pdf"
+    ##  [71] "r231113a.pdf" "r231110a.pdf" "r231108c.pdf" "r231108b.pdf" "r231108a.pdf"
+    ##  [76] "r231107c.pdf" "r231107b.pdf" "r231107a.pdf" "r231102a.pdf" "r231027b.pdf"
+    ##  [81] "r231115l.pdf" "r231026l.pdf" "r231026j.pdf" "r231026q.pdf" "r231026g.pdf"
+    ##  [86] "r231026f.pdf" "r231026e.pdf" "r231026m.pdf" "r231026d.pdf" "r231026c.pdf"
+    ##  [91] "r231026b.pdf" "r231026a.pdf" "r231023h.pdf" "r231023g.pdf" "r231023e.pdf"
+    ##  [96] "r231023c.pdf" "r231023b.pdf" "r231023a.pdf" "r231020f.pdf" "r231020e.pdf"
+    ## [101] "r231020d.pdf" "r231020c.pdf" "r231020b.pdf" "r231020a.pdf" "r231019g.pdf"
+    ## [106] "r231019e.pdf" "r231019d.pdf" "r231019c.pdf" "r231019b.pdf" "r231019a.pdf"
+    ## [111] "r231018f.pdf" "r231018e.pdf" "r231018d.pdf" "r231018c.pdf" "r231018b.pdf"
+    ## [116] "r231018a.pdf" "r231017e.pdf" "r231017d.pdf" "r231017c.pdf" "r231017b.pdf"
+    ## [121] "r231012a.pdf" "r231017a.pdf" "r231011d.pdf" "r231012b.pdf" "r231011g.pdf"
+    ## [126] "r231011f.pdf" "r231011e.pdf" "r231011a.pdf" "r231011b.pdf" "r231010h.pdf"
+    ## [131] "r231010g.pdf" "r231010f.pdf" "r231010e.pdf" "r231010d.pdf" "r231010c.pdf"
+    ## [136] "r231010b.pdf" "r231010a.pdf" "r231115v.pdf"
 
 We build a function to download these PDF using *polite*. It would avoid notably to overload the website.
 
@@ -372,7 +383,7 @@ tryCatch(
    {
      walk(pdf_to_download, ~polite_download(domain = bis_website_path,
                                             url = glue("review/{.}"),
-                                            path = here(bis_data_path, "raw_data", "pdf"),))
+                                            path = here(bis_data_path, "pdf"),))
    },
    error = function(e) {
      print(glue("No pdf exist"))
@@ -410,21 +421,87 @@ extracting_text <- function(file, path) {
 We can run the function for each speech we have in our dataset.
 
 ``` r
-text_data <- map(pdf_to_download, ~extracting_text(., here(bis_data_path, "raw_data", "pdf"))) %>% 
+text_data <- map(pdf_to_download, ~extracting_text(., here(bis_data_path, "pdf"))) %>% 
   bind_rows()
+```
 
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+    ## No pdf exist
+
+``` r
 head(text_data)
 ```
 
     ## # A tibble: 6 × 3
     ##   text                                                                page file 
-    ##   <chr>                                                              <int> <chr>
-    ## 1 "Homepage[/en] \uf105 Press[/en/press] \uf105 Speeches[/en/press/…     1 r231…
-    ## 2 "2 A challenging monetary policy world\nIf we think back to just …     2 r231…
-    ## 3 "The Russian invasion of Ukraine gave inflation yet another push:…     3 r231…
-    ## 4 "On a more general note, it is not reprehensible for firms to mak…     4 r231…
-    ## 5 "In Europe, these fiscal rules are defined in the Stability and G…     5 r231…
-    ## 6 "  [https://www.ecb.europa.eu/pub/pdf/scpops/ecb.op269~3f2619ac7a…     6 r231…
+    ##   <chr>                                                              <dbl> <chr>
+    ## 1 "Ahmet Ismaili: Welcoming remarks - World Savings Day\nWelcoming …     1 r231…
+    ## 2 "Young people should set clear financial goals for themselves and…     2 r231…
+    ## 3 "Ahmet Ismaili: Creating values – a gateway for the future\nIntro…     1 r231…
+    ## 4 "Therefore, in CBK's supervisory role, the external auditor profe…     2 r231…
+    ## 5 "3/3   BIS - Central bankers' speeches\n"                              3 r231…
+    ## 6 "Christine Lagarde: Monetary policy in the euro area - attentive …     1 r231…
 
 ### Managing OCR problems
 
@@ -441,9 +518,10 @@ pdf_without_ocr <- text_data %>%
 pdf_without_ocr
 ```
 
-    ##  [1] "r231026f.pdf" "r231026c.pdf" "r231023h.pdf" "r231023g.pdf" "r231017d.pdf"
-    ##  [6] "r231017b.pdf" "r231011g.pdf" "r231010g.pdf" "r231010e.pdf" "r231010d.pdf"
-    ## [11] "r231010c.pdf" "r231010b.pdf"
+    ##  [1] "r231122a.pdf" "r231121h.pdf" "r231121g.pdf" "r231121d.pdf" "r231110a.pdf"
+    ##  [6] "r231026f.pdf" "r231026c.pdf" "r231023h.pdf" "r231023g.pdf" "r231017d.pdf"
+    ## [11] "r231017b.pdf" "r231011g.pdf" "r231010g.pdf" "r231010e.pdf" "r231010d.pdf"
+    ## [16] "r231010c.pdf" "r231010b.pdf"
 
 Setting the threshold at 250 words is a pure rule of thumb: it allows having only true positive, but it does not prevent for having false negative (missing documents with OCR problem). It should be possible to find a better method to assess which PDF have no OCR.
 
@@ -456,13 +534,13 @@ text_data %>%
 
     ## # A tibble: 6 × 3
     ##   text                                                                page file 
-    ##   <chr>                                                              <int> <chr>
-    ## 1 "    ÿ23456789 ÿ 393\u000e8ÿ\u000f73\u00105\u0011ÿ5\u001173\u0012…     1 r231…
-    ## 2 "23ÿ 4567ÿ89 ÿ\u000e6ÿ\u000f\u0010\u00116\u0012ÿ\u00136ÿ86ÿ\u0013…     2 r231…
-    ## 3 "23ÿ 45ÿ6789ÿ75ÿ 66 \u000e68ÿ\u000f\u0010\u0010\u0011\u0012ÿ\u001…     3 r231…
-    ## 4 "2343ÿ5678ÿ9 683 ÿ ÿ\u000e3 83\u000f\u001034ÿ\u0011\u0012\u0011\u…     4 r231…
-    ## 5 "23456ÿ73ÿ849 96ÿ839ÿ7 ÿ5674\u000e\u000e4735ÿ38ÿ6745\u000f\u00104…     5 r231…
-    ## 6 "2324567ÿ898 7ÿ 4ÿ \u000e\u000f\u0010ÿ\u000e3\u00114\u000f\u00124…     6 r231…
+    ##   <chr>                                                              <dbl> <chr>
+    ## 1 "012345637839 \u0011 3 7839843 \u0011\u000e433\u000f\u00103783984…     1 r231…
+    ## 2 "01ÿ34567567ÿ85996ÿ45 ÿ\u000e\u000fÿ56\u000fÿ\u000f8ÿ\u00106ÿ\u00…     2 r231…
+    ## 3 "0123456ÿ89252 49ÿ2 8ÿ\u000e8ÿ\u000f2ÿ94\u0010\u000f8ÿ9\u0011\u00…     3 r231…
+    ## 4 "01ÿ3456ÿ17389ÿ83ÿ 8ÿ454543ÿ348ÿ57188\u000e51 ÿ\u000f7\u000e\u001…     4 r231…
+    ## 5 "0123ÿ56ÿ718ÿ319\n      ÿ\u000e\u000f9\u00103\u00112\u0012ÿ\u0013…     5 r231…
+    ## 6 "0ÿ2345678934\n    \u000e\u000fÿ\u0011 ÿ\u0012\u000e\u0011\u0013\…     6 r231…
 
 It seems ok when you look at it, but going to the web page allows us to see that there are some problem of selection in the text and so that the OCR is not adequate.
 
@@ -481,7 +559,7 @@ We will now use the [tesseract](https://docs.ropensci.org/tesseract/) package, t
 new_text_ocr <- vector(mode = "list", length = length(pdf_without_ocr))
 
 for(i in 1:length(pdf_without_ocr)){
-  text <- tesseract::ocr(here(bis_data_path, "raw_data", "pdf", pdf_without_ocr[i]), engine = tesseract::tesseract("eng"))
+  text <- tesseract::ocr(here(bis_data_path, "pdf", pdf_without_ocr[i]), engine = tesseract::tesseract("eng"))
   text <- tibble(text) %>% 
     mutate(text = str_remove(text, ".+(=?\\\n)"),
            page = 1:n(),
@@ -492,12 +570,12 @@ for(i in 1:length(pdf_without_ocr)){
 new_text_ocr <- bind_rows(new_text_ocr)
 ```
 
-    ## Converting page 1 to r231026f_1.png... done!
-    ## Converting page 2 to r231026f_2.png... done!
-    ## Converting page 3 to r231026f_3.png... done!
-    ## Converting page 4 to r231026f_4.png... done!
-    ## Converting page 5 to r231026f_5.png... done!
-    ## Converting page 6 to r231026f_6.png... done!
+    ## Converting page 1 to r231122a_1.png... done!
+    ## Converting page 2 to r231122a_2.png... done!
+    ## Converting page 3 to r231122a_3.png... done!
+    ## Converting page 4 to r231122a_4.png... done!
+    ## Converting page 5 to r231122a_5.png... done!
+    ## Converting page 6 to r231122a_6.png... done!
 
 You can see that the text is now readable:
 
@@ -508,12 +586,12 @@ new_text_ocr
     ## # A tibble: 6 × 3
     ##   text                                                                page file 
     ##   <chr>                                                              <int> <chr>
-    ## 1 "and Financial Inclusion\n\n(Speech by Shri Swaminathan J, Deputy…     1 r231…
-    ## 2 "sustainable finance. Governments, regulatory bodies, and_ intern…     2 r231…
-    ## 3 "approved plans of action to support sustainable development, emp…     3 r231…
-    ## 4 "including credit for loans to start-ups, raised targets for smal…     4 r231…
-    ## 5 "solarization of grid-connected agriculture pumps, and solar powe…     5 r231…
-    ## 6 "bank's actions can have a transformative impact on the lives and…     6 r231…
+    ## 1 "Exposing and acting on risks in a fast-changing\nworld\nEIOPA An…     1 r231…
+    ## 2 "that might be emerging, we might also be able to open up new hor…     2 r231…
+    ## 3 "industry. Recent earnings releases by large insurers show that h…     3 r231…
+    ## 4 "Financial System (\n\nNGFS (Central Banks and Supervisors Networ…     4 r231…
+    ## 5 "\nNGFS (Central Banks and Supervisors Network for Greening the F…     5 r231…
+    ## 6 "\nLadies and gentlemen,\n\nTo come back to the animal-based meta…     6 r231…
 
 Now you just have to integrate the now recognized text with the rest of the data. A last small step is to remove all the PNGs you have created by using *tesseract*.
 

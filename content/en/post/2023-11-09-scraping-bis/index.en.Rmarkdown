@@ -44,11 +44,9 @@ projects: []
 knitr::opts_chunk$set(echo = TRUE, cache = TRUE, warning = FALSE, message = FALSE, fig.dim=c(14,10), fig.align = "center")
 ```
 
-
-
 ## Scraping data
 
-In this post, you will learn how to scrape speeches from the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), which gathers most of central bankers' speeches in English. We will do it programming in R. The next [post](/post/scraping-ecb) focuses on scraping documents from the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website.
+In this post, you will learn how to scrape speeches from the [Bank of International Settlements database of speeches](https://www.bis.org/cbspeeches/index.htm?m=256), which gathers most of central bankers' speeches in English. We will do it programming in R. The [second tutorial](/post/scraping-ecb) focuses on scraping documents from the [European Central Bank](https://www.ecb.europa.eu/home/html/index.en.html) website and the [third one](/post/scraping-boe) scrape the Bank of England's website.
 
 Before going along the scraping, let's start by a general introduction about what web scraping is.
 
@@ -222,29 +220,23 @@ Ok. Now we can run the loop to retrieve all the data for the `r nb_pages` pages.
 Here, you just have to use *scrapemate* to find the appropriate CSS selector for each information and extract the corresponding text. You can also see that by clicking on the title of the speech, you are navigating towards the dedicated web page of the corresponding speech. It means that to the title is associated a URL link, a "href" in html language. So you need to extract the "href" attribute associated to the title thanks to *RSelenium*.
 
 ```{r extract-metadata}
-metadata <- tibble(date = c(),
-                   title = c(),
-                   description = c(),
-                   speaker = c(),
-                   url = c())
+metadata <- vector(mode = "list", length = nb_pages)
+
 for(page in 1:nb_pages){
   remote_driver$navigate(eval(scraping_path))
   nod <- nod(session, eval(scraping_path)) # introducing to the new page
   Sys.sleep(session$delay) # using the delay time set by polite
 
-dates <- remote_driver$findElements("css selector", ".item_date")
-titles <- remote_driver$findElements("css selector", ".dark")
-descriptions <- remote_driver$findElements("css selector", "p p")
-speakers <- remote_driver$findElements("css selector", "span+ p")
-urls <- remote_driver$findElements("css selector", ".dark")
-
-metadata <- metadata %>% 
-  bind_rows(tibble(date = map_chr(dates, ~.$getElementText()[[1]]),
-                   title = map_chr(titles, ~.$getElementText()[[1]]),
-                   description = map_chr(descriptions, ~.$getElementText()[[1]]),
-                   speaker = map_chr(speakers, ~.$getElementText()[[1]]),
-                   url = map_chr(urls, ~.$getElementAttribute("href")[[1]])))
+  metadata[[page]] <- tibble(date = remote_driver$findElements("css selector", ".item_date") %>% 
+                            map_chr(., ~.$getElementText()[[1]]),
+                          info = remote_driver$findElements("css selector", ".item_date+ td") %>% 
+                            map_chr(., ~.$getElementText()[[1]]),
+                          url = remote_driver$findElements("css selector", ".dark") %>% 
+                            map_chr(., ~.$getElementAttribute("href")[[1]])) 
 }
+
+metadata <- bind_rows(metadata) %>% 
+  separate(info, c("title", "description", "speaker"), "\n")
 
 head(metadata)
 ```
@@ -296,7 +288,7 @@ tryCatch(
    {
      walk(pdf_to_download, ~polite_download(domain = bis_website_path,
                                             url = glue("review/{.}"),
-                                            path = here(bis_data_path, "raw_data", "pdf"),))
+                                            path = here(bis_data_path, "pdf"),))
    },
    error = function(e) {
      print(glue("No pdf exist"))
@@ -334,7 +326,7 @@ extracting_text <- function(file, path) {
 We can run the function for each speech we have in our dataset. 
 
 ```{r extract-text}
-text_data <- map(pdf_to_download, ~extracting_text(., here(bis_data_path, "raw_data", "pdf"))) %>% 
+text_data <- map(pdf_to_download, ~extracting_text(., here(bis_data_path, "pdf"))) %>% 
   bind_rows()
 
 head(text_data)
@@ -376,7 +368,7 @@ We will now use the [tesseract](https://docs.ropensci.org/tesseract/) package, t
 new_text_ocr <- vector(mode = "list", length = length(pdf_without_ocr))
 
 for(i in 1:length(pdf_without_ocr)){
-  text <- tesseract::ocr(here(bis_data_path, "raw_data", "pdf", pdf_without_ocr[i]), engine = tesseract::tesseract("eng"))
+  text <- tesseract::ocr(here(bis_data_path, "pdf", pdf_without_ocr[i]), engine = tesseract::tesseract("eng"))
   text <- tibble(text) %>% 
     mutate(text = str_remove(text, ".+(=?\\\n)"),
            page = 1:n(),
@@ -389,7 +381,7 @@ new_text_ocr <- bind_rows(new_text_ocr)
 
 ```{r tesseract_hidden, eval=TRUE, echo=FALSE}
 for(i in 1){
-  text <- tesseract::ocr(here(bis_data_path, "raw_data", "pdf", pdf_without_ocr[i]), engine = tesseract::tesseract("eng"))
+  text <- tesseract::ocr(here(bis_data_path, "pdf", pdf_without_ocr[i]), engine = tesseract::tesseract("eng"))
   text <- tibble(text) %>% 
     mutate(text = str_remove(text, ".+(=?\\\n)"),
            page = 1:n(),
