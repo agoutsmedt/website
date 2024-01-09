@@ -1,0 +1,678 @@
+---
+title: "Extracting and Cleaning Bibliometric Data with R (3)"
+author: Aurélien Goutsmedt
+date: '2024-01-05'
+slug: extracting-biblio-data-1
+categories:
+  - Bibliometrics
+  - Network Analysis
+  - R Tutorials
+tags:
+  - Bibliometrics
+  - R
+  - Research Tools
+  - Quantitative Analysis
+subtitle: 'Exploring OpenAlex'
+summary: 'In this post, you will learn how to extract data from [OpenAlex](https://openalex.org/) using its API and [openalexR](https://docs.ropensci.org/openalexR/) package in R. We will compare the data obtained with similar data obtained with Scopus and Dimensions.'
+authors: []
+lastmod: '`r Sys.Date()`'
+featured: no
+draft: yes
+lang: en
+bibliography: bibliography.bib
+#csl:  chicago-author-date.csl
+suppress-bibliography: false
+link-citations: true
+color-links: true # See https://ctan.org/pkg/xcolor for colors
+linkcolor: teal
+urlcolor: blue
+citecolor: red
+endnote: false
+toc: true
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+{{% toc %}}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+OpenAlex is an open database of scholarly research. It provides free access to millions of works, authors, venues, institutions, and concepts in the academic world. It could be used to analyze academic trends, study bibliometrics, and find connections between works and authors. The platform is accessible only through an [API](https://en.wikipedia.org/wiki/API) that allows users to query and retrieve data. This tutorial shows how to query OpenAlex API from R, using [openalexR](https://docs.ropensci.org/openalexR/) package. It will compare the data obtained with similar data obtained with [Scopus](https://www.scopus.com/home.uri) and [Dimensions](https://app.dimensions.ai/discover/publication). We will thus extract bibliometric data from openalex, as well as from Scopus and Dimension, but we won't expand much on the later two, as it has been already covered [here](/post/extracting-biblio-data-1) for Scopus and [here](/post/extracting-biblio-data-2) for Dimensions.
+
+```{r loading-packages}
+if(! "pacman" %in% installed.packages()){ # useful packages to install, if necessary, and load many packages
+  install.packages("pacman", dependencies = TRUE)
+}
+
+pacman::p_load(tidyverse,
+               rscopus, # to use scopus API
+               openalexR) # to use OpenAlex API
+
+data_path <- file.path(path.expand("~"), "data", "tuto_openalex") # Where data will go on my computer
+```
+
+
+## Extracting bibliometric data
+
+```{r}
+openalex_corpus <- oa_fetch(title.search = "stagflation",
+                            count_only = TRUE)
+
+jsonlite::read_json()
+openalex_concepts <- jsonlite::read_json("https://api.openalex.org/concepts")
+openalex_concepts$results[[10]]$related_concepts
+```
+
+
+### Alternative method: Using Scopus APIs and `rscopus`
+
+
+```{r api_key, eval = FALSE}
+# Prompt the user for their Scopus API key
+api_key <- readline(prompt="Scopus API key: ")
+insttoken <- readline(prompt="Scopus Institutional token: ")
+
+set_api_key(api_key)
+insttoken <- inst_token_header(insttoken)
+```
+
+
+
+```{r dsge-query, eval = FALSE}
+scopus_query <- scopus_search("TITLE-ABS-KEY(Stagflation)", 
+                              view = "COMPLETE",
+                              headers = insttoken,
+                              verbose = TRUE)
+scopus_query_raw <- gen_entries_to_df(scopus_query$entries)
+saveRDS(scopus_query_raw, file.path(data_path, "scopus_stagflation_raw.rds"))
+```
+
+```{r separing-data, eval = FALSE}
+scopus_papers <- scopus_query_raw$df
+scopus_authors <- scopus_query_raw$author
+```
+
+```{r extract-references-api, eval = FALSE}
+citing_articles <- dsge_papers$`dc:identifier` # extracting the IDs of our articles on dsge
+citation_list <- list()
+
+for(i in 1:length(citing_articles)){
+  citations_query <- abstract_retrieval(citing_articles[i],
+                                        identifier = "scopus_id",
+                                        view = "REF",
+                                        headers = insttoken)
+  if(!is.null(citations_query$content$`abstracts-retrieval-response`)){ # Checking if the article has some references before collecting them
+    
+    nb_ref <- as.numeric(citations_query$content$`abstracts-retrieval-response`$references$`@total-references`)
+    citations <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+    
+    if(nb_ref > 40){ # The loop to collect all the references
+      nb_query_left_to_do <- floor((nb_ref) / 40)
+      cat("Number of requests left to do :", nb_query_left_to_do, "\n")
+      for (j in 1:nb_query_left_to_do){
+        cat("Request n°", j , "\n")
+        citations_query <- abstract_retrieval(citing_articles[i],
+                                              identifier = "scopus_id",
+                                              view = "REF",
+                                              startref = 40*j+1,
+                                              headers = insttoken)
+        citations_sup <- gen_entries_to_df(citations_query$content$`abstracts-retrieval-response`$references$reference)$df
+        citations <- bind_rows(citations, citations_sup)
+      }
+    }
+    
+    citations <- citations %>% 
+      as_tibble(.name_repair = "unique") %>%
+      select_if(~!all(is.na(.)))
+    
+    citation_list[[citing_articles[i]]] <- citations
+  }
+}
+
+dsge_references <- bind_rows(citation_list, .id = "citing_art")
+```
+
+
+
+## Cleaning Scopus data
+
+So let's come back to the data we have downloaded on Scopus website:
+
+```{r load-scopus-data}
+#' # Cleaning scopus data from website search
+#' 
+
+scopus_search_1 <- read_csv(here(scopus_path, "scopus_search_1998-2013.csv"))
+scopus_search_2 <- read_csv(here(scopus_path, "scopus_search_2014-2021.csv"))
+scopus_search <- rbind(scopus_search_1, scopus_search_2) %>% 
+  mutate(citing_id = paste0("A", 1:n())) %>% # We create a unique ID for each doc of our corpus
+  clean_names() # janitor function to clean column names
+
+scopus_search
+```
+
+There are several things to clean:
+
+- We have several `authors` per document. For some analysis, for instance co-authorship networks, it is better to have an "author table" which associates each author to a list of papers;
+- We have several `affiliations` per article as well as several `authors_with_affiliations`. It allows us to connect authors with their affiliations, but here again we need to separate it in as many lines as authors (if I am not mistaken, it seems there is only one affiliation per author in this set of data);
+- `references`;
+- Possibly to separate `author_keywords` and `index_keywords` if you want to use it.
+
+In what follows, we clean `scopus_search` in order to produce 3 additional `data.frames`:
+
+- one `data.frame` which associates each article to a list of authors and their corresponding affiliation (see [below](#extracting-affiliations-and-authors));
+- one data.frame which associate each article to the list of references it cites (one article has as many lines as the number of cited references): this is a "direct citation" table (see [here](#clean-references));
+- a list of all the references cited, which implies to find which references are the same in the direct citation table (see this [sub-section](#matching-references))
+
+### Extracting affiliations and authors
+
+We have two columns for affiliations:
+
+- one column `affiliations` with affiliations alone;
+- one column, `authors_with_affiliations` with both authors and affiliations.
+
+```{r example-affiliations}
+affiliations_raw <- scopus_search %>% 
+  select(citing_id, authors, affiliations, authors_with_affiliations)
+
+knitr::kable(head(affiliations_raw, n = 2))
+```
+
+For a more secure cleaning, we opt for the second column, as it allows us to associate the author with his/her own affiliation as described in the column `authors_with_affiliations`. The strategy here is to separate each author from the `authors` column, then to separate the different authors and affiliations in the `authors_with_affiliations` column. Finally, we keep only the lines where the author from `authors_with_affiliations` is the same as in `authors`
+
+```{r extract-affiliations}
+scopus_affiliations <- affiliations_raw %>% 
+  separate_rows(authors, sep = ", ") %>% 
+  separate_rows(contains("with"), sep = "; ") %>% 
+  mutate(authors_from_affiliation = str_extract(authors_with_affiliations, 
+                                                "^(.+?)\\.(?=,)"),
+         authors_from_affiliation = str_remove(authors_from_affiliation, ","),
+         affiliations = str_remove(authors_with_affiliations, "^(.+?)\\., "),
+         country = str_remove(affiliations, ".*, ")) %>% # Country is after the last comma
+  filter(authors == authors_from_affiliation) %>% 
+  select(citing_id, authors, affiliations, country)
+
+
+knitr::kable(head(scopus_affiliations))
+```
+
+### Clean references
+
+Let's first extract the `references` column while keeping the identifier of the citing article. We put each reference cited by an article on a separated line, using the fact that the references are separated by a semi-colon. We create an identifier for each reference.
+
+```{r extract-references}
+#' ## Extracting and cleaning references
+references_extract <- scopus_search %>% 
+  filter(! is.na(references)) %>% 
+  select(citing_id, references) %>% 
+  separate_rows(references, sep = "; ") %>% 
+  mutate(id_ref = 1:n()) %>% 
+  as_tibble
+
+knitr::kable(head(references_extract))
+```
+
+We now have one reference per line and complications begin. We need to find ways to extract the different pieces of information for each reference: authors, year, pages, volume & issue information, journal, title, etc... Here are some regex that will match some of these information.
+
+```{r useful-regex}
+extract_authors <- ".*[:upper:][:alpha:]+( Jr(.)?)?, ([A-Z]\\.[ -]?)?([A-Z]\\.[ -]?)?([A-Z]\\.)?[A-Z]\\."
+extract_year_brackets <- "(?<=\\()\\d{4}(?=\\))"
+extract_pages <- "(?<= (p)?p\\. )([A-Z])?\\d+(-([A-Z])?\\d+)?"
+extract_volume_and_number <- "(?<=( |^)?)\\d+ \\(\\d+(-\\d+)?\\)"
+```
+
+We can now extract authors and year. We create a new column, `remaining_ref` which keeps the information from the `references` column but we remove the authors from it. For easier cleaning, we separate references depending on the position of the year of publication in the reference. We use the variable `is_article` to determinate where the year is and thus if the title is before the year or not.
+
+```{r clean-references-1}
+cleaning_references <- references_extract %>% 
+  mutate(authors = str_extract(references, paste0(extract_authors, "(?=, )")),
+         remaining_ref = str_remove(references, paste0(extract_authors, ", ")), # cleaning from authors
+         is_article = ! str_detect(remaining_ref, "^\\([:digit:]{4}"), 
+         year = str_extract(references, extract_year_brackets) %>% as.integer)
+```
+
+I cannot detail all the regex below but the goal is to extract as many relevant metadata as possible, first for references with the year of publication after the title (`is_article == TRUE`), which are most of the time journal articles.
+
+> This code has been written in January 2022 and I will try to improve it later, notably because this use of the `is_article` variable makes the code unecessarily longer. 
+
+```{r clean-articles}
+cleaning_articles <- cleaning_references %>% 
+  filter(is_article == TRUE) %>% 
+  mutate(title = str_extract(remaining_ref, ".*(?=\\(\\d{4})"), # pre date extraction
+         journal_to_clean = str_extract(remaining_ref, "(?<=\\d{4}\\)).*"), # post date extraction
+         journal_to_clean = str_remove(journal_to_clean, "^,") %>% str_trim("both"), # cleaning a bit the journal info column
+         pages = str_extract(journal_to_clean, extract_pages), # extracting pages
+         volume_and_number = str_extract(journal_to_clean, extract_volume_and_number), # extracting standard volument and number: X (X)
+         journal_to_clean = str_remove(journal_to_clean, " (p)?p\\. ([A-Z])?\\d+(-([A-Z])?\\d+)?"), # clean from extracted pages
+         journal_to_clean = str_remove(journal_to_clean, "( |^)?\\d+ \\(\\d+(-\\d+)?\\)"), # clean from extracted volume and number
+         volume_and_number = ifelse(is.na(volume_and_number), str_extract(journal_to_clean, "(?<= )([A-Z])?\\d+(-\\d+)?"), volume_and_number), # extract remaining numbers
+         journal_to_clean = str_remove(journal_to_clean, " ([A-Z])?\\d+(-\\d+)?"), # clean from remaining numbers
+         journal = str_remove_all(journal_to_clean, "^[:punct:]+( )?[:punct:]+( )?|(?<=,( )?)[:punct:]+( )?([:punct:])?|[:punct:]( )?[:punct:]+( )?$"), # extract journal info by removing inappropriate punctuations
+         first_page = str_extract(pages, "\\d+"),
+         volume = str_extract(volume_and_number, "\\d+"),
+         issue = str_extract(volume_and_number, "(?<=\\()\\d+(?=\\))"),
+         publisher = ifelse(is.na(first_page) & is.na(volume) & is.na(issue) & ! str_detect(journal, "(W|w)orking (P|p)?aper"), journal, NA),
+         book_title = ifelse(str_detect(journal, " (E|e)d(s)?\\.| (E|e)dite(d|urs)? "), journal, NA), # Incollection article: Title of the book here
+         book_title = str_extract(book_title, "[A-z ]+(?=,)"), # keeping only the title of the book
+         publisher = ifelse(!is.na(book_title), NA, publisher), # if we have an incollection article, that's not a book, so no publisher
+         journal = ifelse(!is.na(book_title) | ! is.na(publisher), NA, journal), # removing journal as what we have is a book
+         publisher = ifelse(is.na(publisher) & str_detect(journal, "(W|w)orking (P|p)?aper"), journal, publisher), # adding working paper publisher information in publisher column
+         journal = ifelse(str_detect(journal, "(W|w)orking (P|p)?aper"), "Working Paper", journal))
+
+cleaned_articles <- cleaning_articles %>% 
+  select(citing_id, id_ref, authors, year, title, journal, volume, issue, pages, first_page, book_title, publisher, references)
+```
+
+We do the same now with the remaining references that are less numerous but that are also less easy to clean, due to the fact that the title is not clearly separated from other information (journal or publisher).
+
+```{r clean-non-articles}
+cleaning_non_articles <- cleaning_references %>% 
+  filter(is_article == FALSE) %>% 
+  mutate(remaining_ref = str_remove(remaining_ref, "\\(\\d{4}\\)(,)? "),
+         title = str_extract(remaining_ref, ".*(?=, ,)"),
+         pages = str_extract(remaining_ref, "(?<= (p)?p\\. )([A-Z])?\\d+(-([A-Z])?\\d+)?"), # extracting pages
+         volume_and_number = str_extract(remaining_ref, "(?<=( |^)?)\\d+ \\(\\d+(-\\d+)?\\)"), # extracting standard volument and number: X (X)
+         remaining_ref = str_remove(remaining_ref, " (p)?p\\. ([A-Z])?\\d+(-([A-Z])?\\d+)?"), # clean from extracted pages
+         remaining_ref = str_remove_all(remaining_ref, ".*, ,"), # clean dates and already extracted titles
+         remaining_ref = str_remove(remaining_ref, "( |^)?\\d+ \\(\\d+(-\\d+)?\\)"), # clean from extracted volume and number
+         volume_and_number = ifelse(is.na(volume_and_number), str_extract(remaining_ref, "(?<= )([A-Z])?\\d+(-\\d+)?"), volume_and_number), # extract remaining numbers
+         remaining_ref = str_remove(remaining_ref, " ([A-Z])?\\d+(-\\d+)?"), # clean from remaining numbers
+         journal = ifelse(str_detect(remaining_ref, "(W|w)orking (P|p)aper"), "Working Paper", NA),
+         journal = ifelse(str_detect(remaining_ref, "(M|m)anuscript"), "Manuscript", journal),
+         journal = ifelse(str_detect(remaining_ref, "(M|m)imeo"), "Mimeo", journal),
+         publisher = ifelse(is.na(journal), remaining_ref, NA) %>% str_trim("both"),
+         first_page = str_extract(pages, "\\d+"),
+         volume = str_extract(volume_and_number, "\\d+"),
+         issue = str_extract(volume_and_number, "(?<=\\()\\d+(?=\\))"),
+         book_title = NA) # to be symetric with "cleaned_articles"
+
+cleaned_non_articles <- cleaning_non_articles %>% 
+  select(citing_id, id_ref, authors, year, title, journal, volume, issue, pages, first_page, book_title, publisher, references)
+```
+
+We merge the two `data.frames` and:
+
+- we normalize and clean authors' name to facilitate matching of references later;
+- we extract useful information like [DOI](https://en.wikipedia.org/wiki/Digital_object_identifier) and [PII](https://en.wikipedia.org/wiki/Publisher_Item_Identifier).
+
+```{r final-cleaning}
+# merging the two files.
+cleaned_ref <- rbind(cleaned_articles, cleaned_non_articles)
+
+#' Now we have all the references, we can do a bit of cleaning on the authors name,
+#' and extract useful information, like DOI, for matching later.
+
+cleaned_ref <- cleaned_ref %>% 
+  mutate(authors = str_remove(authors, " Jr\\."), # standardising authors name to favour matching later
+         authors = str_remove(authors, "^\\(\\d{4}\\)(\\.)?( )?"),
+         authors = str_remove(authors, "^, "),
+         authors = ifelse(is.na(authors), str_extract(references, ".*[:upper:]\\.(?= \\d{4})"), authors), # specific case
+         journal = str_remove(journal, "[:punct:]$"), # remove unnecessary punctuations at the end
+         doi = str_extract(references, "(?<=DOI(:)? ).*|(?<=\\/doi\\.org\\/).*"),
+         pii = str_extract(doi, "(?<=PII ).*"),
+         doi = str_remove(doi, ",.*"), # cleaning doi
+         pii = str_remove(pii, ",.*"), # cleaning pii
+  )
+
+knitr::kable(head(cleaned_ref, n = 3))
+```
+
+> Practically speaking, if you are targetting a serious quantitative work, more cleaning would be needed to remove small errors. As often in this kind of automatised cleaning, 95% of cleaning can be done with few lines of code, and the rest involves many more work. I do not go further here as this is just a tutorial. 
+
+### Matching references
+
+What we need to do now is to find which references are the same, to give them a unique ID. The trade-off is to match as many true positive as possible (references that are the same) while avoiding to match false positive, that is references that have some information in common, but that actually are not the same references. For instance, matching only by the authors' names and the year of publication is too broad, as these authors can have published several articles during the same year. Here are several ways to identify a common reference that bear very few risks of matching together different references:
+
+- same first author surname or authors, year, volume and page (this is the most secure ones): let's call them `fayvp` & `ayvp`;
+- same journal, volume, issue and first page: `jvip`;
+- same author, year and title: `ayt`;
+- same title, year and first page: `typ`;
+- same Doi or PII.^[I have perhaps forget some useful combinations.]
+
+We extract first author surname to favour matching as there are more possibilities of small differences for several authors that would prevent us to match similar references.^[Most of the differences are due to the authors' initials: some reference have only one when others have two initials for some authors.] 
+
+```{r extracting-first-author}
+cleaned_ref <- cleaned_ref %>%
+  mutate(first_author = str_extract(authors, "^[[:alpha:]+[']?[ -]?]+, ([A-Z]\\.[ -]?)?([A-Z]\\.[ -]?)?([A-Z]\\.)?[A-Z]\\.(?=(,|$))"),
+         first_author_surname = str_extract(first_author, ".*(?=,)"),
+         across(.cols = c("authors", "first_author", "journal", "title"), ~toupper(.))) 
+```
+
+For each type of matching, we are giving a new id to the matched references, by giving the `id_ref` of the first references matched. At the end, we compare all the new id created with all the matching methods, and we take the smaller id. 
+
+```{r match-references}
+matching_ref <- function(data, id_ref, ..., col_name){
+  match <- data %>% 
+    group_by(...) %>% 
+    mutate(new_id = min({{id_ref}})) %>% 
+    drop_na(...) %>% 
+    ungroup() %>% 
+    select({{id_ref}}, new_id) %>% 
+    rename_with(~ paste0(col_name, "_new_id"), .cols = new_id)
+  
+  data <- data %>% 
+    left_join(match)
+}
+
+identifying_ref <- cleaned_ref %>%
+  matching_ref(id_ref, first_author_surname, year, title, col_name = "fayt") %>% 
+  matching_ref(id_ref, journal, volume, issue, first_page, col_name = "jvip") %>% 
+  matching_ref(id_ref, authors, year, volume, first_page, col_name = "ayvp") %>% 
+  matching_ref(id_ref, first_author_surname, year, volume, first_page, col_name = "fayvp") %>%
+  matching_ref(id_ref, title, year, first_page, col_name = "typ") %>% 
+  matching_ref(id_ref, pii, col_name = "pii") %>% 
+  matching_ref(id_ref, doi, col_name = "doi") 
+```
+
+Now we have our direct citation table connecting the citing articles to the references. We have as many lines as the number of citations by citing articles.
+
+```{r creating-direct-citation}
+direct_citation <- identifying_ref %>%  
+  mutate(new_id_ref = select(., ends_with("new_id")) %>%  reduce(pmin, na.rm = TRUE),
+         new_id_ref = ifelse(is.na(new_id_ref), id_ref, new_id_ref))  %>% 
+  relocate(new_id_ref, .after = citing_id) %>% 
+  select(-id_ref & ! ends_with("new_id"))
+
+knitr::kable(head(filter(direct_citation, new_id_ref == 2), n = 4))
+```
+
+We can extract the list of all the references cited. We have as many lines as references cited by citing articles (i.e. a reference cited multiple times is present only once in the table). As for matched references, we have different information (due to the fact that the references were cited differently depending on the citing articles), we take a line where information seems to be the most complete.
+
+```{r references-table}
+important_info <- c("authors",
+                    "year",
+                    "title",
+                    "journal",
+                    "volume",
+                    "issue",
+                    "pages",
+                    "book_title",
+                    "publisher")
+references <- direct_citation %>% 
+  mutate(nb_na = rowSums(!is.na(select(., all_of(important_info))))) %>% 
+  group_by(new_id_ref) %>% 
+  slice_max(order_by = nb_na, n = 1, with_ties = FALSE) %>% 
+  select(-citing_id) %>% 
+  unique
+
+knitr::kable(head(references, n = 4))
+```
+
+```{r count-ref, echo=FALSE}
+nb_cit <- nrow(direct_citation %>% count(new_id_ref) %>% filter(n > 1))
+```
+
+
+From the initial `r nrow(direct_citation)` citations, we get `r nrow(references)` different references, with `r nb_cit` cited at least twice.
+
+We also remove the `references` column of the initial `data.frame` as references cited are now gathered in `direct_citation`.
+
+```{r creating-corpus}
+corpus <- scopus_search %>% 
+select(-references)
+```
+
+I imagine that after so many steps, you can't wait to look at these data on DSGE models. But you will have to wait, as the following subsection presents you another method to clean (without cleaning yourself) the references. Or you can go directly to the [last section](#exploring-the-dsge-literature) that explores the cleaned data.
+
+### Alternative method: [anystyle](https://anystyle.io)
+
+[anystyle](https://anystyle.io) is a great references parser relyng on machine learning heuristics. It has an online version where you can put the text for which you want to identify references. However, we will use the command line in order to identify more references than what the online website allows (10 000 while we have `r nrow(direct_citation)` raw references). 
+
+Anystyle can be installed as a RubyGem. You thus need to install Ruby ([here](https://rubyinstaller.org/downloads/) for Windows) and then install anystyle using the command line: `gem install anystyle` (see more information [here](https://anystyle.io/)). As you need to use the command line interface, you also need to install anystyle-cli: `gem install anystyle-cli`. 
+
+> Some frightened reader: "What, what? wait! Command line you said?"
+
+Oh, yes. And that is a good occasion to refer you to these great tutorials of the great [Programming Historian Website](https://programminghistorian.org/en/): one for the [bash command line](https://programminghistorian.org/en/lessons/intro-to-bash) and one for the [Windows Powershell Command Line](https://programminghistorian.org/en/lessons/intro-to-powershell). And it will be the occasion to use a bit [Rstudio Terminal](https://support.rstudio.com/hc/en-us/articles/115010737148-Using-the-RStudio-Terminal-in-the-RStudio-IDE) to enter the commands. 
+
+Once you have installed anystyle, you need to save all the references (with one reference per line) in a `.txt`. 
+
+```{r preparing-references}
+ref_text <- paste0(references_extract$references, collapse = "\\\n")
+name_file <- "ref_in_text.txt"
+write_file(ref_text,
+           here(scopus_path,
+                name_file))
+```
+
+To create the anystyle command, you need to name the repository where you will send the `.bib` created by anystyle from your `.txt`
+
+```{r preparing-command}
+destination_anystyle <- "anystyle_cleaned"
+
+directory_command <- paste0("cd ", scopus_path)
+anystyle_command <- paste0("anystyle -f bib parse ",
+                           name_file,
+                           " ",
+                           destination_anystyle)
+```
+
+To use anystyle, you have to use the command line of the terminal. You first have to set the path where the `.txt` is (which is here the `scopus_path`): `cd the_path_where_is_the_.txt`.
+
+Then you copy and paste the anystyle command in the terminal, which here is:
+`anystyle -f bib parse ref_in_text.txt anystyle_cleaned`. Hopefully it will work and you wil just have to wait for the creation of the `.bib` (it took something like 10 minutes on my laptop).^[In case you want to know more on the different commands of anystyle, see the [API documentation](https://rubydoc.info/gems/anystyle).]
+
+> ...waiting...
+
+Once we have our `.bib`, we transform it in a data frame thanks to the [`bib2df`](https://docs.ropensci.org/bib2df/) package.
+
+```{r extracting-bib}
+options(encoding = "UTF-8")
+bib_ref <- bib2df(here(scopus_path,
+                       destination_anystyle,
+                       "ref_in_text.bib"))
+bib_ref <- bib_ref %>% 
+  janitor::clean_names() %>% 
+  select_if(~!all(is.na(.))) %>%  # removing all empty columns
+  mutate(id_ref = 1:n()) %>% 
+  select(-c(translator, citation_number, arxiv, director, source))
+
+knitr::kable(head(bib_ref))
+```
+
+For now, there is one major limitation to this method (which is most likely linked to my lack of mastery of anystyle and ruby): the result is a list of unique references. In other words, anystyle merge together references that are similar. It means that I have to find a way to build a link between the original references `data.frame` and the `data.frame` build on the `.bib`.^[As I find anystyle a very interesting tool, I will try to work on that issue in the following months and find a solution. An easy way to do it would perhaps be to save one `.txt` per citing article and to run anystyle for all the `.txt`. We will have as many `.bib` as articles and we will just have to bind the resulting `data.frames`.]
+
+Ideally, you can clean a bit the result. Anystyle is pretty good (and clearly better than I) for identifying the types of references, and thus to extract book title for chapter in books and editors. It is quite efficient to extract authors and titles even if I have seen many mistakes (but relatively easy to clean, as most of the time it is the year that has been put with the title). However, I also saw many mistakes for journals (incomplete name) that are not so easy to correct. If you want to clean your references data as much as possible, perhaps the best thing to do is to mix the coding cleaning approach used above with the anystyle method, and to complete missing information with one or another method.
+
+## Exploring the DSGE literature
+
+Now we have our bibliographic data, the first thing we can look at is the most cited references in our corpus. 
+
+```{r top-ref}
+direct_citation %>% 
+  add_count(new_id_ref) %>% 
+  select(new_id_ref, n) %>% 
+  unique() %>% 
+  slice_max(n, n = 10) %>%
+  left_join(select(references, new_id_ref, references)) %>% 
+  select(references, n) %>% 
+  knitr::kable()
+```
+
+As we have the affiliations, we can try to see which are the top references for economists based in different countries:
+
+```{r top-ref-country, fig.cap="Most cited references per countries", fig.dim=c(12,9)}
+direct_citation %>% 
+  left_join(select(scopus_affiliations, citing_id, country)) %>% 
+  unique() %>% 
+  group_by(country) %>% 
+  mutate(nb_article = n()) %>% 
+  filter(nb_article > 5000) %>% # we keep only countries with 5000 articles
+  add_count(new_id_ref) %>%
+  select(new_id_ref, n) %>% 
+  unique() %>% 
+  slice_max(n, n = 8) %>%
+  left_join(select(references, new_id_ref, references)) %>% 
+  select(references, n)  %>% 
+  mutate(label = str_extract(references, ".*\\(\\d{4}\\)") %>% 
+           str_wrap(30),
+         label = tidytext::reorder_within(label, n, country)) %>% 
+  ggplot(aes(n, label, fill = country)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~country, ncol = 3, scales = "free") +
+  tidytext::scale_y_reordered() +
+  labs(x = "Number of citations", y = NULL) +
+  theme_classic(base_size = 10)
+  
+```
+
+By using affiliations we can observe a regional preference pattern: in European countries, economists tend to cite more @smets2003a (the source of the European Central Bank DSGE model) than @christianoetal2005, while the opposite is true in the United States [@smets2007a is on US data]. We can also notice that @kydland1982 is less popular in continental Europe.
+
+### Bibliographic co-citation analysis
+
+To conclude this (long) tutorial, we can build a co-citation network: the references we have matched are the nodes of the network, and they are linked together depending on the number of times they are cited together (or in other words, the number of times they are together in a bibliography). We use the `biblio_cocitation` function of the [`biblionetwork`](https://agoutsmedt.github.io/biblionetwork/) package. The edge between two nodes is weighted depending of the total number of times each reference has been cited in the whole corpus (see [here](https://agoutsmedt.github.io/biblionetwork/reference/biblio_cocitation.html) for more details).
+
+```{r creating-edges}
+citations <- direct_citation %>% 
+  add_count(new_id_ref) %>% 
+  select(new_id_ref, n) %>% 
+  unique
+
+references_filtered <- references %>% 
+  left_join(citations) %>% 
+  filter(n >= 5)
+
+edges <- biblionetwork::biblio_cocitation(filter(direct_citation, new_id_ref %in% references_filtered$new_id_ref), 
+                                          "citing_id", 
+                                          "new_id_ref",
+                                          weight_threshold = 3)
+edges
+```
+
+We can then take our corpus and these edges to create a network/graph thanks to [`tidygraph`](https://tidygraph.data-imaginist.com/index.html) [@R-tidygraph] and [`networkflow`](https://github.com/agoutsmedt/networkflow). I don't enter in the details here as that is not the purpose of this tutorial and that the different steps are explained on `networkflow` [website](https://github.com/agoutsmedt/networkflow).
+
+```{r building-graph}
+graph <- tbl_main_component(nodes = references_filtered, 
+                            edges = edges, 
+                            directed = FALSE)
+graph
+```
+
+```{r manipulating-graph, eval=FALSE}
+set.seed(1234)
+graph <- leiden_workflow(graph) # identifying clusters of nodes 
+
+nb_communities <- graph %>% 
+  activate(nodes) %>% 
+  as_tibble %>% 
+  select(Com_ID) %>% 
+  unique %>% 
+  nrow
+palette <- scico::scico(n = nb_communities, palette = "hawaii") %>% # creating a color palette
+    sample()
+  
+graph <- community_colors(graph, palette, community_column = "Com_ID")
+
+graph <- graph %>% 
+  activate(nodes) %>%
+  mutate(size = n,# will be used for size of nodes
+         label = paste0(first_author_surname, "-", year)) 
+
+graph <- community_names(graph, 
+                         ordering_column = "size", 
+                         naming = "label", 
+                         community_column = "Com_ID")
+
+graph <- vite::complete_forceatlas2(graph, 
+                                    first.iter = 10000)
+
+
+top_nodes  <- top_nodes(graph, 
+                        ordering_column = "size", 
+                        top_n = 15, 
+                        top_n_per_com = 2,
+                        biggest_community = TRUE,
+                        community_threshold = 0.02)
+community_labels <- community_labels(graph, 
+                                     community_name_column = "Community_name",
+                                     community_size_column = "Size_com",
+                                     biggest_community = TRUE,
+                                     community_threshold = 0.02)
+```
+
+A co-citation network allows us to observe what are the main influences of a field of research. At the center of the network, we find the most cited references. On the borders of the graph, there are specific communities that influence different parts of the literature on DSGE. Here, the size of nodes depends on the number of times they are cited in our corpus.
+
+
+```{r projecting-graph, eval=FALSE}
+graph <- graph %>% 
+  activate(edges) %>% 
+  filter(weight > 0.05)
+
+ggraph(graph, "manual", x = x, y = y) + 
+  geom_edge_arc0(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
+  scale_edge_width_continuous(range = c(0.1,2)) +
+  scale_edge_colour_identity() +
+  geom_node_point(aes(x=x, y=y, size = size, fill = color), pch = 21, alpha = 0.7, show.legend = FALSE) +
+  scale_size_continuous(range = c(0.3,16)) +
+  scale_fill_identity() +
+  ggnewscale::new_scale("size") +
+  ggrepel::geom_text_repel(data = top_nodes, aes(x=x, y=y, label = Label), size = 2, fontface="bold", alpha = 1, point.padding=NA, show.legend = FALSE) +
+  ggrepel::geom_label_repel(data = community_labels, aes(x=x, y=y, label = Community_name, fill = color), size = 6, fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
+  scale_size_continuous(range = c(0.5,5)) +
+  theme_void()
+```
+
+```{r plotting-network, echo = FALSE, eval=FALSE}
+ragg::agg_png(here("content", "en", "post", "2022-01-31-extracting-biblio-data-1", "featured.png"),
+              width = 30, 
+              height = 25,
+              units = "cm",
+              res = 200)
+ggraph(graph, "manual", x = x, y = y) + 
+  geom_edge_arc0(aes(color = color_edges, width = weight), alpha = 0.4, strength = 0.2, show.legend = FALSE) +
+  scale_edge_width_continuous(range = c(0.1,2)) +
+  scale_edge_colour_identity() +
+  geom_node_point(aes(x=x, y=y, size = size, fill = color), pch = 21, alpha = 0.7, show.legend = FALSE) +
+  scale_size_continuous(range = c(0.3,16)) +
+  scale_fill_identity() +
+  ggnewscale::new_scale("size") +
+  ggrepel::geom_text_repel(data = top_nodes, aes(x=x, y=y, label = Label), size = 2, fontface="bold", alpha = 1, point.padding=NA, show.legend = FALSE) +
+  ggrepel::geom_label_repel(data = community_labels, aes(x=x, y=y, label = Community_name, fill = color), size = 6, fontface="bold", alpha = 0.9, point.padding=NA, show.legend = FALSE) +
+  scale_size_continuous(range = c(0.5,5)) +
+  ggdark::dark_theme_void()
+invisible(dev.off())
+```
+
+```{r display-network, echo=FALSE, fig.cap="Bibliographic coupling network of articles using DSGE models"}
+knitr::include_graphics("featured.png")
+```
+
+Let's conclude by observing what are the most cited nodes in each community. We see that community `04` deals with international issues while the  `07` is linked to fiscal policy issues.
+
+```{r top-ref-community, eval=FALSE}
+ragg::agg_png(here("content", "en", "post", "2022-01-31-extracting-biblio-data-1", "top-ref-country-1.png"),
+              width = 35, 
+              height = 30,
+              units = "cm",
+              res = 200)
+top_nodes(graph,
+          ordering_column = "size", 
+          top_n_per_com = 6,
+          biggest_community = TRUE,
+          community_threshold = 0.04) %>% 
+  select(Community_name, Label, title, n, color) %>% 
+  mutate(label = paste0(Label, "-", title) %>% 
+           str_wrap(34),
+         label = tidytext::reorder_within(label, n, Community_name)) %>% 
+  ggplot(aes(n, label, fill = color)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_identity() +
+  facet_wrap(~Community_name, ncol = 3, scales = "free") +
+  tidytext::scale_y_reordered() +
+  labs(x = "Number of citations", y = NULL) +
+  theme_classic(base_size = 11)
+invisible(dev.off())
+```
+
+```{r top-ref-community-plot, fig.cap="Most cited references per communities", fig.dim=c(12,10), echo=FALSE}
+knitr::include_graphics("top-ref-country-1.png")
+```
+
+
+
+## References {-}
+

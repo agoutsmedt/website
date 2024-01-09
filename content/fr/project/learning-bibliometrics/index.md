@@ -12,7 +12,7 @@ tags:
   - R Package
   - Bibliometrics
   - Network Analysis
-summary: 'A github repository that gathers different scripts to extract (mannually or via APIs) and then clean bibliometric data.'
+summary: 'Un dépôt github qui rassemble différents scripts pour extraire (manuellement ou via des API) et nettoyer les données bibliométriques.'
 authors: []
 external_link: 'https://github.com/agoutsmedt/learning_bibliometrics'
 image:

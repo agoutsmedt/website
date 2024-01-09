@@ -27,7 +27,7 @@
 
 [[fr.menu.main]]
   name = "Projets"
-  url = "../projects/"
+  url = "../fr/projects/"
   weight = 30
 
 [[fr.menu.main]]
