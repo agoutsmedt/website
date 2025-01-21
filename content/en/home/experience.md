@@ -25,6 +25,27 @@ date_format: Jan 2006
 #   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
 experience:
   - title: Post-Doctoral Researcher
+    company: UC Louvain, ISPOLE
+    company_url: 'https://uclouvain.be/fr/index.html'
+    location: Louvain-La-Neuve, Belgium
+    date_start: '2024-09-21'
+    date_end: ''
+    
+  - title: Lecturer
+    company: ICHEC Brussels Management School
+    company_url: 'https://www.ichec.be/en'
+    location: Brussels, Belgium
+    date_start: '2024-09-21'
+    date_end: ''
+    
+  - title: FNRS Post-Doctoral Researcher
+    company: F.R.S.FNRS; UC Louvain, ISPOLE
+    company_url: 'https://uclouvain.be/fr/index.html'
+    location: Louvain-La-Neuve, Belgium
+    date_start: '2021-09-01'
+    date_end: '2024-09-20'
+
+  - title: Post-Doctoral Researcher
     company: Université du Québec à Montréal (UQAM), CIRST
     company_url: 'https://www.cirst.uqam.ca/'
     location: Montréal, Canada

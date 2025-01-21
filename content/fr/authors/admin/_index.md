@@ -1,5 +1,5 @@
 ---
-bio: Je travaille sur l'histoire de la macroéconomie et l'expertise économique.
+bio: Je travaille sur l'histoire de l'économie et l'expertise économique.
 education:
   courses:
   - course: Doctorat en Economie
@@ -18,6 +18,7 @@ interests:
 - Stagflation & Chocs pétroliers
 - R-stats
 - Bibliométrie
+- Text-Mining & LLMs
 organizations:
 - name: UCLouvain, ISPOLE
   url: https://uclouvain.be/fr/instituts-recherche/ispole
