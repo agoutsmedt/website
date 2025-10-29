@@ -32,6 +32,7 @@ social:
   icon_pack: fas
   link: mailto:aurelien.goutsmedt[at]uclouvain.be
   label: Write to me
+  rel: me
 - icon: mastodon
   icon_pack: fab
   link: https://mastodon.social/@agoutsmedt
@@ -51,7 +52,7 @@ social:
   label: My github account
 - icon: cv
   icon_pack: ai
-  link: /media/CV_en_Goutsmedt.pdf
+  link: /media/cv_goutsmedt_en.pdf
 superuser: true
 title: Aurélien Goutsmedt
 ---

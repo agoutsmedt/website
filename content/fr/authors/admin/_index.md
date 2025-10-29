@@ -51,7 +51,7 @@ social:
   label: Mon compte github
 - icon: cv
   icon_pack: ai
-  link: /media/CV_en_Goutsmedt.pdf
+  link: /media/cv_goutsmedt_fr.pdf
 superuser: true
 title: Aurélien Goutsmedt
 ---
