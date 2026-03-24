@@ -55,7 +55,11 @@
         {{ if not $scheme }}
           {{ $link = .link | relLangURL }}
         {{ else if in (slice "http" "https") $scheme }}
-          {{ $target = "target=\"_blank\" rel=\"noopener\"" }}
+          {{ if eq .icon "mastodon" }}
+            {{ $target = "target=\"_blank\" rel=\"me noopener\"" }}
+          {{ else }}
+            {{ $target = "target=\"_blank\" rel=\"noopener\"" }}
+          {{ end }}
         {{ end }}
         <li>
           <a href="{{ $link | safeURL }}" {{ $target | safeHTMLAttr }} aria-label="{{ .icon }}">
