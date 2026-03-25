@@ -54,6 +54,11 @@
   {{ end }}
   <link rel="alternate" hreflang="{{ site.LanguageCode | default "en-us" }}" href="{{ .Permalink }}" />
 
+  {{/* Add explicit rel="me" link for SIFa profile to support verification */}}
+  {{ if in .RelPermalink "authors/admin" }}
+    <link rel="me" href="https://sifa.id/p/aurelien-goutsmedt.com" />
+  {{ end }}
+
   {{ partial "functions/parse_theme" . }}
 
   {{/* Pre-connect to Google Fonts if the site's Font Theme uses them. */}}
